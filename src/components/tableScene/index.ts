@@ -8,6 +8,8 @@ export type {
 export { tableThemes, resolveTableTheme, type TableTheme } from "./tableThemes";
 export {
   adjustSeatSpotsForNarrowWidth,
+  PARTICIPANT_ORBIT_RADIUS_SCALE,
+  participantAngleDegEvenCount,
   seatCountForPeople,
   participantAnglesDeg,
   pointOnEllipse,

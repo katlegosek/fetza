@@ -10,19 +10,29 @@ import {
 import { AmountPill } from "./AmountPill";
 import { ParticipantChip } from "./ParticipantChip";
 import {
-  type SeatRing,
-  adjustSeatSpotsForNarrowWidth,
-  seatCountForPeople,
-  seatPositions,
+  PARTICIPANT_ORBIT_RADIUS_SCALE,
+  participantAngleDegEvenCount,
+  pointOnEllipse,
 } from "./seatPositions";
 import type { TablePerson } from "./types";
 
 const NARROW_WIDTH = 360;
+/** Pull orbit in slightly on narrow screens so stacks stay on-screen. */
+const NARROW_RADIUS_SCALE = 0.92;
+
+export type ParticipantOrbitGeom = {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+};
 
 type ParticipantLayerProps = {
   people: TablePerson[];
   /** Clamped 1–8 inside TableScene. */
   maxVisible: number;
+  /** Same ellipse as {@link OrbitLayer}; pills sit slightly outside this path. */
+  orbitGeom: ParticipantOrbitGeom | null;
   onPressPerson?: (person: TablePerson) => void;
   onLongPressPerson?: (person: TablePerson) => void;
   onPressMorePeople?: () => void;
@@ -31,6 +41,7 @@ type ParticipantLayerProps = {
 export function ParticipantLayer({
   people,
   maxVisible,
+  orbitGeom,
   onPressPerson,
   onLongPressPerson,
   onPressMorePeople,
@@ -39,13 +50,14 @@ export function ParticipantLayer({
   const narrow = windowW < NARROW_WIDTH;
 
   const visible = people.slice(0, maxVisible);
-  if (visible.length === 0) return null;
+  if (visible.length === 0 || !orbitGeom) return null;
 
-  const ring: SeatRing = seatCountForPeople(Math.max(visible.length, 1));
-  const spots = adjustSeatSpotsForNarrowWidth(
-    seatPositions[ring].slice(0, visible.length),
-    narrow,
-  );
+  const { cx, cy, rx, ry } = orbitGeom;
+  const radiusScale =
+    PARTICIPANT_ORBIT_RADIUS_SCALE * (narrow ? NARROW_RADIUS_SCALE : 1);
+  const rxP = rx * radiusScale;
+  const ryP = ry * radiusScale;
+  const n = visible.length;
 
   const overflow = Math.max(0, people.length - maxVisible);
 
@@ -61,8 +73,8 @@ export function ParticipantLayer({
       style={[StyleSheet.absoluteFillObject, styles.layer]}
     >
       {visible.map((person, i) => {
-        const spot = spots[i];
-        if (!spot) return null;
+        const deg = participantAngleDegEvenCount(i, n);
+        const p = pointOnEllipse(cx, cy, rxP, ryP, deg);
         const onPress = firePress(person);
         return (
           <View
@@ -71,8 +83,8 @@ export function ParticipantLayer({
             style={[
               styles.anchor,
               {
-                top: spot.top,
-                left: spot.left,
+                left: p.x,
+                top: p.y,
                 transform: [{ translateX: "-50%" }, { translateY: "-50%" }],
               },
             ]}

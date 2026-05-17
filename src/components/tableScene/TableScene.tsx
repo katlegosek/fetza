@@ -93,6 +93,7 @@ export function TableScene({
             {showParticipants ? (
               <ParticipantLayer
                 maxVisible={maxVisible}
+                orbitGeom={orbitGeom}
                 onLongPressPerson={onLongPressPerson}
                 onPressMorePeople={
                   showParticipantOverflow ? onPressMorePeople : undefined

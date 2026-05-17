@@ -104,6 +104,21 @@ export function pointOnEllipse(
   return { x: cx + rx * Math.cos(r), y: cy + ry * Math.sin(r) };
 }
 
+/**
+ * Even spacing around the orbit (Split `CircularTotals` style):
+ * full turn divided by `count`, first seat at top (−90°).
+ */
+export function participantAngleDegEvenCount(
+  index: number,
+  count: number,
+): number {
+  const n = Math.max(count, 1);
+  return -90 + (index / n) * 360;
+}
+
+/** Radii multiplier vs decor ellipse so name stacks sit just outside the dashed ring. */
+export const PARTICIPANT_ORBIT_RADIUS_SCALE = 1.1;
+
 /** Horizontal center shift (px), matches legacy table layout. */
 export const SCENE_CENTER_SHIFT_X = -6;
 
