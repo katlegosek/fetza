@@ -1,17 +1,32 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Fragment, useCallback, useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Alert,
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   AppText,
   Button,
   type Person,
+  RECEIPT_ZIGZAG_DEPTH,
   ScreenContainer,
   ScreenHeader,
   TableScene,
+  ThermalReceipt,
 } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { appendSummarySnapshot } from "@/lib/bill-summary-snapshot-storage";
@@ -44,6 +59,124 @@ type SummaryViewMode = "table" | "list";
 
 /** Bottom padding so scroll content clears the floating single-row nav. */
 const SUMMARY_SCROLL_PAD_BOTTOM_NAV = 112;
+
+/** Breathing room below the receipt strip (modal is vertically centered). */
+const SUMMARY_RECEIPT_MODAL_VERTICAL_MARGIN = 40;
+/** Matches `paddingTop` + `paddingBottom` on the modal content container (8 + 8). */
+const SUMMARY_RECEIPT_MODAL_INNER_PAD_Y = 16;
+/** Nudges the slip below true vertical center (readability / thumb zone). */
+const SUMMARY_RECEIPT_MODAL_SHIFT_DOWN = 72;
+
+function SummaryReceiptModal({
+  draft,
+  onClose,
+  visible,
+}: {
+  draft: DraftBill;
+  onClose: () => void;
+  visible: boolean;
+}) {
+  const insets = useSafeAreaInsets();
+  const { height, width } = useWindowDimensions();
+  const receiptWidth = Math.min(352, width - 48);
+  const maxBodyHeight = Math.max(
+    0,
+    height -
+      insets.top -
+      insets.bottom -
+      SUMMARY_RECEIPT_MODAL_INNER_PAD_Y -
+      SUMMARY_RECEIPT_MODAL_VERTICAL_MARGIN,
+  );
+
+  const backdropOp = useSharedValue(visible ? 1 : 0);
+  const scale = useSharedValue(visible ? 1 : 0.9);
+  const translateY = useSharedValue(visible ? 0 : 28);
+
+  useEffect(() => {
+    if (visible) {
+      backdropOp.value = withTiming(1, { duration: 200 });
+      scale.value = withSpring(1, { damping: 16, stiffness: 260 });
+      translateY.value = withSpring(0, { damping: 16, stiffness: 260 });
+    } else {
+      backdropOp.value = withTiming(0, { duration: 180 });
+      scale.value = withTiming(0.9, { duration: 180 });
+      translateY.value = withTiming(32, { duration: 180 });
+    }
+  }, [backdropOp, scale, translateY, visible]);
+
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: backdropOp.value,
+  }));
+
+  const cardStyle = useAnimatedStyle(() => ({
+    opacity: backdropOp.value,
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
+  }));
+
+  const noop = useMemo(
+    () => ({
+      add: () => {},
+      line: (_id: string) => {},
+      merchant: () => {},
+      totals: () => {},
+    }),
+    [],
+  );
+
+  return (
+    <Modal
+      animationType="none"
+      onRequestClose={onClose}
+      statusBarTranslucent
+      transparent
+      visible={visible}
+    >
+      <View
+        className="flex-1 justify-center px-3"
+        style={{ paddingTop: insets.top + 8, paddingBottom: insets.bottom + 8 }}
+      >
+        <Animated.View
+          className="absolute inset-0 bg-black/50"
+          style={backdropStyle}
+        >
+          <Pressable
+            accessibilityLabel="Dismiss receipt"
+            accessibilityRole="button"
+            className="flex-1"
+            onPress={onClose}
+          />
+        </Animated.View>
+
+        <Animated.View
+          className="max-w-full self-center"
+          pointerEvents="box-none"
+          style={[cardStyle, { marginTop: SUMMARY_RECEIPT_MODAL_SHIFT_DOWN }]}
+        >
+          <ScrollView
+            contentContainerStyle={{
+              alignItems: "center",
+              paddingTop: RECEIPT_ZIGZAG_DEPTH + 8,
+              paddingBottom: RECEIPT_ZIGZAG_DEPTH + 16,
+            }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            style={{ maxHeight: maxBodyHeight }}
+          >
+            <ThermalReceipt
+              draft={draft}
+              readOnly
+              width={receiptWidth}
+              onAddLine={noop.add}
+              onLinePress={noop.line}
+              onMerchantPress={noop.merchant}
+              onTotalsPress={noop.totals}
+            />
+          </ScrollView>
+        </Animated.View>
+      </View>
+    </Modal>
+  );
+}
 
 const SEAT_RING_COLORS = [
   "bg-violet-500",
@@ -241,6 +374,7 @@ type TableSceneProps = {
   onMemberLongPress?: (memberId: string) => void;
   settlement: SettlementMap;
   onListPress: () => void;
+  onOpenReceipt: () => void;
 };
 
 function SummaryBillTotalCard({
@@ -248,11 +382,13 @@ function SummaryBillTotalCard({
   lineCount,
   chevronColor,
   className,
+  onOpenReceipt,
 }: {
   grandTotalCents: number;
   lineCount: number;
   chevronColor: string;
   className?: string;
+  onOpenReceipt: () => void;
 }) {
   return (
     <Pressable
@@ -263,12 +399,7 @@ function SummaryBillTotalCard({
         className,
       )}
       hitSlop={4}
-      onPress={() =>
-        Alert.alert(
-          "Bill details",
-          `Total ${formatZAR(grandTotalCents)} across ${lineCount} items.`,
-        )
-      }
+      onPress={onOpenReceipt}
     >
       <View className="size-11 shrink-0 items-center justify-center rounded-full bg-violet-200/90 dark:bg-violet-500/25">
         <Ionicons name="document-text-outline" size={22} color="#7c3aed" />
@@ -299,6 +430,7 @@ function SummaryTableScene({
   onMemberPress,
   onMemberLongPress,
   onListPress,
+  onOpenReceipt,
   settlement,
 }: TableSceneProps) {
   const ordered = useMemo(() => {
@@ -330,7 +462,7 @@ function SummaryTableScene({
       <TableScene
         itemCount={lineCount}
         key={ordered.map((m) => m.id).join(",")}
-        maxVisibleParticipants={7}
+        maxVisibleParticipants={4}
         people={people}
         sceneBackgroundColor="transparent"
         showParticipantOverflow={false}
@@ -347,12 +479,7 @@ function SummaryTableScene({
         onPressPerson={(p) => {
           onMemberPress(p.id);
         }}
-        onPressTable={() =>
-          Alert.alert(
-            "Bill details",
-            `Total ${formatZAR(grandTotalCents)} across ${lineCount} items.`,
-          )
-        }
+        onPressTable={onOpenReceipt}
       />
     </View>
   );
@@ -364,6 +491,7 @@ export default function BillSummaryScreen() {
   const colors = useThemeColors();
   const params = useLocalSearchParams<{ data?: string | string[] }>();
   const [viewMode, setViewMode] = useState<SummaryViewMode>("table");
+  const [billReceiptOpen, setBillReceiptOpen] = useState(false);
   const [settlementByMember, setSettlementByMember] = useState<SettlementMap>(
     {},
   );
@@ -550,6 +678,9 @@ export default function BillSummaryScreen() {
     router.dismissTo("/");
   }, [router]);
 
+  const openBillReceipt = useCallback(() => setBillReceiptOpen(true), []);
+  const closeBillReceipt = useCallback(() => setBillReceiptOpen(false), []);
+
   return (
     <ScreenContainer className="flex-1">
       <ScreenHeader
@@ -639,6 +770,7 @@ export default function BillSummaryScreen() {
                 settlement={settlementByMember}
                 onMemberLongPress={toggleMemberPaid}
                 onMemberPress={openMemberShare}
+                onOpenReceipt={openBillReceipt}
               />
             </View>
           ) : (
@@ -648,6 +780,7 @@ export default function BillSummaryScreen() {
                 className="mt-4"
                 grandTotalCents={grandTotalCents}
                 lineCount={draft.lines.length}
+                onOpenReceipt={openBillReceipt}
               />
               <AppText className="mt-6 text-base font-semibold text-foreground">
                 Who owes what
@@ -755,6 +888,12 @@ export default function BillSummaryScreen() {
           onPeople={handleBottomPeople}
           onSave={handleBottomSave}
           onShareSummary={handleBottomShareSummary}
+        />
+
+        <SummaryReceiptModal
+          draft={draft}
+          visible={billReceiptOpen}
+          onClose={closeBillReceipt}
         />
       </View>
     </ScreenContainer>

@@ -1,33 +1,28 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { pointOnEllipse } from "./seatPositions";
+import { participantBetweenAngleDeg, pointOnEllipse } from "./seatPositions";
 
-/** Major accent dots (cardinal / diagonal), degrees; 0° = right, −90° = top. */
-const MAIN_DOT_ANGLES_DEG = [-90, -45, 0, 45, 90, 135, 180, -135] as const;
+/**
+ * Backlog: animate orbit — e.g. Reanimated for ring sweep, stagger, or morph
+ * when `participantCount` changes (shared layout / layout transitions).
+ */
 
-/** Smaller dots between majors — “beads” along the path like the reference. */
-const MID_DOT_ANGLES_DEG = [
-  -67.5, -22.5, 22.5, 67.5, 112.5, 157.5, -157.5, -112.5,
-] as const;
+/** Target gap between dot centers along each ellipse (px, approximate). */
+const DOT_SPACING_PX = 4.75;
+const DOT_SIZE = 3.35;
 
-const MAIN_DOT_R = [3.25, 3, 3.5, 3, 3.75, 3, 3.25, 3.5] as const;
+/** Inner orbit is this fraction of the participant anchor ellipse (`rx` / `ry`). */
+const INNER_ORBIT_SCALE = 0.88;
 
-const ACCENT_FILLS = [
-  "#7C3AED",
-  "#22C55E",
-  "#F59E0B",
-  "#0EA5E9",
-  "#F97316",
-  "#14B8A6",
-  "#6366F1",
-  "#EC4899",
-] as const;
+/**
+ * Outer dotted ring + between-user beads are drawn on this scale of `rx`/`ry`.
+ * Participant stacks use unscaled `rx`/`ry` from the parent, so pills stay put.
+ */
+const OUTER_RING_DRAW_SCALE = 1.1;
 
-/** Samples along ellipse for a dashed look (no native SVG). */
-const ELLIPSE_SAMPLES = 168;
-const DASH_PHASE_CYCLE = 11;
-const DASH_ON_FRAC = 0.48;
+/** Beads on the outer ring, midway between participant anchors. */
+const BETWEEN_BEAD_SIZE = 6;
 
 type OrbitLayerProps = {
   width: number;
@@ -36,8 +31,70 @@ type OrbitLayerProps = {
   cy: number;
   rx: number;
   ry: number;
-  strokeColor?: string;
+  /** Dotted path only (inner + outer ellipse grains). From theme `orbitLineColor`. */
+  orbitLineColor: string;
+  /** Between-user beads; separate so the path can stay subtle. From theme `orbitColor`. */
+  orbitBeadColor: string;
+  /**
+   * Visible participant count: drives “between user” beads on the **outer** ring only.
+   * Inner ring stays a plain dotted loop with no extra markers.
+   */
+  participantCount?: number;
 };
+
+function ellipsePerimeter(rx: number, ry: number): number {
+  const a = Math.max(rx, 0);
+  const b = Math.max(ry, 0);
+  if (a === 0 && b === 0) return 0;
+  const h = ((a - b) * (a - b)) / ((a + b) * (a + b));
+  return Math.PI * (a + b) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
+}
+
+function buildRingDots(args: {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+  color: string;
+  keyPrefix: string;
+}): ReactNode[] {
+  const { cx, cy, rx, ry, color, keyPrefix } = args;
+  const rxe = Math.max(0, rx);
+  const rye = Math.max(0, ry);
+  const perim = ellipsePerimeter(rxe, rye);
+  const sampleCount = Math.max(
+    120,
+    Math.min(380, Math.round(perim / DOT_SPACING_PX)),
+  );
+
+  const dots: ReactNode[] = [];
+  const d = DOT_SIZE;
+  const half = d / 2;
+
+  for (let i = 0; i < sampleCount; i++) {
+    const t = i / sampleCount;
+    const deg = -90 + t * 360;
+    const p = pointOnEllipse(cx, cy, rxe, rye, deg);
+    dots.push(
+      <View
+        key={`${keyPrefix}-${i}`}
+        pointerEvents="none"
+        style={[
+          styles.dot,
+          {
+            left: p.x - half,
+            top: p.y - half,
+            width: d,
+            height: d,
+            borderRadius: half,
+            backgroundColor: color,
+          },
+        ]}
+      />,
+    );
+  }
+  return dots;
+}
 
 export function OrbitLayer({
   width,
@@ -46,96 +103,74 @@ export function OrbitLayer({
   cy,
   rx,
   ry,
-  strokeColor = "rgba(120, 128, 140, 0.55)",
+  orbitLineColor,
+  orbitBeadColor,
+  participantCount = 0,
 }: OrbitLayerProps) {
   if (width <= 0 || height <= 0) return null;
 
   const rxe = Math.max(0, rx);
   const rye = Math.max(0, ry);
+  const riX = rxe * INNER_ORBIT_SCALE;
+  const riY = rye * INNER_ORBIT_SCALE;
+  const roX = rxe * OUTER_RING_DRAW_SCALE;
+  const roY = rye * OUTER_RING_DRAW_SCALE;
 
-  const dashDots: ReactNode[] = [];
-  for (let i = 0; i < ELLIPSE_SAMPLES; i++) {
-    const t = i / ELLIPSE_SAMPLES;
-    const phase = (t * DASH_PHASE_CYCLE) % 1;
-    if (phase > DASH_ON_FRAC) continue;
-    const deg = -90 + t * 360;
-    const p = pointOnEllipse(cx, cy, rxe, rye, deg);
-    const d = 3;
-    const h = d / 2;
-    dashDots.push(
-      <View
-        key={`dash-${i}`}
-        pointerEvents="none"
-        style={[
-          styles.dashGrain,
-          {
-            left: p.x - h,
-            top: p.y - h,
-            width: d,
-            height: d,
-            borderRadius: h,
-            backgroundColor: strokeColor,
-          },
-        ]}
-      />,
-    );
+  const innerRing = buildRingDots({
+    cx,
+    cy,
+    rx: riX,
+    ry: riY,
+    color: orbitLineColor,
+    keyPrefix: "orbit-inner",
+  });
+
+  const outerRing = buildRingDots({
+    cx,
+    cy,
+    rx: roX,
+    ry: roY,
+    color: orbitLineColor,
+    keyPrefix: "orbit-outer",
+  });
+
+  const n = Math.max(0, Math.floor(participantCount));
+  const betweenBeads: ReactNode[] = [];
+
+  if (n >= 2) {
+    const b = BETWEEN_BEAD_SIZE;
+    const bh = b / 2;
+    for (let i = 0; i < n; i++) {
+      const deg = participantBetweenAngleDeg(i, n);
+      const p = pointOnEllipse(cx, cy, roX, roY, deg);
+      betweenBeads.push(
+        <View
+          key={`orbit-between-${i}`}
+          pointerEvents="none"
+          style={[
+            styles.dot,
+            {
+              left: p.x - bh,
+              top: p.y - bh,
+              width: b,
+              height: b,
+              borderRadius: bh,
+              backgroundColor: orbitBeadColor,
+            },
+          ]}
+        />,
+      );
+    }
   }
-
-  const decorDots: ReactNode[] = [];
-
-  MID_DOT_ANGLES_DEG.forEach((deg, i) => {
-    const p = pointOnEllipse(cx, cy, rxe, rye, deg);
-    const r = 2.25;
-    decorDots.push(
-      <View
-        key={`decor-mid-${deg}`}
-        pointerEvents="none"
-        style={[
-          styles.decorDot,
-          {
-            left: p.x - r,
-            top: p.y - r,
-            width: r * 2,
-            height: r * 2,
-            borderRadius: r,
-            backgroundColor: ACCENT_FILLS[i % ACCENT_FILLS.length],
-            opacity: 0.55,
-          },
-        ]}
-      />,
-    );
-  });
-
-  MAIN_DOT_ANGLES_DEG.forEach((deg, i) => {
-    const p = pointOnEllipse(cx, cy, rxe, rye, deg);
-    const r = MAIN_DOT_R[i % MAIN_DOT_R.length];
-    decorDots.push(
-      <View
-        key={`decor-main-${deg}`}
-        pointerEvents="none"
-        style={[
-          styles.decorDot,
-          {
-            left: p.x - r,
-            top: p.y - r,
-            width: r * 2,
-            height: r * 2,
-            borderRadius: r,
-            backgroundColor: ACCENT_FILLS[i % ACCENT_FILLS.length],
-            opacity: 0.78,
-          },
-        ]}
-      />,
-    );
-  });
 
   return (
     <View
       pointerEvents="none"
       style={[StyleSheet.absoluteFillObject, styles.layer]}
     >
-      {dashDots}
-      {decorDots}
+      {innerRing}
+      {outerRing}
+      {betweenBeads}
     </View>
   );
 }
@@ -145,10 +180,7 @@ const styles = StyleSheet.create({
     zIndex: 3,
     backgroundColor: "transparent",
   },
-  dashGrain: {
-    position: "absolute",
-  },
-  decorDot: {
+  dot: {
     position: "absolute",
   },
 });

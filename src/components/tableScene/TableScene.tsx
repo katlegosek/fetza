@@ -55,8 +55,24 @@ export function TableScene({
   const ring = seatCountForPeople(Math.min(people.length, maxVisible) || 1);
 
   const { w: W, h: H } = layout;
-  const orbitGeom =
+  const rawOrbit =
     W > 0 && H > 0 ? orbitDecorEllipsePx(W, H, SCENE_CENTER_SHIFT_X) : null;
+  const narrowOrbit = windowW < 360;
+  const orbitScale = narrowOrbit ? 0.92 : 1;
+  const layoutOrbit =
+    rawOrbit != null
+      ? {
+          cx: rawOrbit.cx,
+          cy: rawOrbit.cy,
+          rx: rawOrbit.rx * orbitScale,
+          ry: rawOrbit.ry * orbitScale,
+        }
+      : null;
+
+  const pinCount =
+    showParticipants && people.length > 0
+      ? Math.min(people.length, maxVisible)
+      : 0;
 
   const wrapStyle: StyleProp<ViewStyle> = [
     styles.sceneWrap,
@@ -73,14 +89,17 @@ export function TableScene({
         {W > 0 && H > 0 ? (
           <>
             <TableArtwork ring={ring} theme={theme} />
-            {orbitGeom ? (
+            {layoutOrbit ? (
+              // Backlog: optional animated orbit (see OrbitLayer header).
               <OrbitLayer
-                cx={orbitGeom.cx}
-                cy={orbitGeom.cy}
+                cx={layoutOrbit.cx}
+                cy={layoutOrbit.cy}
                 height={H}
-                rx={orbitGeom.rx}
-                ry={orbitGeom.ry}
-                strokeColor={theme.orbitColor}
+                orbitBeadColor={theme.orbitColor}
+                orbitLineColor={theme.orbitLineColor}
+                participantCount={pinCount}
+                rx={layoutOrbit.rx}
+                ry={layoutOrbit.ry}
                 width={W}
               />
             ) : null}
@@ -93,13 +112,14 @@ export function TableScene({
             {showParticipants ? (
               <ParticipantLayer
                 maxVisible={maxVisible}
-                orbitGeom={orbitGeom}
+                orbitGeom={layoutOrbit}
                 onLongPressPerson={onLongPressPerson}
                 onPressMorePeople={
                   showParticipantOverflow ? onPressMorePeople : undefined
                 }
                 onPressPerson={onPressPerson}
                 people={people}
+                stackMidDotColor={layoutOrbit ? theme.orbitColor : undefined}
               />
             ) : null}
           </>

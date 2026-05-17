@@ -7,7 +7,10 @@ export const tableThemes = {
       8: require("@/assets/tableScenes/softWood/softWoodSeats8.png"),
     },
     backgroundColor: "#FAF7F1",
-    orbitColor: "rgba(120, 128, 140, 0.55)",
+    /** Dotted inner/outer ellipse path only (View-based grains, not beads). */
+    orbitLineColor: "rgba(180, 150, 110, 0.35)",
+    /** Between-user beads on the outer ring and participant stack mid-dot. */
+    orbitColor: "rgba(100, 108, 120, 0.72)",
     textColor: "#111827",
     mutedTextColor: "#6B7280",
     borderSoft: "#E5E7EB",

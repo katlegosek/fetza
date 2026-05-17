@@ -31,6 +31,8 @@ const thermalZigzagStyles = StyleSheet.create({
 export type ThermalReceiptProps = {
   width: number;
   draft: DraftBill;
+  /** When true, renders the same slip as review but without tappable rows or “Add item”. */
+  readOnly?: boolean;
   onMerchantPress: () => void;
   onLinePress: (lineId: string) => void;
   onTotalsPress: () => void;
@@ -40,6 +42,7 @@ export type ThermalReceiptProps = {
 export function ThermalReceipt({
   width,
   draft,
+  readOnly = false,
   onMerchantPress,
   onLinePress,
   onTotalsPress,
@@ -85,20 +88,32 @@ export function ThermalReceipt({
           * * *
         </AppText>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Edit merchant ${draft.merchant}`}
-          onPress={onMerchantPress}
-          className="mt-2 rounded-md py-1 active:bg-black/5"
-        >
-          <AppText
-            className="text-center text-[15px] font-bold uppercase leading-snug tracking-wide"
-            style={{ color: INK, fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY }}
-            numberOfLines={2}
+        {readOnly ? (
+          <View className="mt-2 py-1">
+            <AppText
+              className="text-center text-[15px] font-bold uppercase leading-snug tracking-wide"
+              style={{ color: INK, fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY }}
+              numberOfLines={2}
+            >
+              {draft.merchant}
+            </AppText>
+          </View>
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Edit merchant ${draft.merchant}`}
+            onPress={onMerchantPress}
+            className="mt-2 rounded-md py-1 active:bg-black/5"
           >
-            {draft.merchant}
-          </AppText>
-        </Pressable>
+            <AppText
+              className="text-center text-[15px] font-bold uppercase leading-snug tracking-wide"
+              style={{ color: INK, fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY }}
+              numberOfLines={2}
+            >
+              {draft.merchant}
+            </AppText>
+          </Pressable>
+        )}
 
         <AppText
           className="mt-1 text-center text-[11px]"
@@ -153,67 +168,109 @@ export function ThermalReceipt({
             </AppText>
           </View>
 
-          {draft.lines.map((line) => (
-            <Pressable
-              key={line.id}
-              accessibilityRole="button"
-              accessibilityLabel={`Edit line ${line.description}`}
-              onPress={() => onLinePress(line.id)}
-              className="flex-row items-center gap-1 border-b border-stone-400/25 py-2.5 active:bg-black/[0.04]"
-            >
-              <AppText
-                className="flex-1 pr-2 text-[13px] leading-snug"
-                style={{
-                  color: INK,
-                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-                  fontVariant: ["tabular-nums"],
-                }}
-                numberOfLines={3}
+          {draft.lines.map((line) =>
+            readOnly ? (
+              <View
+                key={line.id}
+                className="flex-row items-center gap-1 border-b border-stone-400/25 py-2.5"
               >
-                {line.description}
-              </AppText>
-              <AppText
-                className="w-9 shrink-0 text-right text-[13px]"
-                style={{
-                  color: INK,
-                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-                  fontVariant: ["tabular-nums"],
-                }}
+                <AppText
+                  className="flex-1 pr-2 text-[13px] leading-snug"
+                  style={{
+                    color: INK,
+                    fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                    fontVariant: ["tabular-nums"],
+                  }}
+                  numberOfLines={3}
+                >
+                  {line.description}
+                </AppText>
+                <AppText
+                  className="w-9 shrink-0 text-right text-[13px]"
+                  style={{
+                    color: INK,
+                    fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                    fontVariant: ["tabular-nums"],
+                  }}
+                >
+                  {line.qty}
+                </AppText>
+                <AppText
+                  className="w-[5.5rem] shrink-0 text-right text-[13px]"
+                  style={{
+                    color: INK,
+                    fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                    fontVariant: ["tabular-nums"],
+                  }}
+                  numberOfLines={1}
+                >
+                  {formatZAR(line.amountCents)}
+                </AppText>
+              </View>
+            ) : (
+              <Pressable
+                key={line.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Edit line ${line.description}`}
+                onPress={() => onLinePress(line.id)}
+                className="flex-row items-center gap-1 border-b border-stone-400/25 py-2.5 active:bg-black/[0.04]"
               >
-                {line.qty}
-              </AppText>
-              <AppText
-                className="w-[5.5rem] shrink-0 text-right text-[13px]"
-                style={{
-                  color: INK,
-                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-                  fontVariant: ["tabular-nums"],
-                }}
-                numberOfLines={1}
-              >
-                {formatZAR(line.amountCents)}
-              </AppText>
-            </Pressable>
-          ))}
+                <AppText
+                  className="flex-1 pr-2 text-[13px] leading-snug"
+                  style={{
+                    color: INK,
+                    fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                    fontVariant: ["tabular-nums"],
+                  }}
+                  numberOfLines={3}
+                >
+                  {line.description}
+                </AppText>
+                <AppText
+                  className="w-9 shrink-0 text-right text-[13px]"
+                  style={{
+                    color: INK,
+                    fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                    fontVariant: ["tabular-nums"],
+                  }}
+                >
+                  {line.qty}
+                </AppText>
+                <AppText
+                  className="w-[5.5rem] shrink-0 text-right text-[13px]"
+                  style={{
+                    color: INK,
+                    fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                    fontVariant: ["tabular-nums"],
+                  }}
+                  numberOfLines={1}
+                >
+                  {formatZAR(line.amountCents)}
+                </AppText>
+              </Pressable>
+            ),
+          )}
         </View>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Add item"
-          onPress={onAddLine}
-          className="mt-2 flex-row items-center justify-center gap-2 rounded-lg border border-dashed border-stone-500/60 py-3 active:bg-black/[0.05]"
-        >
-          <Ionicons name="add" size={18} color={INK_MUTED} />
-          <AppText
-            className="text-[13px] font-semibold uppercase tracking-wide"
-            style={{
-              color: INK_MUTED,
-              fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-            }}
+        {readOnly ? null : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Add item"
+            onPress={onAddLine}
+            className="mt-2 flex-row items-center justify-center gap-2 rounded-lg border border-dashed border-stone-500/60 py-3 active:bg-black/[0.05]"
           >
-            Add item
-          </AppText>
-        </Pressable>
+            <Ionicons name="add" size={18} color={INK_MUTED} />
+            <AppText
+              className="text-[13px] font-semibold uppercase tracking-wide"
+              style={{
+                color: INK_MUTED,
+                fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+              }}
+            >
+              Add item
+            </AppText>
+          </Pressable>
+        )}
 
         <View className="my-3 border-t border-dashed border-stone-400/90" />
 
@@ -237,55 +294,100 @@ export function ThermalReceipt({
           </AppText>
         </View>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Edit tax"
-          onPress={onTotalsPress}
-          className="-mx-1 flex-row items-center justify-between rounded-md px-1 py-1 active:bg-black/[0.05]"
-        >
-          <AppText
-            style={{
-              color: INK_MUTED,
-              fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-            }}
-          >
-            VAT incl.
-          </AppText>
-          <AppText
-            style={{
-              color: INK,
-              fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-              fontVariant: ["tabular-nums"],
-            }}
-          >
-            {formatZAR(draft.vatCents)}
-          </AppText>
-        </Pressable>
+        {readOnly ? (
+          <>
+            <View className="-mx-1 flex-row items-center justify-between px-1 py-1">
+              <AppText
+                style={{
+                  color: INK_MUTED,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                }}
+              >
+                VAT incl.
+              </AppText>
+              <AppText
+                style={{
+                  color: INK,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                  fontVariant: ["tabular-nums"],
+                }}
+              >
+                {formatZAR(draft.vatCents)}
+              </AppText>
+            </View>
+            <View className="-mx-1 flex-row items-center justify-between px-1 py-0.5">
+              <AppText
+                style={{
+                  color: INK_MUTED,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                }}
+              >
+                Service fee
+              </AppText>
+              <AppText
+                style={{
+                  color: INK,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                  fontVariant: ["tabular-nums"],
+                }}
+              >
+                {formatZAR(draft.serviceFeeCents)}
+              </AppText>
+            </View>
+          </>
+        ) : (
+          <>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Edit tax"
+              onPress={onTotalsPress}
+              className="-mx-1 flex-row items-center justify-between rounded-md px-1 py-1 active:bg-black/[0.05]"
+            >
+              <AppText
+                style={{
+                  color: INK_MUTED,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                }}
+              >
+                VAT incl.
+              </AppText>
+              <AppText
+                style={{
+                  color: INK,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                  fontVariant: ["tabular-nums"],
+                }}
+              >
+                {formatZAR(draft.vatCents)}
+              </AppText>
+            </Pressable>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Edit service fee"
-          onPress={onTotalsPress}
-          className="-mx-1 flex-row items-center justify-between rounded-md px-1 py-0.5 active:bg-black/[0.05]"
-        >
-          <AppText
-            style={{
-              color: INK_MUTED,
-              fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-            }}
-          >
-            Service fee
-          </AppText>
-          <AppText
-            style={{
-              color: INK,
-              fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-              fontVariant: ["tabular-nums"],
-            }}
-          >
-            {formatZAR(draft.serviceFeeCents)}
-          </AppText>
-        </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Edit service fee"
+              onPress={onTotalsPress}
+              className="-mx-1 flex-row items-center justify-between rounded-md px-1 py-0.5 active:bg-black/[0.05]"
+            >
+              <AppText
+                style={{
+                  color: INK_MUTED,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                }}
+              >
+                Service fee
+              </AppText>
+              <AppText
+                style={{
+                  color: INK,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                  fontVariant: ["tabular-nums"],
+                }}
+              >
+                {formatZAR(draft.serviceFeeCents)}
+              </AppText>
+            </Pressable>
+          </>
+        )}
 
         <View className="mt-2 flex-row items-center justify-between border-t border-stone-900/15 pt-2">
           <AppText
@@ -318,15 +420,17 @@ export function ThermalReceipt({
 
         <FauxBarcode foregroundColor={INK} seed={draft.billId} />
 
-        <AppText
-          className="mt-2 text-center text-[9px] leading-4"
-          style={{
-            color: INK_MUTED,
-            fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-          }}
-        >
-          ─── SAMPLE · totals follow your edits ───
-        </AppText>
+        {readOnly ? null : (
+          <AppText
+            className="mt-2 text-center text-[9px] leading-4"
+            style={{
+              color: INK_MUTED,
+              fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+            }}
+          >
+            ─── SAMPLE · totals follow your edits ───
+          </AppText>
+        )}
       </View>
 
       <View

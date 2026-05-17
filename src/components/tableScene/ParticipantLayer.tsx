@@ -1,24 +1,141 @@
-import {
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { useEffect } from "react";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 import { AmountPill } from "./AmountPill";
 import { ParticipantChip } from "./ParticipantChip";
-import {
-  PARTICIPANT_ORBIT_RADIUS_SCALE,
-  participantAngleDegEvenCount,
-  pointOnEllipse,
-} from "./seatPositions";
+import { participantAngleDegEvenCount, pointOnEllipse } from "./seatPositions";
 import type { TablePerson } from "./types";
 
-const NARROW_WIDTH = 360;
-/** Pull orbit in slightly on narrow screens so stacks stay on-screen. */
-const NARROW_RADIUS_SCALE = 0.92;
+/**
+ * Matches Split app `CircularTotals` → `MemberOrbit`: staggered spring + scale
+ * from 0.4→1 with opacity, plus press squash. Scale runs on an inner `Animated.View`
+ * so the parent anchor can keep `%` centering without layout drift.
+ */
+const ORBIT_APPEAR_SPRING = { damping: 14, stiffness: 140 } as const;
+const ORBIT_PRESS_SPRING = { damping: 12, stiffness: 220 } as const;
+const ORBIT_STAGGER_MS = 60;
+const ORBIT_OVERFLOW_EXTRA_MS = 72;
+
+function ParticipantOrbitStack({
+  delay,
+  person,
+  stackMidDotColor,
+  onLongPressPerson,
+  onPressPerson,
+}: {
+  delay: number;
+  person: TablePerson;
+  stackMidDotColor?: string;
+  onLongPressPerson?: (person: TablePerson) => void;
+  onPressPerson?: (person: TablePerson) => void;
+}) {
+  const appear = useSharedValue(0);
+  const pressScale = useSharedValue(1);
+
+  useEffect(() => {
+    appear.value = 0;
+    appear.value = withDelay(delay, withSpring(1, ORBIT_APPEAR_SPRING));
+  }, [appear, delay]);
+
+  const appearStyle = useAnimatedStyle(() => ({
+    opacity: appear.value,
+    transform: [{ scale: (0.4 + appear.value * 0.6) * pressScale.value }],
+  }));
+
+  return (
+    <Animated.View pointerEvents="box-none" style={[styles.col, appearStyle]}>
+      <Pressable
+        accessibilityHint="Tap for share. Long press for paid status."
+        accessibilityLabel={`${person.name}, ${person.amount}${person.isPaid ? ", paid" : ""}`}
+        accessibilityRole="button"
+        delayLongPress={400}
+        hitSlop={6}
+        onLongPress={
+          onLongPressPerson ? () => onLongPressPerson(person) : undefined
+        }
+        onPress={onPressPerson ? () => onPressPerson(person) : undefined}
+        onPressIn={() => {
+          pressScale.value = withTiming(0.92, { duration: 110 });
+        }}
+        onPressOut={() => {
+          pressScale.value = withSpring(1, ORBIT_PRESS_SPRING);
+        }}
+        style={styles.col}
+      >
+        <ParticipantChip person={person} />
+        {stackMidDotColor ? (
+          <View
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            pointerEvents="none"
+            style={styles.midDotRow}
+          >
+            <View
+              style={[
+                styles.midDot,
+                {
+                  backgroundColor: stackMidDotColor,
+                  borderColor: "#FFFFFF",
+                },
+              ]}
+            />
+          </View>
+        ) : null}
+        <AmountPill amount={person.amount} paid={Boolean(person.isPaid)} />
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+function MorePeopleOrbitChip({
+  delay,
+  overflow,
+  onPress,
+}: {
+  delay: number;
+  overflow: number;
+  onPress: () => void;
+}) {
+  const appear = useSharedValue(0);
+  const pressScale = useSharedValue(1);
+
+  useEffect(() => {
+    appear.value = 0;
+    appear.value = withDelay(delay, withSpring(1, ORBIT_APPEAR_SPRING));
+  }, [appear, delay]);
+
+  const appearStyle = useAnimatedStyle(() => ({
+    opacity: appear.value,
+    transform: [{ scale: (0.4 + appear.value * 0.6) * pressScale.value }],
+  }));
+
+  return (
+    <Animated.View style={appearStyle}>
+      <Pressable
+        accessibilityLabel={`${overflow} more people`}
+        accessibilityRole="button"
+        hitSlop={8}
+        onPress={onPress}
+        onPressIn={() => {
+          pressScale.value = withTiming(0.92, { duration: 110 });
+        }}
+        onPressOut={() => {
+          pressScale.value = withSpring(1, ORBIT_PRESS_SPRING);
+        }}
+        style={styles.moreChip}
+      >
+        <Text style={styles.moreChipText}>+{overflow} more</Text>
+      </Pressable>
+    </Animated.View>
+  );
+}
 
 export type ParticipantOrbitGeom = {
   cx: number;
@@ -31,11 +148,13 @@ type ParticipantLayerProps = {
   people: TablePerson[];
   /** Clamped 1–8 inside TableScene. */
   maxVisible: number;
-  /** Same ellipse as {@link OrbitLayer}; pills sit slightly outside this path. */
+  /** Same ellipse as {@link OrbitLayer} (pin centers sit on this path). */
   orbitGeom: ParticipantOrbitGeom | null;
   onPressPerson?: (person: TablePerson) => void;
   onLongPressPerson?: (person: TablePerson) => void;
   onPressMorePeople?: () => void;
+  /** Small dot on the seam between name chip and amount pill; matches orbit tone. */
+  stackMidDotColor?: string;
 };
 
 export function ParticipantLayer({
@@ -45,27 +164,15 @@ export function ParticipantLayer({
   onPressPerson,
   onLongPressPerson,
   onPressMorePeople,
+  stackMidDotColor,
 }: ParticipantLayerProps) {
-  const { width: windowW } = useWindowDimensions();
-  const narrow = windowW < NARROW_WIDTH;
-
   const visible = people.slice(0, maxVisible);
   if (visible.length === 0 || !orbitGeom) return null;
 
   const { cx, cy, rx, ry } = orbitGeom;
-  const radiusScale =
-    PARTICIPANT_ORBIT_RADIUS_SCALE * (narrow ? NARROW_RADIUS_SCALE : 1);
-  const rxP = rx * radiusScale;
-  const ryP = ry * radiusScale;
   const n = visible.length;
 
   const overflow = Math.max(0, people.length - maxVisible);
-
-  const firePress = onPressPerson
-    ? (p: TablePerson) => () => {
-        onPressPerson(p);
-      }
-    : () => undefined;
 
   return (
     <View
@@ -74,8 +181,7 @@ export function ParticipantLayer({
     >
       {visible.map((person, i) => {
         const deg = participantAngleDegEvenCount(i, n);
-        const p = pointOnEllipse(cx, cy, rxP, ryP, deg);
-        const onPress = firePress(person);
+        const p = pointOnEllipse(cx, cy, rx, ry, deg);
         return (
           <View
             key={person.id}
@@ -89,39 +195,24 @@ export function ParticipantLayer({
               },
             ]}
           >
-            <Pressable
-              accessibilityHint="Tap for share. Long press for paid status."
-              accessibilityLabel={`${person.name}, ${person.amount}${person.isPaid ? ", paid" : ""}`}
-              accessibilityRole="button"
-              delayLongPress={400}
-              hitSlop={6}
-              onLongPress={
-                onLongPressPerson ? () => onLongPressPerson(person) : undefined
-              }
-              onPress={onPress}
-              style={styles.col}
-            >
-              <ParticipantChip person={person} />
-              <AmountPill
-                amount={person.amount}
-                paid={Boolean(person.isPaid)}
-              />
-            </Pressable>
+            <ParticipantOrbitStack
+              delay={i * ORBIT_STAGGER_MS}
+              person={person}
+              stackMidDotColor={stackMidDotColor}
+              onLongPressPerson={onLongPressPerson}
+              onPressPerson={onPressPerson}
+            />
           </View>
         );
       })}
 
       {overflow > 0 && onPressMorePeople ? (
         <View pointerEvents="box-none" style={styles.moreRow}>
-          <Pressable
-            accessibilityLabel={`${overflow} more people`}
-            accessibilityRole="button"
-            hitSlop={8}
+          <MorePeopleOrbitChip
+            delay={visible.length * ORBIT_STAGGER_MS + ORBIT_OVERFLOW_EXTRA_MS}
+            overflow={overflow}
             onPress={onPressMorePeople}
-            style={styles.moreChip}
-          >
-            <Text style={styles.moreChipText}>+{overflow} more</Text>
-          </Pressable>
+          />
         </View>
       ) : null}
     </View>
@@ -137,6 +228,20 @@ const styles = StyleSheet.create({
   },
   col: {
     alignItems: "center",
+  },
+  midDotRow: {
+    height: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: -3,
+    marginBottom: -3,
+    zIndex: 2,
+  },
+  midDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    borderWidth: 1.5,
   },
   moreRow: {
     position: "absolute",

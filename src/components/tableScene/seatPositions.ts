@@ -116,8 +116,14 @@ export function participantAngleDegEvenCount(
   return -90 + (index / n) * 360;
 }
 
-/** Radii multiplier vs decor ellipse so name stacks sit just outside the dashed ring. */
-export const PARTICIPANT_ORBIT_RADIUS_SCALE = 1.1;
+/** Angle halfway between seat `index` and the next seat on the orbit (−90° = top). */
+export function participantBetweenAngleDeg(
+  index: number,
+  count: number,
+): number {
+  const n = Math.max(count, 1);
+  return -90 + ((index + 0.5) / n) * 360;
+}
 
 /** Horizontal center shift (px), matches legacy table layout. */
 export const SCENE_CENTER_SHIFT_X = -6;
