@@ -1,17 +1,19 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+
+import { AnimatedZarAmount } from "@/components/atoms/animated-zar-amount";
 
 const PAID_TEXT = "#16834A";
 const PAID_BG = "#EAF7F1";
 const PAID_BORDER = "#CFEFDD";
 
 type AmountPillProps = {
-  amount: string;
+  amountCents: number;
   paid: boolean;
 };
 
 /** Amount row under the participant chip; parent usually wraps both in a Pressable. */
-export function AmountPill({ amount, paid }: AmountPillProps) {
+export function AmountPill({ amountCents, paid }: AmountPillProps) {
   return (
     <View
       style={[
@@ -24,14 +26,13 @@ export function AmountPill({ amount, paid }: AmountPillProps) {
             },
       ]}
     >
-      <Text
+      <AnimatedZarAmount
+        cents={amountCents}
         style={[
           styles.text,
           paid ? { color: PAID_TEXT } : { color: "#111827" },
         ]}
-      >
-        {amount}
-      </Text>
+      />
       {paid ? (
         <Ionicons
           color={PAID_TEXT}

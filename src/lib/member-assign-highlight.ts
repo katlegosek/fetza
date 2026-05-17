@@ -1,3 +1,6 @@
+import type { NoticeBannerChrome } from "@/components/molecules/notice-banner";
+import type { MemberAvatarTones } from "@/lib/member-avatar-tones";
+
 /** Surface + text + icon for a member “assigning to…” banner (matches `Member.tone`). */
 export type MemberAssignHighlight = {
   surfaceClassName: string;
@@ -46,5 +49,19 @@ export function memberAssignHighlight(tone: string): MemberAssignHighlight {
       "border border-neutral-300/80 bg-neutral-200/80 shadow-sm shadow-neutral-900/5 dark:border-neutral-600 dark:bg-neutral-800 dark:shadow-none",
     textClassName: "text-foreground",
     iconColor: "#737373",
+  };
+}
+
+export function memberAssignHighlightFromTones(
+  t: MemberAvatarTones,
+): NoticeBannerChrome {
+  return {
+    surfaceClassName: "border shadow-sm shadow-stone-900/5 dark:shadow-none",
+    textClassName: "text-foreground",
+    iconColor: t.avatarBackgroundColor,
+    surfaceStyle: {
+      borderColor: `${t.avatarBackgroundColor}59`,
+      backgroundColor: `${t.avatarBackgroundColor}1F`,
+    },
   };
 }

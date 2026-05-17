@@ -7,8 +7,11 @@ export type TablePerson = {
   id: string;
   name: string;
   initials: string;
-  amount: string;
-  color: string;
+  amountCents: number;
+  /** @deprecated Legacy single fill; prefer `avatarBackgroundColor`. */
+  color?: string;
+  avatarBackgroundColor?: string;
+  avatarTextColor?: string;
   isHost?: boolean;
   isPaid?: boolean;
 };
@@ -19,7 +22,7 @@ export type Person = TablePerson;
 export type TableSceneProps = {
   theme?: TableThemeId;
   people: TablePerson[];
-  total: string;
+  totalCents: number;
   itemCount: number;
   onPressTable?: () => void;
   onPressPerson?: (person: TablePerson) => void;

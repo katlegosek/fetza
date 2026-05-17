@@ -8,6 +8,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import { formatZAR } from "@/lib/helper";
+
 import { AmountPill } from "./AmountPill";
 import { ParticipantChip } from "./ParticipantChip";
 import { participantAngleDegEvenCount, pointOnEllipse } from "./seatPositions";
@@ -53,7 +55,7 @@ function ParticipantOrbitStack({
     <Animated.View pointerEvents="box-none" style={[styles.col, appearStyle]}>
       <Pressable
         accessibilityHint="Tap for share. Long press for paid status."
-        accessibilityLabel={`${person.name}, ${person.amount}${person.isPaid ? ", paid" : ""}`}
+        accessibilityLabel={`${person.name}, ${formatZAR(person.amountCents)}${person.isPaid ? ", paid" : ""}`}
         accessibilityRole="button"
         delayLongPress={400}
         hitSlop={6}
@@ -88,7 +90,10 @@ function ParticipantOrbitStack({
             />
           </View>
         ) : null}
-        <AmountPill amount={person.amount} paid={Boolean(person.isPaid)} />
+        <AmountPill
+          amountCents={person.amountCents}
+          paid={Boolean(person.isPaid)}
+        />
       </Pressable>
     </Animated.View>
   );

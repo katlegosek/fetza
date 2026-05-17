@@ -19,6 +19,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
+  AnimatedZarAmount,
   AppText,
   Button,
   type Person,
@@ -39,6 +40,7 @@ import {
   owedCentsByMember,
   sumLineAmountsCents,
 } from "@/lib/helper";
+import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
 import {
   type SettlementMap,
   isMemberSettled,
@@ -178,24 +180,6 @@ function SummaryReceiptModal({
   );
 }
 
-const SEAT_RING_COLORS = [
-  "bg-violet-500",
-  "bg-sky-500",
-  "bg-emerald-500",
-  "bg-amber-500",
-  "bg-indigo-500",
-  "bg-orange-500",
-] as const;
-
-const AVATAR_HEX = [
-  "#0EA5E9",
-  "#22C55E",
-  "#F59E0B",
-  "#6366F1",
-  "#F97316",
-  "#14B8A6",
-] as const;
-
 function asSingleParam(v: string | string[] | undefined): string | undefined {
   if (v === undefined) return undefined;
   return Array.isArray(v) ? v[0] : v;
@@ -203,30 +187,6 @@ function asSingleParam(v: string | string[] | undefined): string | undefined {
 
 function isYouMember(m: SummaryMember): boolean {
   return m.id === "m-you" || m.name.trim().toLowerCase() === "you";
-}
-
-function memberAvatarColorHex(
-  m: SummaryMember,
-  members: SummaryMember[],
-): string {
-  if (isYouMember(m)) return "#7C3AED";
-  const idx = Math.max(
-    0,
-    members.findIndex((x) => x.id === m.id),
-  );
-  return AVATAR_HEX[idx % AVATAR_HEX.length];
-}
-
-function listMemberAvatarClass(
-  m: SummaryMember,
-  members: SummaryMember[],
-): string {
-  if (isYouMember(m)) return "bg-violet-500";
-  const idx = Math.max(
-    0,
-    members.findIndex((x) => x.id === m.id),
-  );
-  return SEAT_RING_COLORS[idx % SEAT_RING_COLORS.length];
 }
 
 function initials(name: string): string {
@@ -390,6 +350,7 @@ function SummaryBillTotalCard({
   className?: string;
   onOpenReceipt: () => void;
 }) {
+  const colors = useThemeColors();
   return (
     <Pressable
       accessibilityLabel={`Bill total ${formatZAR(grandTotalCents)}, ${lineCount} items. Details`}
@@ -413,9 +374,15 @@ function SummaryBillTotalCard({
         </AppText>
       </View>
       <View className="shrink-0 flex-row items-center gap-0.5 pl-1">
-        <AppText className="text-base font-bold tabular-nums text-foreground">
-          {formatZAR(grandTotalCents)}
-        </AppText>
+        <AnimatedZarAmount
+          cents={grandTotalCents}
+          style={{
+            fontSize: 16,
+            fontWeight: "700",
+            fontVariant: ["tabular-nums"],
+            color: colors.foreground,
+          }}
+        />
         <Ionicons name="chevron-forward" size={18} color={chevronColor} />
       </View>
     </Pressable>
@@ -445,16 +412,21 @@ function SummaryTableScene({
 
   const people: Person[] = useMemo(
     () =>
-      ordered.map((m) => ({
-        id: m.id,
-        name: m.name,
-        initials: initials(m.name),
-        amount: formatZAR(owed[m.id] ?? 0),
-        color: memberAvatarColorHex(m, members),
-        isHost: isYouMember(m),
-        isPaid: isMemberSettled(settlement, m.id),
-      })),
-    [ordered, members, owed, settlement],
+      ordered.map((m, orderIdx) => {
+        const tones = avatarTonesForPaletteIndex(orderIdx);
+        return {
+          id: m.id,
+          name: m.name,
+          initials: initials(m.name),
+          amountCents: owed[m.id] ?? 0,
+          color: tones.avatarBackgroundColor,
+          avatarBackgroundColor: tones.avatarBackgroundColor,
+          avatarTextColor: tones.avatarTextColor,
+          isHost: isYouMember(m),
+          isPaid: isMemberSettled(settlement, m.id),
+        };
+      }),
+    [ordered, owed, settlement],
   );
 
   return (
@@ -462,12 +434,12 @@ function SummaryTableScene({
       <TableScene
         itemCount={lineCount}
         key={ordered.map((m) => m.id).join(",")}
-        maxVisibleParticipants={4}
+        maxVisibleParticipants={8}
         people={people}
         sceneBackgroundColor="transparent"
         showParticipantOverflow={false}
         style={{ marginTop: 0, borderRadius: 0 }}
-        total={formatZAR(grandTotalCents)}
+        totalCents={grandTotalCents}
         onLongPressPerson={
           onMemberLongPress
             ? (p) => {
@@ -715,9 +687,16 @@ export default function BillSummaryScreen() {
                 <AppText className="text-[12px] font-medium text-muted">
                   Outstanding
                 </AppText>
-                <AppText className="mt-0.5 text-xl font-bold tabular-nums text-foreground">
-                  {formatZAR(outstandingCents)}
-                </AppText>
+                <AnimatedZarAmount
+                  cents={outstandingCents}
+                  style={{
+                    marginTop: 2,
+                    fontSize: 20,
+                    fontWeight: "700",
+                    fontVariant: ["tabular-nums"],
+                    color: colors.foreground,
+                  }}
+                />
                 <AppText className="mt-0.5 text-[12px] leading-snug text-muted">
                   {unpaidCount} unpaid
                 </AppText>
@@ -739,9 +718,16 @@ export default function BillSummaryScreen() {
                 <AppText className="text-[12px] font-medium text-muted">
                   Tip
                 </AppText>
-                <AppText className="mt-0.5 text-xl font-bold tabular-nums text-foreground">
-                  {formatZAR(tipCents)}
-                </AppText>
+                <AnimatedZarAmount
+                  cents={tipCents}
+                  style={{
+                    marginTop: 2,
+                    fontSize: 20,
+                    fontWeight: "700",
+                    fontVariant: ["tabular-nums"],
+                    color: colors.foreground,
+                  }}
+                />
                 <AppText
                   className="mt-0.5 text-[12px] leading-snug text-muted"
                   numberOfLines={2}
@@ -793,7 +779,7 @@ export default function BillSummaryScreen() {
                     assignments,
                     m.id,
                   );
-                  const avatarBg = listMemberAvatarClass(m, members);
+                  const listTones = avatarTonesForPaletteIndex(index);
                   const settled = isMemberSettled(settlementByMember, m.id);
                   return (
                     <View key={m.id}>
@@ -811,12 +797,15 @@ export default function BillSummaryScreen() {
                       >
                         <View className="flex-row items-center gap-2 px-4 py-3">
                           <View
-                            className={cn(
-                              "size-10 shrink-0 items-center justify-center rounded-full",
-                              avatarBg,
-                            )}
+                            className="size-10 shrink-0 items-center justify-center rounded-full"
+                            style={{
+                              backgroundColor: listTones.avatarBackgroundColor,
+                            }}
                           >
-                            <AppText className="text-[12px] font-bold text-white">
+                            <AppText
+                              className="text-[12px] font-bold"
+                              style={{ color: listTones.avatarTextColor }}
+                            >
                               {initials(m.name)}
                             </AppText>
                           </View>
@@ -857,14 +846,17 @@ export default function BillSummaryScreen() {
                                 </AppText>
                               </View>
                             ) : null}
-                            <AppText
-                              className={cn(
-                                "text-sm font-semibold tabular-nums",
-                                settled ? "text-muted" : "text-foreground",
-                              )}
-                            >
-                              {formatZAR(owed[m.id] ?? 0)}
-                            </AppText>
+                            <AnimatedZarAmount
+                              cents={owed[m.id] ?? 0}
+                              style={{
+                                fontSize: 14,
+                                fontWeight: "600",
+                                fontVariant: ["tabular-nums"],
+                                color: settled
+                                  ? colors.muted
+                                  : colors.foreground,
+                              }}
+                            />
                             <Ionicons
                               name="chevron-forward"
                               size={20}

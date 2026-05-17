@@ -22,6 +22,10 @@ import {
   owedCentsByMember,
 } from "@/lib/helper";
 import {
+  avatarTonesForPaletteIndex,
+  memberChipBorderToneForIndex,
+} from "@/lib/member-avatar-tones";
+import {
   loadMemberSettlement,
   saveMemberSettlement,
 } from "@/lib/member-settlement-storage";
@@ -34,26 +38,6 @@ type SharePayload = {
   assignments: AssignmentMap;
   members: ShareMember[];
 };
-
-const SEAT_RING_COLORS = [
-  "bg-amber-400",
-  "bg-violet-500",
-  "bg-sky-500",
-  "bg-emerald-500",
-  "bg-indigo-500",
-  "bg-orange-500",
-] as const;
-
-/** Matches assign screen chip tones for `AssignItemSheet` members. */
-const SHEET_MEMBER_TONES = [
-  "bg-violet-500 border-violet-500",
-  "bg-sky-500 border-sky-500",
-  "bg-emerald-500 border-emerald-500",
-  "bg-amber-500 border-amber-500",
-  "bg-rose-500 border-rose-500",
-  "bg-indigo-500 border-indigo-500",
-  "bg-orange-500 border-orange-500",
-] as const;
 
 function asSingleParam(v: string | string[] | undefined): string | undefined {
   if (v === undefined) return undefined;
@@ -166,8 +150,7 @@ export default function MemberShareScreen() {
       0,
       members.findIndex((m) => m.id === memberId),
     );
-    const avatarBg = SEAT_RING_COLORS[toneIdx % SEAT_RING_COLORS.length];
-    const darkAvatar = avatarBg === "bg-amber-400" || avatarBg === "bg-sky-500";
+    const avatarTones = avatarTonesForPaletteIndex(toneIdx);
 
     return {
       draft,
@@ -177,8 +160,7 @@ export default function MemberShareScreen() {
       owedCents: owed[memberId] ?? 0,
       lines,
       assignedLineCount,
-      avatarBg,
-      darkAvatar,
+      avatarTones,
     };
   }, [payload, memberId]);
 
@@ -187,7 +169,8 @@ export default function MemberShareScreen() {
     return model.billMembers.map((m, i) => ({
       id: m.id,
       name: m.name,
-      tone: SHEET_MEMBER_TONES[i % SHEET_MEMBER_TONES.length],
+      tone: memberChipBorderToneForIndex(i),
+      ...avatarTonesForPaletteIndex(i),
     }));
   }, [model]);
 
@@ -254,8 +237,7 @@ export default function MemberShareScreen() {
     owedCents,
     lines,
     assignedLineCount,
-    avatarBg,
-    darkAvatar,
+    avatarTones,
   } = model;
   const merchantHint =
     draft.merchant.trim().length > 0 ? draft.merchant.trim() : undefined;
@@ -301,16 +283,12 @@ export default function MemberShareScreen() {
           <View className="overflow-hidden rounded-2xl border border-stone-200/30 bg-white p-4 shadow-sm shadow-stone-900/5 dark:border-neutral-800/45 dark:bg-neutral-900 dark:shadow-none">
             <View className="flex-row gap-3">
               <View
-                className={cn(
-                  "size-[4.5rem] shrink-0 items-center justify-center rounded-full",
-                  avatarBg,
-                )}
+                className="size-[4.5rem] shrink-0 items-center justify-center rounded-full"
+                style={{ backgroundColor: avatarTones.avatarBackgroundColor }}
               >
                 <AppText
-                  className={cn(
-                    "text-xl font-bold",
-                    darkAvatar ? "text-stone-900" : "text-white",
-                  )}
+                  className="text-xl font-bold"
+                  style={{ color: avatarTones.avatarTextColor }}
                 >
                   {initials(member.name)}
                 </AppText>

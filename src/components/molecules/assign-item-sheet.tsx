@@ -21,6 +21,8 @@ export type AssignItemSheetMember = {
   id: string;
   name: string;
   tone: string;
+  avatarBackgroundColor: string;
+  avatarTextColor: string;
 };
 
 export type AssignItemSheetProps = {
@@ -259,31 +261,29 @@ export function AssignItemSheet({
                 </AppText>
               ) : (
                 assignedMembersOrdered.map((m) => {
-                  const [bg, borderTone] = m.tone.split(" ");
                   return (
                     <View
                       key={m.id}
                       className={cn(
                         "relative flex-row items-center gap-1.5 rounded-full border py-1.5 pl-1.5 pr-2.5",
-                        borderTone,
+                        m.tone.split(" ").slice(1).join(" "),
                       )}
                     >
                       <View
-                        className={cn(
-                          "absolute -right-0.5 -top-0.5 z-10 size-[18px] items-center justify-center rounded-full",
-                          bg,
-                        )}
+                        className="absolute -right-0.5 -top-0.5 z-10 size-[18px] items-center justify-center rounded-full"
                         pointerEvents="none"
+                        style={{ backgroundColor: m.avatarBackgroundColor }}
                       >
-                        <Ionicons name="checkmark" size={11} color="#ffffff" />
+                        <Ionicons name="checkmark" size={11} color="#FFFFFF" />
                       </View>
                       <View
-                        className={cn(
-                          "size-8 items-center justify-center rounded-full",
-                          bg,
-                        )}
+                        className="size-8 items-center justify-center rounded-full"
+                        style={{ backgroundColor: m.avatarBackgroundColor }}
                       >
-                        <AppText className="text-[11px] font-bold text-white">
+                        <AppText
+                          className="text-[11px] font-bold"
+                          style={{ color: m.avatarTextColor }}
+                        >
                           {initials(m.name)}
                         </AppText>
                       </View>
@@ -300,7 +300,7 @@ export function AssignItemSheet({
             ) : (
               members.map((m) => {
                 const selected = localIds.includes(m.id);
-                const [bg, borderTone] = m.tone.split(" ");
+                const borderTone = m.tone.split(" ").slice(1).join(" ");
                 return (
                   <Pressable
                     key={m.id}
@@ -316,22 +316,21 @@ export function AssignItemSheet({
                   >
                     {selected ? (
                       <View
-                        className={cn(
-                          "absolute -right-0.5 -top-0.5 z-10 size-[18px] items-center justify-center rounded-full",
-                          bg,
-                        )}
+                        className="absolute -right-0.5 -top-0.5 z-10 size-[18px] items-center justify-center rounded-full"
                         pointerEvents="none"
+                        style={{ backgroundColor: m.avatarBackgroundColor }}
                       >
-                        <Ionicons name="checkmark" size={11} color="#ffffff" />
+                        <Ionicons name="checkmark" size={11} color="#FFFFFF" />
                       </View>
                     ) : null}
                     <View
-                      className={cn(
-                        "size-8 items-center justify-center rounded-full",
-                        bg,
-                      )}
+                      className="size-8 items-center justify-center rounded-full"
+                      style={{ backgroundColor: m.avatarBackgroundColor }}
                     >
-                      <AppText className="text-[11px] font-bold text-white">
+                      <AppText
+                        className="text-[11px] font-bold"
+                        style={{ color: m.avatarTextColor }}
+                      >
                         {initials(m.name)}
                       </AppText>
                     </View>

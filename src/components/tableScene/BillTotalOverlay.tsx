@@ -1,17 +1,20 @@
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { AnimatedZarAmount } from "@/components/atoms/animated-zar-amount";
+import { formatZAR } from "@/lib/helper";
+
 import type { TableTheme } from "./tableThemes";
 
 type BillTotalOverlayProps = {
   theme: TableTheme;
-  total: string;
+  totalCents: number;
   itemCount: number;
   onPress?: () => void;
 };
 
 export function BillTotalOverlay({
   theme,
-  total,
+  totalCents,
   itemCount,
   onPress,
 }: BillTotalOverlayProps) {
@@ -22,7 +25,7 @@ export function BillTotalOverlay({
     >
       <Pressable
         accessibilityHint="Bill total and item count"
-        accessibilityLabel={`Bill total ${total}, ${itemCount} items`}
+        accessibilityLabel={`Bill total ${formatZAR(totalCents)}, ${itemCount} items`}
         accessibilityRole="button"
         disabled={!onPress}
         hitSlop={8}
@@ -32,7 +35,10 @@ export function BillTotalOverlay({
         <Text style={[styles.labelSmall, { color: theme.mutedTextColor }]}>
           Bill total
         </Text>
-        <Text style={[styles.amount, { color: theme.textColor }]}>{total}</Text>
+        <AnimatedZarAmount
+          cents={totalCents}
+          style={[styles.amount, { color: theme.textColor }]}
+        />
         <Text style={[styles.meta, { color: theme.mutedTextColor }]}>
           {itemCount} {itemCount === 1 ? "item" : "items"}
         </Text>

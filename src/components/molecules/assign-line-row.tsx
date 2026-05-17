@@ -7,7 +7,13 @@ import { cn } from "@/lib/cn";
 import { formatZAR } from "@/lib/helper";
 import type { ReceiptLine } from "@/mocks/review-draft.mock";
 
-export type AssignLineRowMember = { id: string; name: string; tone: string };
+export type AssignLineRowMember = {
+  id: string;
+  name: string;
+  tone: string;
+  avatarBackgroundColor: string;
+  avatarTextColor: string;
+};
 
 export type AssignLineRowProps =
   | {
@@ -156,22 +162,20 @@ export function AssignLineRow(props: AssignLineRowProps) {
           ) : (
             <>
               <View className="shrink-0 flex-row items-center gap-1">
-                {assigned.map((m) => {
-                  const [bg] = m.tone.split(" ");
-                  return (
-                    <View
-                      key={m.id}
-                      className={cn(
-                        "size-7 items-center justify-center rounded-full",
-                        bg,
-                      )}
+                {assigned.map((m) => (
+                  <View
+                    key={m.id}
+                    className="size-7 items-center justify-center rounded-full"
+                    style={{ backgroundColor: m.avatarBackgroundColor }}
+                  >
+                    <AppText
+                      className="text-[11px] font-bold"
+                      style={{ color: m.avatarTextColor }}
                     >
-                      <AppText className="text-[11px] font-bold text-white">
-                        {initials(m.name)}
-                      </AppText>
-                    </View>
-                  );
-                })}
+                      {initials(m.name)}
+                    </AppText>
+                  </View>
+                ))}
               </View>
               <AppText
                 className={cn(

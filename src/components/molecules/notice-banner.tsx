@@ -1,6 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import type { ComponentProps } from "react";
-import { Pressable, View, type ViewProps } from "react-native";
+import {
+  Pressable,
+  type StyleProp,
+  type TextStyle,
+  View,
+  type ViewProps,
+} from "react-native";
 
 import { AppText } from "@/components/atoms";
 import { useAppColorScheme } from "@/hooks";
@@ -28,6 +34,8 @@ export type NoticeBannerChrome = {
   surfaceClassName: string;
   textClassName: string;
   iconColor: string;
+  surfaceStyle?: ViewProps["style"];
+  textStyle?: StyleProp<TextStyle>;
 };
 
 export type NoticeBannerProps = ViewProps & {
@@ -51,6 +59,7 @@ export function NoticeBanner({
   onDismiss,
   dismissAccessibilityLabel = "Dismiss",
   className,
+  style,
   ...rest
 }: NoticeBannerProps) {
   const scheme = useAppColorScheme();
@@ -65,6 +74,7 @@ export function NoticeBanner({
         chrome ? chrome.surfaceClassName : preset.surfaceClassName,
         className,
       )}
+      style={[chrome?.surfaceStyle, style]}
       {...rest}
     >
       <Ionicons name={icon} size={iconSize} color={iconColor} />
@@ -73,6 +83,7 @@ export function NoticeBanner({
           "min-w-0 flex-1 text-xs font-medium leading-snug",
           chrome ? chrome.textClassName : preset.textClassName,
         )}
+        style={chrome?.textStyle}
       >
         {message}
       </AppText>

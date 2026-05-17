@@ -25,7 +25,7 @@ const MAX_VISIBLE_CAP = 8;
 export function TableScene({
   theme: themeId = "softWood",
   people,
-  total,
+  totalCents,
   itemCount,
   onPressTable,
   onPressPerson,
@@ -107,7 +107,7 @@ export function TableScene({
               itemCount={itemCount}
               onPress={onPressTable}
               theme={theme}
-              total={total}
+              totalCents={totalCents}
             />
             {showParticipants ? (
               <ParticipantLayer

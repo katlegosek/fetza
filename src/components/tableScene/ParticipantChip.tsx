@@ -7,11 +7,19 @@ type ParticipantChipProps = {
   person: TablePerson;
 };
 
+const FALLBACK_BG = "#263238";
+const FALLBACK_INITIALS = "#FFFFFF";
+
 export function ParticipantChip({ person }: ParticipantChipProps) {
+  const avatarBg = person.avatarBackgroundColor ?? person.color ?? FALLBACK_BG;
+  const initialsColor = person.avatarTextColor ?? FALLBACK_INITIALS;
+
   return (
     <View style={styles.chip}>
-      <View style={[styles.avatar, { backgroundColor: person.color }]}>
-        <Text style={styles.avatarText}>{person.initials}</Text>
+      <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
+        <Text style={[styles.avatarText, { color: initialsColor }]}>
+          {person.initials}
+        </Text>
       </View>
       <Text style={styles.name} numberOfLines={1}>
         {person.name}
@@ -52,16 +60,15 @@ const styles = StyleSheet.create({
     }),
   },
   avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "800",
   },
   name: {
     flexShrink: 1,

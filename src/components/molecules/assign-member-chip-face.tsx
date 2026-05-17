@@ -7,7 +7,10 @@ import { cn } from "@/lib/cn";
 export type AssignMemberChipFaceProps = {
   name: string;
   initialsText: string;
-  avatarBgClassName: string;
+  /** Legacy Tailwind bg class; ignored when `avatarBackgroundColor` is set. */
+  avatarBgClassName?: string;
+  avatarBackgroundColor?: string;
+  avatarTextColor?: string;
   showYouRibbon?: boolean;
   /** Tighter chip for cramped layouts (e.g. Summary table view). */
   density?: "default" | "compact";
@@ -20,29 +23,51 @@ export function AssignMemberChipFace({
   name,
   initialsText,
   avatarBgClassName,
+  avatarBackgroundColor,
+  avatarTextColor,
   showYouRibbon,
   density = "default",
 }: AssignMemberChipFaceProps) {
   const compact = density === "compact";
+  const useHex = avatarBackgroundColor != null;
+
   return (
     <>
-      <View
-        className={cn(
-          compact
-            ? "size-9 items-center justify-center rounded-full"
-            : "size-10 items-center justify-center rounded-full",
-          avatarBgClassName,
-        )}
-      >
-        <AppText
+      {useHex ? (
+        <View
           className={cn(
-            "font-bold text-white",
-            compact ? "text-[11px]" : "text-[12px]",
+            compact
+              ? "size-9 items-center justify-center rounded-full"
+              : "size-10 items-center justify-center rounded-full",
+          )}
+          style={{ backgroundColor: avatarBackgroundColor }}
+        >
+          <AppText
+            className={cn("font-bold", compact ? "text-[11px]" : "text-[12px]")}
+            style={{ color: avatarTextColor ?? "#FFFFFF" }}
+          >
+            {initialsText}
+          </AppText>
+        </View>
+      ) : (
+        <View
+          className={cn(
+            compact
+              ? "size-9 items-center justify-center rounded-full"
+              : "size-10 items-center justify-center rounded-full",
+            avatarBgClassName ?? "bg-neutral-600",
           )}
         >
-          {initialsText}
-        </AppText>
-      </View>
+          <AppText
+            className={cn(
+              "font-bold text-white",
+              compact ? "text-[11px]" : "text-[12px]",
+            )}
+          >
+            {initialsText}
+          </AppText>
+        </View>
+      )}
       <View
         className={cn(
           "flex-row items-center gap-1",
@@ -60,6 +85,7 @@ export function AssignMemberChipFace({
         </AppText>
         {showYouRibbon ? (
           <Ionicons
+            accessibilityLabel="Host"
             name="ribbon-outline"
             size={compact ? 13 : 15}
             color="#7c3aed"

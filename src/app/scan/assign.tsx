@@ -5,6 +5,7 @@ import { Alert, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
+  AnimatedZarAmount,
   AppText,
   AssignItemSheet,
   AssignLineRow,
@@ -16,37 +17,35 @@ import {
   ScreenHeader,
 } from "@/components";
 import { useAppColorScheme, useThemeColors } from "@/hooks";
-import {
-  assignMemberAvatarBgClassName,
-  assignMemberChipPressableClassName,
-} from "@/lib/assign-member-chip";
+import { assignMemberChipPressableClassName } from "@/lib/assign-member-chip";
 import { cn } from "@/lib/cn";
-import { cloneBillDraft, formatZAR, sumLineAmountsCents } from "@/lib/helper";
-import { memberAssignHighlight } from "@/lib/member-assign-highlight";
+import { cloneBillDraft, sumLineAmountsCents } from "@/lib/helper";
+import { memberAssignHighlightFromTones } from "@/lib/member-assign-highlight";
+import {
+  type MemberAvatarTones,
+  avatarTonesForPaletteIndex,
+  memberChipBorderToneForIndex,
+} from "@/lib/member-avatar-tones";
 import type { DraftBill, ReceiptLine } from "@/mocks/review-draft.mock";
 
-type Member = { id: string; name: string; tone: string };
+type Member = { id: string; name: string; tone: string } & MemberAvatarTones;
 
-const MEMBER_TONES = [
-  "bg-violet-500 border-violet-500",
-  "bg-sky-500 border-sky-500",
-  "bg-emerald-500 border-emerald-500",
-  "bg-amber-500 border-amber-500",
-  "bg-rose-500 border-rose-500",
-  "bg-indigo-500 border-indigo-500",
-  "bg-orange-500 border-orange-500",
+const SEED_MEMBER_ROWS: { id: string; name: string }[] = [
+  { id: "m-you", name: "You" },
+  { id: "m-2", name: "Alex" },
+  { id: "m-3", name: "Sam" },
+  { id: "m-4", name: "Joseph" },
+  { id: "m-5", name: "James" },
+  { id: "m-6", name: "Jessie" },
+  { id: "m-7", name: "Morgan" },
+  { id: "m-8", name: "Taylor" },
 ];
 
-const SEED_MEMBERS: Member[] = [
-  { id: "m-you", name: "You", tone: MEMBER_TONES[0] },
-  { id: "m-2", name: "Alex", tone: MEMBER_TONES[1] },
-  { id: "m-3", name: "Sam", tone: MEMBER_TONES[2] },
-  { id: "m-4", name: "Joseph", tone: MEMBER_TONES[3] },
-  { id: "m-5", name: "James", tone: MEMBER_TONES[4] },
-  { id: "m-6", name: "Jessie", tone: MEMBER_TONES[5] },
-  { id: "m-7", name: "Morgan", tone: MEMBER_TONES[6] },
-  { id: "m-8", name: "Taylor", tone: MEMBER_TONES[1] },
-];
+const SEED_MEMBERS: Member[] = SEED_MEMBER_ROWS.map((row, i) => ({
+  ...row,
+  ...avatarTonesForPaletteIndex(i),
+  tone: memberChipBorderToneForIndex(i),
+}));
 
 type Assignments = Record<string, string[]>;
 
@@ -239,9 +238,6 @@ export default function AssignBillScreen() {
 
   const handleAddMember = useCallback(() => {
     const isIOS = typeof Alert.prompt === "function";
-    const assignTone = (idx: number) =>
-      MEMBER_TONES[idx % MEMBER_TONES.length] ?? MEMBER_TONES[0];
-
     if (isIOS) {
       Alert.prompt(
         "Add Member",
@@ -254,10 +250,18 @@ export default function AssignBillScreen() {
               const trimmed = name?.trim();
               if (!trimmed) return;
               const id = `m-${Date.now().toString(36)}`;
-              setMembers((prev) => [
-                { id, name: trimmed, tone: assignTone(prev.length) },
-                ...prev,
-              ]);
+              setMembers((prev) => {
+                const i = prev.length;
+                return [
+                  {
+                    id,
+                    name: trimmed,
+                    tone: memberChipBorderToneForIndex(i),
+                    ...avatarTonesForPaletteIndex(i),
+                  },
+                  ...prev,
+                ];
+              });
               setActiveMemberId(id);
             },
           },
@@ -266,14 +270,18 @@ export default function AssignBillScreen() {
       );
     } else {
       const id = `m-${Date.now().toString(36)}`;
-      setMembers((prev) => [
-        {
-          id,
-          name: `Person ${prev.length + 1}`,
-          tone: assignTone(prev.length),
-        },
-        ...prev,
-      ]);
+      setMembers((prev) => {
+        const i = prev.length;
+        return [
+          {
+            id,
+            name: `Person ${prev.length + 1}`,
+            tone: memberChipBorderToneForIndex(i),
+            ...avatarTonesForPaletteIndex(i),
+          },
+          ...prev,
+        ];
+      });
       setActiveMemberId(id);
     }
   }, []);
@@ -441,7 +449,6 @@ export default function AssignBillScreen() {
           >
             {members.map((m) => {
               const active = m.id === activeMemberId;
-              const bg = assignMemberAvatarBgClassName(m.tone);
               const isYou =
                 m.id === "m-you" || m.name.trim().toLowerCase() === "you";
               return (
@@ -456,7 +463,8 @@ export default function AssignBillScreen() {
                   }
                 >
                   <AssignMemberChipFace
-                    avatarBgClassName={bg}
+                    avatarBackgroundColor={m.avatarBackgroundColor}
+                    avatarTextColor={m.avatarTextColor}
                     initialsText={initials(m.name)}
                     name={m.name}
                     showYouRibbon={isYou}
@@ -479,7 +487,7 @@ export default function AssignBillScreen() {
           >
             {activeAssignMember ? (
               <NoticeBanner
-                chrome={memberAssignHighlight(activeAssignMember.tone)}
+                chrome={memberAssignHighlightFromTones(activeAssignMember)}
                 dismissAccessibilityLabel="Stop assigning to this person"
                 icon="people-outline"
                 message={`Assigning to ${activeAssignMember.name} — tap items to add or remove`}
@@ -625,9 +633,17 @@ export default function AssignBillScreen() {
                   <AppText className="text-[11px] leading-tight text-muted">
                     Assigned total
                   </AppText>
-                  <AppText className="mt-0.5 text-xl font-bold tabular-nums leading-tight text-foreground">
-                    {formatZAR(assignedItemsTotalCents)}
-                  </AppText>
+                  <AnimatedZarAmount
+                    cents={assignedItemsTotalCents}
+                    style={{
+                      marginTop: 2,
+                      fontSize: 20,
+                      fontWeight: "700",
+                      fontVariant: ["tabular-nums"],
+                      color: colors.foreground,
+                      lineHeight: 24,
+                    }}
+                  />
                   <AppText className="mt-0.5 text-[11px] leading-tight text-muted">
                     {assignedLineCount} of {draft.lines.length} items assigned
                   </AppText>
