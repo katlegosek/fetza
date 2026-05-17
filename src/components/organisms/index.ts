@@ -1,15 +1,4 @@
 export {
-  AmountPill,
-  Chair,
-  CircularSummaryTable,
-  DiningTable,
-  ParticipantChip,
-  SummaryTableView,
-  type CircularSummaryTableProps,
-  type SummaryMember,
-  type SummaryTableViewProps,
-} from "./circular-summary-table";
-export {
   BottomSheet,
   bottomSheetFormClasses,
   SheetCloseButton,

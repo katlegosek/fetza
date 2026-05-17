@@ -8,9 +8,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   AppText,
   Button,
+  type Person,
   ScreenContainer,
   ScreenHeader,
-  SummaryTableView,
+  TableScene,
 } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { appendSummarySnapshot } from "@/lib/bill-summary-snapshot-storage";
@@ -53,6 +54,15 @@ const SEAT_RING_COLORS = [
   "bg-orange-500",
 ] as const;
 
+const AVATAR_HEX = [
+  "#0EA5E9",
+  "#22C55E",
+  "#F59E0B",
+  "#6366F1",
+  "#F97316",
+  "#14B8A6",
+] as const;
+
 function asSingleParam(v: string | string[] | undefined): string | undefined {
   if (v === undefined) return undefined;
   return Array.isArray(v) ? v[0] : v;
@@ -60,6 +70,18 @@ function asSingleParam(v: string | string[] | undefined): string | undefined {
 
 function isYouMember(m: SummaryMember): boolean {
   return m.id === "m-you" || m.name.trim().toLowerCase() === "you";
+}
+
+function memberAvatarColorHex(
+  m: SummaryMember,
+  members: SummaryMember[],
+): string {
+  if (isYouMember(m)) return "#7C3AED";
+  const idx = Math.max(
+    0,
+    members.findIndex((x) => x.id === m.id),
+  );
+  return AVATAR_HEX[idx % AVATAR_HEX.length];
 }
 
 function listMemberAvatarClass(
@@ -289,25 +311,50 @@ function SummaryTableScene({
     });
   }, [members]);
 
+  const people: Person[] = useMemo(
+    () =>
+      ordered.map((m) => ({
+        id: m.id,
+        name: m.name,
+        initials: initials(m.name),
+        amount: formatZAR(owed[m.id] ?? 0),
+        color: memberAvatarColorHex(m, members),
+        isHost: isYouMember(m),
+        isPaid: isMemberSettled(settlement, m.id),
+      })),
+    [ordered, members, owed, settlement],
+  );
+
   return (
-    <SummaryTableView
-      key={ordered.map((m) => m.id).join(",")}
-      grandTotalCents={grandTotalCents}
-      lineCount={lineCount}
-      members={members}
-      owed={owed}
-      orderedMembers={ordered}
-      settlement={settlement}
-      onMemberLongPress={onMemberLongPress}
-      onMemberPress={onMemberPress}
-      onMorePress={onListPress}
-      onTablePress={() =>
-        Alert.alert(
-          "Bill details",
-          `Total ${formatZAR(grandTotalCents)} across ${lineCount} items.`,
-        )
-      }
-    />
+    <View className="w-full overflow-visible rounded-3xl bg-stone-50 dark:bg-neutral-950/50">
+      <TableScene
+        itemCount={lineCount}
+        key={ordered.map((m) => m.id).join(",")}
+        maxVisibleParticipants={7}
+        people={people}
+        sceneBackgroundColor="transparent"
+        showParticipantOverflow={false}
+        style={{ marginTop: 0, borderRadius: 0 }}
+        total={formatZAR(grandTotalCents)}
+        onLongPressPerson={
+          onMemberLongPress
+            ? (p) => {
+                onMemberLongPress(p.id);
+              }
+            : undefined
+        }
+        onPressMorePeople={onListPress}
+        onPressPerson={(p) => {
+          onMemberPress(p.id);
+        }}
+        onPressTable={() =>
+          Alert.alert(
+            "Bill details",
+            `Total ${formatZAR(grandTotalCents)} across ${lineCount} items.`,
+          )
+        }
+      />
+    </View>
   );
 }
 
@@ -517,6 +564,7 @@ export default function BillSummaryScreen() {
           className="flex-1"
           contentContainerClassName="px-4 pt-2"
           contentContainerStyle={{
+            flexGrow: 1,
             paddingBottom: insets.bottom + SUMMARY_SCROLL_PAD_BOTTOM_NAV,
           }}
           keyboardShouldPersistTaps="handled"
@@ -581,16 +629,18 @@ export default function BillSummaryScreen() {
           </Pressable>
 
           {viewMode === "table" ? (
-            <SummaryTableScene
-              grandTotalCents={grandTotalCents}
-              lineCount={draft.lines.length}
-              members={members}
-              onListPress={() => setViewMode("list")}
-              owed={owed}
-              settlement={settlementByMember}
-              onMemberLongPress={toggleMemberPaid}
-              onMemberPress={openMemberShare}
-            />
+            <View className="mt-4 min-h-0 w-full flex-1 justify-center overflow-visible">
+              <SummaryTableScene
+                grandTotalCents={grandTotalCents}
+                lineCount={draft.lines.length}
+                members={members}
+                onListPress={() => setViewMode("list")}
+                owed={owed}
+                settlement={settlementByMember}
+                onMemberLongPress={toggleMemberPaid}
+                onMemberPress={openMemberShare}
+              />
+            </View>
           ) : (
             <>
               <SummaryBillTotalCard

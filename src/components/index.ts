@@ -1,6 +1,7 @@
 export * from "./atoms";
 export * from "./molecules";
 export * from "./organisms";
+export * from "./tableScene";
 export { AssignOverflowMenu } from "./assign-overflow-menu";
 export { ClearReceiptSheet } from "./clear-receipt-sheet";
 export { ReviewItemSheet } from "./review-item-sheet";
