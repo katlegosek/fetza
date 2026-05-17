@@ -4,8 +4,8 @@ import { Pressable, View } from "react-native";
 import { AppText, AppTextInput } from "@/components/atoms";
 import { LabeledField } from "@/components/molecules";
 import {
-  bottomSheetFormStyles as fs,
   BottomSheet,
+  bottomSheetFormClasses as sheetForm,
   useBottomSheetAppearance,
 } from "@/components/organisms";
 import { parseRandStringToCents } from "@/lib/helper";
@@ -81,9 +81,10 @@ export function ReviewItemSheet({
         labelColor={a.muted}
       >
         <AppTextInput
+          className={sheetForm.fieldInput}
           placeholder="Item name"
           placeholderTextColor={a.muted}
-          style={[fs.fieldInput, { color: a.ink }]}
+          style={{ color: a.ink }}
           value={desc}
           onChangeText={setDesc}
         />
@@ -95,12 +96,18 @@ export function ReviewItemSheet({
         label="ITEM TOTAL"
         labelColor={a.muted}
       >
-        <AppText style={[fs.currencyPrefix, { color: a.muted }]}>R</AppText>
+        <AppText
+          className={sheetForm.currencyPrefix}
+          style={{ color: a.muted }}
+        >
+          R
+        </AppText>
         <AppTextInput
+          className={sheetForm.fieldInput}
           keyboardType="decimal-pad"
           placeholder="0.00"
           placeholderTextColor={a.muted}
-          style={[fs.fieldInput, { color: a.ink }]}
+          style={{ color: a.ink }}
           value={priceStr}
           onChangeText={setPriceStr}
         />
@@ -113,46 +120,55 @@ export function ReviewItemSheet({
         labelColor={a.muted}
       >
         <AppTextInput
+          className={sheetForm.fieldInput}
           keyboardType="number-pad"
           placeholder="1"
           placeholderTextColor={a.muted}
-          style={[fs.fieldInput, { color: a.ink }]}
+          style={{ color: a.ink }}
           value={qtyStr}
           onChangeText={setQtyStr}
         />
       </LabeledField>
 
-      <View style={fs.buttonRow}>
+      <View className={sheetForm.buttonRow}>
         {canDelete ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Remove line"
-            style={fs.btnDanger}
+            className={sheetForm.btnDanger}
             onPress={() => {
               onDelete();
               onClose();
             }}
           >
-            <AppText style={fs.btnDangerText}>Remove</AppText>
+            <AppText className={sheetForm.btnDangerText}>Remove</AppText>
           </Pressable>
         ) : null}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Cancel"
-          style={[fs.btnSecondary, { borderColor: a.border }]}
+          className={sheetForm.btnSecondary}
+          style={{ borderColor: a.border }}
           onPress={onClose}
         >
-          <AppText style={[fs.btnSecondaryText, { color: a.ink }]}>
+          <AppText
+            className={sheetForm.btnSecondaryText}
+            style={{ color: a.ink }}
+          >
             Cancel
           </AppText>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Save line"
-          style={[fs.btnPrimary, { backgroundColor: a.ink }]}
+          className={sheetForm.btnPrimary}
+          style={{ backgroundColor: a.ink }}
           onPress={handleSave}
         >
-          <AppText style={[fs.btnPrimaryText, { color: a.onPrimary }]}>
+          <AppText
+            className={sheetForm.btnPrimaryText}
+            style={{ color: a.onPrimary }}
+          >
             Save
           </AppText>
         </Pressable>

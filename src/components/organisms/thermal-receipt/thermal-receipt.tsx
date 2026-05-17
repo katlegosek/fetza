@@ -59,7 +59,6 @@ export function ThermalReceipt({
         position: "relative",
         flexShrink: 0,
         width,
-        transform: [{ rotate: "-1.4deg" }],
       }}
     >
       <View
@@ -90,16 +89,15 @@ export function ThermalReceipt({
           accessibilityRole="button"
           accessibilityLabel={`Edit merchant ${draft.merchant}`}
           onPress={onMerchantPress}
-          className="mt-2 flex-row items-center justify-center gap-2 rounded-md py-1 active:bg-black/5"
+          className="mt-2 rounded-md py-1 active:bg-black/5"
         >
           <AppText
-            className="max-w-[85%] text-center text-[15px] font-bold uppercase leading-snug tracking-wide"
+            className="text-center text-[15px] font-bold uppercase leading-snug tracking-wide"
             style={{ color: INK, fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY }}
             numberOfLines={2}
           >
             {draft.merchant}
           </AppText>
-          <Ionicons name="create-outline" size={17} color={INK_MUTED} />
         </Pressable>
 
         <AppText
@@ -123,16 +121,6 @@ export function ThermalReceipt({
         </AppText>
 
         <View className="my-3 border-t border-dashed border-stone-400/90" />
-
-        <AppText
-          className="mb-2 text-center text-[10px] uppercase tracking-widest"
-          style={{
-            color: INK_MUTED,
-            fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-          }}
-        >
-          Review · tap to edit
-        </AppText>
 
         <View className="gap-0">
           <View className="mb-1 flex-row items-end justify-between border-b border-stone-400/40 pb-1">
@@ -185,7 +173,7 @@ export function ThermalReceipt({
                 {line.description}
               </AppText>
               <AppText
-                className="w-9 text-right text-[13px]"
+                className="w-9 shrink-0 text-right text-[13px]"
                 style={{
                   color: INK,
                   fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
@@ -195,12 +183,13 @@ export function ThermalReceipt({
                 {line.qty}
               </AppText>
               <AppText
-                className="w-[5.5rem] text-right text-[13px]"
+                className="w-[5.5rem] shrink-0 text-right text-[13px]"
                 style={{
                   color: INK,
                   fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
                   fontVariant: ["tabular-nums"],
                 }}
+                numberOfLines={1}
               >
                 {formatZAR(line.amountCents)}
               </AppText>
@@ -262,18 +251,15 @@ export function ThermalReceipt({
           >
             VAT incl.
           </AppText>
-          <View className="flex-row items-center gap-1">
-            <AppText
-              style={{
-                color: INK,
-                fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-                fontVariant: ["tabular-nums"],
-              }}
-            >
-              {formatZAR(draft.vatCents)}
-            </AppText>
-            <Ionicons name="create-outline" size={15} color={INK_MUTED} />
-          </View>
+          <AppText
+            style={{
+              color: INK,
+              fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+              fontVariant: ["tabular-nums"],
+            }}
+          >
+            {formatZAR(draft.vatCents)}
+          </AppText>
         </Pressable>
 
         <Pressable
@@ -290,18 +276,15 @@ export function ThermalReceipt({
           >
             Service fee
           </AppText>
-          <View className="flex-row items-center gap-1">
-            <AppText
-              style={{
-                color: INK,
-                fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-                fontVariant: ["tabular-nums"],
-              }}
-            >
-              {formatZAR(draft.serviceFeeCents)}
-            </AppText>
-            <Ionicons name="create-outline" size={15} color={INK_MUTED} />
-          </View>
+          <AppText
+            style={{
+              color: INK,
+              fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+              fontVariant: ["tabular-nums"],
+            }}
+          >
+            {formatZAR(draft.serviceFeeCents)}
+          </AppText>
         </Pressable>
 
         <View className="mt-2 flex-row items-center justify-between border-t border-stone-900/15 pt-2">

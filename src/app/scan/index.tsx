@@ -1,22 +1,19 @@
 import { useRouter } from "expo-router";
 import { View } from "react-native";
 
-import { AppText, Button, ScreenContainer } from "@/components";
+import { Button, ScreenContainer, ScreenHeader } from "@/components";
 
 export default function ScanHubScreen() {
   const router = useRouter();
 
   return (
-    <ScreenContainer className="justify-center gap-6 px-6">
-      <View className="gap-2">
-        <AppText className="text-center text-xl font-semibold text-foreground">
-          Add a bill
-        </AppText>
-        <AppText className="text-center text-base text-muted">
-          Camera scan comes later — pick how you want to start for now.
-        </AppText>
-      </View>
-      <View className="gap-4">
+    <ScreenContainer className="flex-1">
+      <ScreenHeader
+        title="Add a bill"
+        bottomHint="Camera scan comes later — pick how you want to start for now."
+        onBack={() => router.back()}
+      />
+      <View className="flex-1 justify-center gap-4 px-6">
         <Button
           accessibilityLabel="Manual entry"
           onPress={() => router.push("/scan/manual")}

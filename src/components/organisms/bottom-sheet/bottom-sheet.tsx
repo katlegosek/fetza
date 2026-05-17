@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Modal, Pressable, StyleSheet, View } from "react-native";
+import { Modal, Pressable, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -8,12 +8,10 @@ import Animated, {
 
 import { AppText } from "@/components/atoms";
 
+import { SheetCloseButton } from "./sheet-close-button";
 import type { BottomSheetProps } from "./types";
 import { useBottomSheetAppearance } from "./use-bottom-sheet-appearance";
 
-/**
- * Reusable modal bottom sheet: dimmed backdrop, slide-up panel, handle, title area, body slot.
- */
 export function BottomSheet({
   visible,
   onClose,
@@ -48,18 +46,21 @@ export function BottomSheet({
       transparent
       visible={visible}
     >
-      <View style={styles.root}>
-        <Animated.View style={[styles.backdrop, backdropStyle]}>
+      <View className="flex-1 justify-end">
+        <Animated.View
+          className="absolute inset-0 bg-black/45"
+          style={backdropStyle}
+        >
           <Pressable
             accessibilityRole="button"
+            className="flex-1"
             onPress={onClose}
-            style={styles.backdropPressable}
           />
         </Animated.View>
 
         <Animated.View
+          className="rounded-t-3xl px-6 pt-3"
           style={[
-            styles.sheet,
             {
               backgroundColor: a.sheetBg,
               paddingBottom: bottomInset + 28,
@@ -67,11 +68,24 @@ export function BottomSheet({
             sheetStyle,
           ]}
         >
-          <View style={[styles.handle, { backgroundColor: a.handle }]} />
+          <View className="mb-3 flex-row items-center">
+            <View className="w-9 shrink-0" />
+            <View className="min-w-0 flex-1 items-center">
+              <View
+                className="h-[5px] w-12 rounded-full"
+                style={{ backgroundColor: a.handle }}
+              />
+            </View>
+            <View className="w-9 shrink-0 items-end">
+              <SheetCloseButton onPress={onClose} />
+            </View>
+          </View>
 
-          <AppText style={[styles.title, { color: a.ink }]}>{title}</AppText>
+          <AppText className="text-[22px] font-bold" style={{ color: a.ink }}>
+            {title}
+          </AppText>
           {subtitle ? (
-            <AppText style={[styles.subline, { color: a.muted }]}>
+            <AppText className="mb-3 mt-1 text-sm" style={{ color: a.muted }}>
               {subtitle}
             </AppText>
           ) : null}
@@ -82,37 +96,3 @@ export function BottomSheet({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.45)",
-  },
-  backdropPressable: { flex: 1 },
-  sheet: {
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  handle: {
-    alignSelf: "center",
-    width: 48,
-    height: 5,
-    borderRadius: 999,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-  },
-  subline: {
-    marginTop: 4,
-    marginBottom: 12,
-    fontSize: 14,
-  },
-});

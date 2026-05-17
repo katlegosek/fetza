@@ -1,0 +1,706 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Alert, Pressable, ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import {
+  AppText,
+  AssignItemSheet,
+  AssignLineRow,
+  AssignMemberChipFace,
+  AssignOverflowMenu,
+  Button,
+  NoticeBanner,
+  ScreenContainer,
+  ScreenHeader,
+} from "@/components";
+import { useAppColorScheme, useThemeColors } from "@/hooks";
+import {
+  assignMemberAvatarBgClassName,
+  assignMemberChipPressableClassName,
+} from "@/lib/assign-member-chip";
+import { cn } from "@/lib/cn";
+import { cloneBillDraft, formatZAR, sumLineAmountsCents } from "@/lib/helper";
+import { memberAssignHighlight } from "@/lib/member-assign-highlight";
+import type { DraftBill, ReceiptLine } from "@/mocks/review-draft.mock";
+
+type Member = { id: string; name: string; tone: string };
+
+const MEMBER_TONES = [
+  "bg-violet-500 border-violet-500",
+  "bg-sky-500 border-sky-500",
+  "bg-emerald-500 border-emerald-500",
+  "bg-amber-500 border-amber-500",
+  "bg-rose-500 border-rose-500",
+  "bg-indigo-500 border-indigo-500",
+  "bg-orange-500 border-orange-500",
+];
+
+const SEED_MEMBERS: Member[] = [
+  { id: "m-you", name: "You", tone: MEMBER_TONES[0] },
+  { id: "m-2", name: "Alex", tone: MEMBER_TONES[1] },
+  { id: "m-3", name: "Sam", tone: MEMBER_TONES[2] },
+  { id: "m-4", name: "Joseph", tone: MEMBER_TONES[3] },
+  { id: "m-5", name: "James", tone: MEMBER_TONES[4] },
+  { id: "m-6", name: "Jessie", tone: MEMBER_TONES[5] },
+  { id: "m-7", name: "Morgan", tone: MEMBER_TONES[6] },
+  { id: "m-8", name: "Taylor", tone: MEMBER_TONES[1] },
+];
+
+type Assignments = Record<string, string[]>;
+
+function cloneAssignments(a: Assignments): Assignments {
+  const next: Assignments = {};
+  for (const k of Object.keys(a)) {
+    next[k] = [...a[k]];
+  }
+  return next;
+}
+
+/** Every line includes exactly the current member set (full split-everything state). */
+function isBillSplitEquallyAmongAll(
+  lines: DraftBill["lines"],
+  members: Member[],
+  assignments: Assignments,
+): boolean {
+  if (members.length === 0 || lines.length === 0) return false;
+  const expected = new Set(members.map((m) => m.id));
+  for (const line of lines) {
+    const got = new Set(assignments[line.id] ?? []);
+    if (got.size !== expected.size) return false;
+    for (const id of expected) {
+      if (!got.has(id)) return false;
+    }
+  }
+  return true;
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
+export default function AssignBillScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
+  const scheme = useAppColorScheme();
+  const { draft: draftParam } = useLocalSearchParams<{ draft?: string }>();
+
+  const [draft, setDraft] = useState<DraftBill | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [members, setMembers] = useState<Member[]>(SEED_MEMBERS);
+  const [assignments, setAssignments] = useState<Assignments>({});
+  const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
+  const [sheetLineId, setSheetLineId] = useState<string | null>(null);
+  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
+  const assignmentsBeforeSplitRef = useRef<Assignments | null>(null);
+
+  useEffect(() => {
+    if (!draftParam) {
+      setDraft(null);
+      setHydrated(true);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(draftParam) as DraftBill;
+      setDraft(cloneBillDraft(parsed));
+      setAssignments({});
+      assignmentsBeforeSplitRef.current = null;
+      setMembers(SEED_MEMBERS);
+      setActiveMemberId(null);
+    } catch {
+      setDraft(null);
+    } finally {
+      setHydrated(true);
+    }
+  }, [draftParam]);
+
+  const memberById = useMemo(() => {
+    const m = new Map<string, Member>();
+    for (const x of members) {
+      m.set(x.id, x);
+    }
+    return m;
+  }, [members]);
+
+  const linesSubtotalCents = useMemo(
+    () => (draft ? sumLineAmountsCents(draft.lines) : 0),
+    [draft],
+  );
+
+  const billGrandTotalCents = useMemo(() => {
+    if (!draft) return 0;
+    return linesSubtotalCents + draft.vatCents + draft.serviceFeeCents;
+  }, [draft, linesSubtotalCents]);
+
+  /** Subtotal of lines with at least one assignee, plus VAT/service share by subtotal ratio. */
+  const assignedItemsTotalCents = useMemo(() => {
+    if (!draft) return 0;
+    let assignedSubtotal = 0;
+    for (const line of draft.lines) {
+      if ((assignments[line.id]?.length ?? 0) > 0) {
+        assignedSubtotal += line.amountCents;
+      }
+    }
+    if (assignedSubtotal === 0) return 0;
+    if (linesSubtotalCents <= 0) return assignedSubtotal;
+    const ratio = assignedSubtotal / linesSubtotalCents;
+    const feesCents = draft.vatCents + draft.serviceFeeCents;
+    return Math.round(assignedSubtotal + feesCents * ratio);
+  }, [draft, assignments, linesSubtotalCents]);
+
+  const assignedLineCount = useMemo(() => {
+    if (!draft) return 0;
+    return draft.lines.filter((l) => (assignments[l.id]?.length ?? 0) > 0)
+      .length;
+  }, [draft, assignments]);
+
+  const assignmentLineTotal = draft?.lines.length ?? 0;
+
+  const assignmentProgressPct = useMemo(() => {
+    if (!draft || draft.lines.length === 0) return 0;
+    return Math.round((assignedLineCount / draft.lines.length) * 100);
+  }, [draft, assignedLineCount]);
+
+  const unassignedLineCount = useMemo(() => {
+    if (!draft) return 0;
+    return draft.lines.length - assignedLineCount;
+  }, [draft, assignedLineCount]);
+
+  const allLinesAssigned = useMemo(() => {
+    if (!draft || draft.lines.length === 0) return false;
+    return draft.lines.every((l) => (assignments[l.id]?.length ?? 0) > 0);
+  }, [draft, assignments]);
+
+  const fullEvenSplit = useMemo(
+    () =>
+      draft
+        ? isBillSplitEquallyAmongAll(draft.lines, members, assignments)
+        : false,
+    [draft, members, assignments],
+  );
+
+  const canUndoSplitEqually =
+    fullEvenSplit && assignmentsBeforeSplitRef.current !== null;
+
+  const toggleAssignment = useCallback((lineId: string, memberId: string) => {
+    setAssignments((prev) => {
+      const current = prev[lineId] || [];
+      const nextIds = current.includes(memberId)
+        ? current.filter((id) => id !== memberId)
+        : [...current, memberId];
+      return { ...prev, [lineId]: nextIds };
+    });
+  }, []);
+
+  const handleSplitEqually = useCallback(() => {
+    if (!draft || members.length === 0) return;
+    const all = members.map((x) => x.id);
+    setAssignments((prev) => {
+      if (
+        assignmentsBeforeSplitRef.current === null &&
+        isBillSplitEquallyAmongAll(draft.lines, members, prev)
+      ) {
+        return prev;
+      }
+      assignmentsBeforeSplitRef.current = cloneAssignments(prev);
+      const next: Assignments = {};
+      for (const line of draft.lines) {
+        next[line.id] = [...all];
+      }
+      return next;
+    });
+  }, [draft, members]);
+
+  const handleUndoSplitEqually = useCallback(() => {
+    const snap = assignmentsBeforeSplitRef.current;
+    if (snap === null) return;
+    setAssignments(cloneAssignments(snap));
+    assignmentsBeforeSplitRef.current = null;
+  }, []);
+
+  const handleSplitUnassignedItems = useCallback(() => {
+    if (!draft || members.length === 0) return;
+    const all = members.map((m) => m.id);
+    setAssignments((prev) => {
+      const next = { ...prev };
+      for (const line of draft.lines) {
+        if ((next[line.id]?.length ?? 0) === 0) {
+          next[line.id] = [...all];
+        }
+      }
+      return next;
+    });
+  }, [draft, members]);
+
+  const handleAddMember = useCallback(() => {
+    const isIOS = typeof Alert.prompt === "function";
+    const assignTone = (idx: number) =>
+      MEMBER_TONES[idx % MEMBER_TONES.length] ?? MEMBER_TONES[0];
+
+    if (isIOS) {
+      Alert.prompt(
+        "Add Member",
+        "Who's splitting this bill?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Add",
+            onPress: (name?: string) => {
+              const trimmed = name?.trim();
+              if (!trimmed) return;
+              const id = `m-${Date.now().toString(36)}`;
+              setMembers((prev) => [
+                { id, name: trimmed, tone: assignTone(prev.length) },
+                ...prev,
+              ]);
+              setActiveMemberId(id);
+            },
+          },
+        ],
+        "plain-text",
+      );
+    } else {
+      const id = `m-${Date.now().toString(36)}`;
+      setMembers((prev) => [
+        {
+          id,
+          name: `Person ${prev.length + 1}`,
+          tone: assignTone(prev.length),
+        },
+        ...prev,
+      ]);
+      setActiveMemberId(id);
+    }
+  }, []);
+
+  const handleManagePeople = useCallback(() => {
+    Alert.alert(
+      "Manage people",
+      "Use + Add beside People to add someone. Tap a person, then tap receipt lines to assign items to them.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Add person", onPress: () => handleAddMember() },
+      ],
+    );
+  }, [handleAddMember]);
+
+  const handleClearAssignments = useCallback(() => {
+    Alert.alert(
+      "Clear assignments?",
+      "Everyone will be removed from every line. You can assign again anytime.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: () => {
+            setAssignments({});
+            assignmentsBeforeSplitRef.current = null;
+            setActiveMemberId(null);
+          },
+        },
+      ],
+    );
+  }, []);
+
+  const handleSummary = useCallback(() => {
+    if (!draft) {
+      router.push("/scan/summary");
+      return;
+    }
+    const payload = {
+      draft: cloneBillDraft(draft),
+      assignments: cloneAssignments(assignments),
+      members: members.map((m) => ({ id: m.id, name: m.name })),
+    };
+    router.push({
+      pathname: "/scan/summary",
+      params: { data: JSON.stringify(payload) },
+    });
+  }, [router, draft, assignments, members]);
+
+  const onLinePress = useCallback(
+    (line: ReceiptLine) => {
+      if (activeMemberId) {
+        toggleAssignment(line.id, activeMemberId);
+        return;
+      }
+      setSheetLineId(line.id);
+    },
+    [activeMemberId, toggleAssignment],
+  );
+
+  const merchantTopHint =
+    draft?.merchant && draft.merchant.length > 0 ? draft.merchant : undefined;
+
+  if (!paramsReady(draftParam)) {
+    return (
+      <ScreenContainer className="items-center justify-center px-6">
+        <AppText className="text-center text-base text-muted-foreground">
+          Nothing to assign. Go back and review a receipt first.
+        </AppText>
+        <Button className="mt-6 w-full" onPress={() => router.back()}>
+          Go Back
+        </Button>
+      </ScreenContainer>
+    );
+  }
+
+  if (!hydrated) {
+    return (
+      <ScreenContainer className="items-center justify-center">
+        <AppText className="text-muted-foreground">Loading…</AppText>
+      </ScreenContainer>
+    );
+  }
+
+  if (!draft) {
+    return (
+      <ScreenContainer className="items-center justify-center px-6">
+        <AppText className="text-center text-base text-muted-foreground">
+          This receipt could not be loaded. Go back and try Continue again.
+        </AppText>
+        <Button className="mt-6 w-full" onPress={() => router.back()}>
+          Go Back
+        </Button>
+      </ScreenContainer>
+    );
+  }
+
+  const activeAssignMember =
+    activeMemberId !== null ? (memberById.get(activeMemberId) ?? null) : null;
+
+  const assignOverflowMenuTop = insets.top + 84;
+
+  return (
+    <ScreenContainer className="flex-1">
+      <ScreenHeader
+        className="pb-4"
+        title="Assign Items"
+        topHint={merchantTopHint}
+        onBack={() => router.back()}
+        rightSlot={
+          <Pressable
+            accessibilityLabel="More options"
+            className="h-10 w-10 items-center justify-center rounded-full border border-borderSubtle bg-white active:opacity-85 dark:bg-background"
+            hitSlop={10}
+            onPress={() => setOverflowMenuOpen(true)}
+          >
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={22}
+              color={colors.foreground}
+            />
+          </Pressable>
+        }
+      />
+
+      <View className="flex-1 bg-stone-50 dark:bg-neutral-950/50">
+        <View className="px-0 pb-1 pt-1">
+          <View className="flex-row items-start gap-3 px-4 pb-3 pt-3">
+            <View className="size-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 dark:bg-violet-500/20">
+              <Ionicons name="people" size={22} color="#7c3aed" />
+            </View>
+            <View className="min-w-0 flex-1 pt-0.5">
+              <AppText className="text-lg font-bold tracking-tight text-foreground">
+                People
+              </AppText>
+              <AppText className="mt-0.5 text-[13px] leading-snug text-muted">
+                Select one or more to bulk assign
+              </AppText>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Add Member"
+              className="mt-0.5 shrink-0 flex-row items-center gap-1 rounded-full border border-borderSubtle bg-white px-3.5 py-2.5 active:opacity-80 dark:bg-neutral-900"
+              onPress={handleAddMember}
+            >
+              <Ionicons name="add" size={18} color={colors.foreground} />
+              <AppText className="text-sm font-semibold text-foreground">
+                Add
+              </AppText>
+            </Pressable>
+          </View>
+
+          <ScrollView
+            horizontal
+            accessibilityHint={
+              activeMemberId
+                ? `Tap receipt lines to add or remove ${memberById.get(activeMemberId)?.name ?? "the selected person"}.`
+                : "Tap a line to choose who shared it, or select a person to tag lines quickly."
+            }
+            keyboardShouldPersistTaps="handled"
+            showsHorizontalScrollIndicator={false}
+            className="pb-4 pt-1"
+            contentContainerClassName="flex-row items-center gap-2 px-4"
+          >
+            {members.map((m) => {
+              const active = m.id === activeMemberId;
+              const bg = assignMemberAvatarBgClassName(m.tone);
+              const isYou =
+                m.id === "m-you" || m.name.trim().toLowerCase() === "you";
+              return (
+                <Pressable
+                  key={m.id}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={`Assign to ${m.name}`}
+                  className={assignMemberChipPressableClassName(active, m.tone)}
+                  onPress={() =>
+                    setActiveMemberId((prev) => (prev === m.id ? null : m.id))
+                  }
+                >
+                  <AssignMemberChipFace
+                    avatarBgClassName={bg}
+                    initialsText={initials(m.name)}
+                    name={m.name}
+                    showYouRibbon={isYou}
+                  />
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        <View className="flex-1">
+          <ScrollView
+            className="flex-1"
+            contentContainerClassName="gap-5 px-4 pt-3"
+            contentContainerStyle={{
+              paddingBottom: 24 + insets.bottom + 72,
+            }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {activeAssignMember ? (
+              <NoticeBanner
+                chrome={memberAssignHighlight(activeAssignMember.tone)}
+                dismissAccessibilityLabel="Stop assigning to this person"
+                icon="people-outline"
+                message={`Assigning to ${activeAssignMember.name} — tap items to add or remove`}
+                onDismiss={() => setActiveMemberId(null)}
+              />
+            ) : null}
+            <View className="gap-3">
+              {/*
+              <View
+                accessibilityLabel={`Assignment progress: ${assignedLineCount} of ${draft.lines.length} items assigned, ${assignmentProgressPct} percent`}
+                className="rounded-2xl border border-violet-200/70 bg-violet-50 px-4 py-4 dark:border-violet-800/35 dark:bg-violet-950/30"
+              >
+                <View className="flex-row items-start gap-2">
+                  <View className="min-w-0 flex-1 pr-1">
+                    <AppText className="text-[13px] font-semibold text-muted">
+                      Assignment progress
+                    </AppText>
+                    <AppText className="mt-1 text-[17px] font-bold leading-snug text-foreground">
+                      {unassignedLineCount === 0
+                        ? "All items assigned"
+                        : `${unassignedLineCount} ${unassignedLineCount === 1 ? "item needs" : "items need"} assignment`}
+                    </AppText>
+                    <AppText className="mt-1 text-[13px] leading-snug text-muted">
+                      Pick people above, then tap items.
+                    </AppText>
+                    <AppText className="mt-2 text-[12px] leading-snug text-muted">
+                      {assignedLineCount}/{draft.lines.length} assigned •{" "}
+                      {formatZAR(assignedItemsTotalCents)} assigned of{" "}
+                      {formatZAR(billGrandTotalCents)}
+                    </AppText>
+                  </View>
+                  <Image
+                    accessibilityElementsHidden
+                    className="h-24 w-24 shrink-0"
+                    resizeMode="contain"
+                    source={require("../../../assets/images/assignment-progress-illustration.png")}
+                  />
+                </View>
+
+                <View className="mt-4 flex-row items-center gap-3">
+                  <View className="h-2 flex-1 overflow-hidden rounded-full bg-stone-200 dark:bg-neutral-700">
+                    <View
+                      className="h-full rounded-l-full bg-violet-600 dark:bg-violet-500"
+                      style={{
+                        width: `${assignmentProgressPct}%`,
+                      }}
+                    />
+                  </View>
+                  <AppText className="w-9 shrink-0 text-right text-[13px] font-bold tabular-nums text-violet-700 dark:text-violet-300">
+                    {assignmentProgressPct}%
+                  </AppText>
+                </View>
+              </View>
+              */}
+
+              <View className="flex-row items-start gap-3">
+                <View className="size-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 dark:bg-violet-500/20">
+                  <Ionicons
+                    name="document-text-outline"
+                    size={22}
+                    color="#7c3aed"
+                  />
+                </View>
+                <View className="min-w-0 flex-1 pb-1 pt-0.5">
+                  <View className="flex-row items-center gap-2">
+                    <AppText
+                      className="min-w-0 flex-1 text-lg font-bold tracking-tight text-foreground"
+                      numberOfLines={1}
+                    >
+                      Items to assign
+                    </AppText>
+                    <View
+                      accessible={false}
+                      className="shrink-0 flex-row items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1.5 dark:bg-violet-950/50"
+                    >
+                      <AppText className="text-[13px] font-semibold text-violet-700 dark:text-violet-300">
+                        Sort
+                      </AppText>
+                      <Ionicons
+                        name="options-outline"
+                        size={16}
+                        color={scheme === "dark" ? "#c4b5fd" : "#6d28d9"}
+                      />
+                    </View>
+                  </View>
+                  <AppText className="mt-0.5 text-[13px] leading-snug text-muted">
+                    Tap an item to assign or edit split.
+                  </AppText>
+                </View>
+              </View>
+            </View>
+            <View className="mx-1.5 gap-0">
+              {draft.lines.map((line, index) => {
+                const ids = assignments[line.id] || [];
+                const assigned = ids
+                  .map((id) => memberById.get(id))
+                  .filter((x): x is Member => x !== undefined);
+
+                return (
+                  <View
+                    key={line.id}
+                    className={cn(
+                      "overflow-hidden rounded-2xl border border-stone-200/30 bg-white shadow-sm shadow-stone-900/5 dark:border-neutral-800/45 dark:bg-neutral-900 dark:shadow-none",
+                      index > 0 && "-mt-px",
+                    )}
+                  >
+                    <AssignLineRow
+                      assigned={assigned}
+                      index={index}
+                      line={line}
+                      lineHint={
+                        activeMemberId
+                          ? "Adds or removes the selected person on this line."
+                          : "Opens who shared this item."
+                      }
+                      variant="assign"
+                      onPress={() => onLinePress(line)}
+                    />
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
+
+          <View
+            pointerEvents="box-none"
+            className="absolute bottom-0 left-0 right-0 z-10 px-4 pt-0"
+            style={{
+              backgroundColor: "transparent",
+              paddingBottom: insets.bottom,
+            }}
+          >
+            <View className="flex-row items-stretch gap-2 rounded-2xl border border-borderSubtle bg-background px-3 py-3 shadow-lg shadow-black/20">
+              <View className="min-w-0 flex-1 basis-0 flex-row items-center pr-1.5">
+                <View className="size-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 dark:bg-violet-500/20">
+                  <Ionicons
+                    name="document-text-outline"
+                    size={22}
+                    color="#7c3aed"
+                  />
+                </View>
+                <View className="min-w-0 justify-center pl-2">
+                  <AppText className="text-[11px] leading-tight text-muted">
+                    Assigned total
+                  </AppText>
+                  <AppText className="mt-0.5 text-xl font-bold tabular-nums leading-tight text-foreground">
+                    {formatZAR(assignedItemsTotalCents)}
+                  </AppText>
+                  <AppText className="mt-0.5 text-[11px] leading-tight text-muted">
+                    {assignedLineCount} of {draft.lines.length} items assigned
+                  </AppText>
+                </View>
+              </View>
+
+              <View className="min-w-0 flex-1 basis-0 self-stretch pl-1.5">
+                <Button
+                  accessibilityLabel="View Summary"
+                  className="h-full w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0"
+                  disabled={!allLinesAssigned}
+                  onPress={handleSummary}
+                >
+                  <AppText
+                    className={cn(
+                      "text-base font-semibold",
+                      allLinesAssigned
+                        ? "text-background"
+                        : "text-neutral-600 dark:text-neutral-300",
+                    )}
+                  >
+                    View Summary
+                  </AppText>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color={allLinesAssigned ? colors.background : colors.muted}
+                  />
+                </Button>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <AssignOverflowMenu
+        top={assignOverflowMenuTop}
+        visible={overflowMenuOpen}
+        onClearAssignments={handleClearAssignments}
+        onClose={() => setOverflowMenuOpen(false)}
+        onManagePeople={handleManagePeople}
+        onSplitAllEqually={handleSplitEqually}
+        onSplitUnassignedItems={handleSplitUnassignedItems}
+        onUndoSplitEqually={handleUndoSplitEqually}
+        showUndoSplitEqually={canUndoSplitEqually}
+      />
+
+      <AssignItemSheet
+        key={sheetLineId ?? "_"}
+        bottomInset={insets.bottom}
+        initialSelectedIds={
+          sheetLineId ? [...(assignments[sheetLineId] ?? [])] : []
+        }
+        line={
+          sheetLineId && draft
+            ? (draft.lines.find((l) => l.id === sheetLineId) ?? null)
+            : null
+        }
+        members={members}
+        visible={sheetLineId !== null}
+        onClose={() => setSheetLineId(null)}
+        onSave={(memberIds) => {
+          if (sheetLineId === null) return;
+          setAssignments((prev) => ({
+            ...prev,
+            [sheetLineId]: memberIds,
+          }));
+        }}
+      />
+    </ScreenContainer>
+  );
+}
+
+function paramsReady(draftParam: string | undefined): boolean {
+  return typeof draftParam === "string" && draftParam.length > 0;
+}

@@ -4,13 +4,15 @@ export default function ScanLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
-        headerBackTitle: "Back",
+        headerShown: false,
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Scan" }} />
-      <Stack.Screen name="manual" options={{ title: "Manual entry" }} />
-      <Stack.Screen name="review" options={{ title: "Review" }} />
+      <Stack.Screen name="index" />
+      <Stack.Screen name="manual" />
+      <Stack.Screen name="review" />
+      <Stack.Screen name="assign" />
+      <Stack.Screen name="summary" />
+      <Stack.Screen name="share" />
     </Stack>
   );
 }

@@ -4,8 +4,8 @@ import { Pressable, View } from "react-native";
 import { AppText, AppTextInput } from "@/components/atoms";
 import { LabeledField } from "@/components/molecules";
 import {
-  bottomSheetFormStyles as fs,
   BottomSheet,
+  bottomSheetFormClasses as sheetForm,
   useBottomSheetAppearance,
 } from "@/components/organisms";
 import { formatZAR, parseMoneyInputToCents } from "@/lib/helper";
@@ -92,12 +92,18 @@ export function ReviewTotalsSheet({
         label="VAT / TAX (INCLUDED)"
         labelColor={a.muted}
       >
-        <AppText style={[fs.currencyPrefix, { color: a.muted }]}>R</AppText>
+        <AppText
+          className={sheetForm.currencyPrefix}
+          style={{ color: a.muted }}
+        >
+          R
+        </AppText>
         <AppTextInput
+          className={sheetForm.fieldInput}
           keyboardType="decimal-pad"
           placeholder="0.00"
           placeholderTextColor={a.muted}
-          style={[fs.fieldInput, { color: a.ink }]}
+          style={{ color: a.ink }}
           value={vatValue}
           onChangeText={setVatValue}
         />
@@ -110,18 +116,26 @@ export function ReviewTotalsSheet({
         label="SERVICE FEE / LEVY"
         labelColor={a.muted}
       >
-        <AppText style={[fs.currencyPrefix, { color: a.muted }]}>R</AppText>
+        <AppText
+          className={sheetForm.currencyPrefix}
+          style={{ color: a.muted }}
+        >
+          R
+        </AppText>
         <AppTextInput
+          className={sheetForm.fieldInput}
           keyboardType="decimal-pad"
           placeholder="0.00"
           placeholderTextColor={a.muted}
-          style={[fs.fieldInput, { color: a.ink }]}
+          style={{ color: a.ink }}
           value={serviceValue}
           onChangeText={setServiceValue}
         />
       </LabeledField>
 
-      <AppText style={[fs.fieldLabel, { color: a.muted }]}>SUMMARY</AppText>
+      <AppText className={sheetForm.fieldLabel} style={{ color: a.muted }}>
+        SUMMARY
+      </AppText>
       <View style={{ gap: 6 }}>
         <AppText style={{ color: a.muted, fontSize: 14 }}>
           Subtotal {formatZAR(subtotalCents)}
@@ -137,24 +151,32 @@ export function ReviewTotalsSheet({
         </AppText>
       </View>
 
-      <View style={fs.buttonRow}>
+      <View className={sheetForm.buttonRow}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Cancel"
-          style={[fs.btnSecondary, { borderColor: a.border }]}
+          className={sheetForm.btnSecondary}
+          style={{ borderColor: a.border }}
           onPress={onClose}
         >
-          <AppText style={[fs.btnSecondaryText, { color: a.ink }]}>
+          <AppText
+            className={sheetForm.btnSecondaryText}
+            style={{ color: a.ink }}
+          >
             Cancel
           </AppText>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Save fees and tax"
-          style={[fs.btnPrimary, { backgroundColor: a.ink }]}
+          className={sheetForm.btnPrimary}
+          style={{ backgroundColor: a.ink }}
           onPress={submit}
         >
-          <AppText style={[fs.btnPrimaryText, { color: a.onPrimary }]}>
+          <AppText
+            className={sheetForm.btnPrimaryText}
+            style={{ color: a.onPrimary }}
+          >
             Save
           </AppText>
         </Pressable>

@@ -4,8 +4,8 @@ import { Pressable, View } from "react-native";
 import { AppText, AppTextInput } from "@/components/atoms";
 import { LabeledField } from "@/components/molecules";
 import {
-  bottomSheetFormStyles as fs,
   BottomSheet,
+  bottomSheetFormClasses as sheetForm,
   useBottomSheetAppearance,
 } from "@/components/organisms";
 
@@ -63,32 +63,41 @@ export function ReviewMerchantSheet({
       >
         <AppTextInput
           autoCapitalize="words"
+          className={sheetForm.fieldInput}
           placeholder="e.g. Corner Bistro"
           placeholderTextColor={a.muted}
-          style={[fs.fieldInput, { color: a.ink }]}
+          style={{ color: a.ink }}
           value={value}
           onChangeText={setValue}
         />
       </LabeledField>
 
-      <View style={fs.buttonRow}>
+      <View className={sheetForm.buttonRow}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Cancel"
-          style={[fs.btnSecondary, { borderColor: a.border }]}
+          className={sheetForm.btnSecondary}
+          style={{ borderColor: a.border }}
           onPress={onClose}
         >
-          <AppText style={[fs.btnSecondaryText, { color: a.ink }]}>
+          <AppText
+            className={sheetForm.btnSecondaryText}
+            style={{ color: a.ink }}
+          >
             Cancel
           </AppText>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Save merchant name"
-          style={[fs.btnPrimary, { backgroundColor: a.ink }]}
+          className={sheetForm.btnPrimary}
+          style={{ backgroundColor: a.ink }}
           onPress={submit}
         >
-          <AppText style={[fs.btnPrimaryText, { color: a.onPrimary }]}>
+          <AppText
+            className={sheetForm.btnPrimaryText}
+            style={{ color: a.onPrimary }}
+          >
             Save
           </AppText>
         </Pressable>

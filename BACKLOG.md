@@ -18,6 +18,16 @@ The **Implemented** section at the bottom was **carried over from the earlier Sp
       `color` to named receipt tokens / theme classes, or adopt a pattern
       NativeWind supports for runtime colors; keep constants DRY with
       `RECEIPT_ZIGZAG_*`.
+- [ ] **Scan-faithful review (beyond the template)** — Review today uses a
+      **fixed thermal-style template** (`ThermalReceipt`) for editing. QoL
+      stretch goal: the **body of the review** (sections, line grouping,
+      alignment, typographic rhythm, headers vs line items) **tracks the
+      captured ticket** so it feels like the same slip, not a generic receipt
+      mock-up. Likely needs structured layout hints from the scan pipeline,
+      per-merchant or per-image overrides, and **AI** (e.g. vision / document
+      layout models on the crop) to infer columns, emphasis, and blocks—then
+      map those to components or style tokens. Spike cost, privacy, and
+      offline vs on-device trade-offs before committing.
 
 ## Settle-up & celebration polish
 
@@ -47,6 +57,10 @@ The **Implemented** section at the bottom was **carried over from the earlier Sp
       share is wildly out of proportion (>4×) compared to others.
 - [ ] **Select-everyone toggle on the Assign chip bar** — quick toggle to
       assign the next tap to all members at once.
+- [ ] **Bulk assigning** — multi-select lines on Assign (or “apply to all
+      unassigned”) and add/remove the same member(s) in one confirm step;
+      optional: select all / invert selection, and undo for the last bulk
+      action.
 
 ## Settings polish
 

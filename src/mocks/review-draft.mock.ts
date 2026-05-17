@@ -59,7 +59,19 @@ export const MOCK_DRAFT_BILL: DraftBill = {
       description: "Filter coffee",
       amountCents: 8800,
     },
+    {
+      id: "ln-seed-7",
+      qty: 1,
+      description: "Grilled halloumi & honey",
+      amountCents: 5400,
+    },
+    {
+      id: "ln-seed-8",
+      qty: 2,
+      description: "Sparkling water",
+      amountCents: 3600,
+    },
   ],
-  vatCents: 8124,
+  vatCents: 9305,
   serviceFeeCents: 1500,
 };

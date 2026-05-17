@@ -3,7 +3,7 @@ import { View } from "react-native";
 
 import { AppText } from "@/components/atoms";
 // Relative path: importing @/components/organisms here would cycle (organisms → thermal → molecules).
-import { bottomSheetFormStyles as fs } from "../organisms/bottom-sheet/sheet-form-styles";
+import { bottomSheetFormClasses } from "../organisms/bottom-sheet/sheet-form-classes";
 
 export type LabeledFieldProps = {
   label: string;
@@ -11,7 +11,6 @@ export type LabeledFieldProps = {
   cardBackgroundColor: string;
   cardBorderColor: string;
   children: ReactNode;
-  /** Shown in error style below the field card when set. */
   error?: string | null;
 };
 
@@ -25,15 +24,18 @@ export function LabeledField({
 }: LabeledFieldProps) {
   return (
     <>
-      <AppText style={[fs.fieldLabel, { color: labelColor }]}>{label}</AppText>
+      <AppText
+        className={bottomSheetFormClasses.fieldLabel}
+        style={{ color: labelColor }}
+      >
+        {label}
+      </AppText>
       <View
-        style={[
-          fs.fieldCard,
-          {
-            backgroundColor: cardBackgroundColor,
-            borderColor: cardBorderColor,
-          },
-        ]}
+        className={bottomSheetFormClasses.fieldCard}
+        style={{
+          backgroundColor: cardBackgroundColor,
+          borderColor: cardBorderColor,
+        }}
       >
         {children}
       </View>
