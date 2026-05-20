@@ -1,3 +1,4 @@
+// TODO(production): Remove mock draft — use API bill/receipt types only. See docs/DEV_ONLY_TODOS.md
 /** Bill types + seed payload for the scan → review flow (sample / dev data). */
 
 export type ReceiptLine = {

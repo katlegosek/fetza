@@ -70,6 +70,7 @@ function parseBillId(raw: string | string[] | undefined): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+// TODO(production): Remove notConnectedYet stubs — connect merchant/clear/rescan to API. See docs/DEV_ONLY_TODOS.md
 function notConnectedYet() {
   Alert.alert(
     "Coming soon",
@@ -84,6 +85,7 @@ function mutationErrorMessage(error: unknown, fallback: string): string {
   return isApiError(error) ? error.message : fallback;
 }
 
+// TODO(production): Remove ReviewBillMock — API-only review with billId. See docs/DEV_ONLY_TODOS.md
 function ReviewBillMock() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -932,5 +934,6 @@ export default function ReviewBillScreen() {
     return <ReviewBillFromApi billId={billId} />;
   }
 
+  // TODO(production): Redirect to scan or require billId — drop mock fallback
   return <ReviewBillMock />;
 }

@@ -35,6 +35,7 @@ export function mobileApiPath(path: string): string {
   return `${MOBILE_API_PREFIX}${normalized}`;
 }
 
+// TODO(production): Remove ngrok header block — dev tunnel only. See docs/DEV_ONLY_TODOS.md
 /** ngrok free tier returns an HTML interstitial unless this header is sent. */
 function apiFetchHeaders(
   extra: Record<string, string> = {},

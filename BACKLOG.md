@@ -2,6 +2,8 @@
 
 Open ideas and polish for **this** repo (`fetza`). Deeper product context: [docs/BRD.md](./docs/BRD.md), [docs/ROADMAP.md](./docs/ROADMAP.md).
 
+**Dev-only / not for production:** [docs/DEV_ONLY_TODOS.md](./docs/DEV_ONLY_TODOS.md) — search `TODO(production)` in the repo before shipping.
+
 The **Implemented** section at the bottom was **carried over from the earlier Split POC** for reference (features shipped there, not necessarily in Fetza yet). Trim or replace as this codebase catches up.
 
 ## Receipt aesthetic refinements

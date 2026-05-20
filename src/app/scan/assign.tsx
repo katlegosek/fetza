@@ -1,3 +1,4 @@
+// TODO(production): Remove mock assign path (no billId / SEED_* data) — API-only. See docs/DEV_ONLY_TODOS.md
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

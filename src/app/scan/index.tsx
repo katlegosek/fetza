@@ -299,6 +299,7 @@ export default function ScanScreen() {
               </AppText>
             </Pressable>
 
+            {/* TODO(production): Remove dev mock review entry — docs/DEV_ONLY_TODOS.md */}
             {__DEV__ ? (
               <Pressable
                 accessibilityRole="button"
