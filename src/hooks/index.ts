@@ -1,5 +1,6 @@
 export { useBill } from "./use-bill";
 export { usePullToRefresh } from "./use-pull-to-refresh";
+export { useBillBulkAssignments } from "./use-bill-bulk-assignments";
 export {
   useReplaceItemAssignments,
   type ReplaceItemAssignmentsVariables,

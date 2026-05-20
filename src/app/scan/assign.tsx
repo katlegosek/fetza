@@ -26,6 +26,7 @@ import {
 import {
   useAppColorScheme,
   useBill,
+  useBillBulkAssignments,
   useBillSummary,
   useReplaceItemAssignments,
   useThemeColors,
@@ -120,7 +121,7 @@ export default function AssignBillScreen() {
   }>();
   const billId = parseBillId(billIdParam);
   const isApiMode = billId > 0;
-  const bulkActionsReadOnly = isApiMode;
+  const peopleManagementReadOnly = isApiMode;
 
   const {
     data: billData,
@@ -138,6 +139,7 @@ export default function AssignBillScreen() {
   } = useBillSummary(billId);
 
   const replaceItemAssignments = useReplaceItemAssignments(billId);
+  const bulkAssignments = useBillBulkAssignments(billId);
   const [assignmentError, setAssignmentError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -297,7 +299,7 @@ export default function AssignBillScreen() {
   );
 
   const canUndoSplitEqually =
-    fullEvenSplit && assignmentsBeforeSplitRef.current !== null;
+    !isApiMode && fullEvenSplit && assignmentsBeforeSplitRef.current !== null;
 
   const showAssignmentError = useCallback((error: unknown) => {
     const message = isApiError(error)
@@ -346,8 +348,10 @@ export default function AssignBillScreen() {
   );
 
   const handleSplitEqually = useCallback(() => {
-    if (bulkActionsReadOnly) {
-      assignmentsNotReady();
+    if (isApiMode) {
+      bulkAssignments.splitAllEqually.mutate(undefined, {
+        onError: showAssignmentError,
+      });
       return;
     }
     if (!draft || members.length === 0) return;
@@ -366,22 +370,26 @@ export default function AssignBillScreen() {
       }
       return next;
     });
-  }, [bulkActionsReadOnly, draft, members]);
+  }, [
+    bulkAssignments.splitAllEqually,
+    draft,
+    isApiMode,
+    members,
+    showAssignmentError,
+  ]);
 
   const handleUndoSplitEqually = useCallback(() => {
-    if (bulkActionsReadOnly) {
-      assignmentsNotReady();
-      return;
-    }
     const snap = assignmentsBeforeSplitRef.current;
     if (snap === null) return;
     setAssignments(cloneAssignments(snap));
     assignmentsBeforeSplitRef.current = null;
-  }, [bulkActionsReadOnly]);
+  }, []);
 
   const handleSplitUnassignedItems = useCallback(() => {
-    if (bulkActionsReadOnly) {
-      assignmentsNotReady();
+    if (isApiMode) {
+      bulkAssignments.splitUnassignedEqually.mutate(undefined, {
+        onError: showAssignmentError,
+      });
       return;
     }
     if (!draft || members.length === 0) return;
@@ -395,10 +403,16 @@ export default function AssignBillScreen() {
       }
       return next;
     });
-  }, [bulkActionsReadOnly, draft, members]);
+  }, [
+    bulkAssignments.splitUnassignedEqually,
+    draft,
+    isApiMode,
+    members,
+    showAssignmentError,
+  ]);
 
   const handleAddMember = useCallback(() => {
-    if (bulkActionsReadOnly) {
+    if (peopleManagementReadOnly) {
       assignmentsNotReady();
       return;
     }
@@ -449,7 +463,7 @@ export default function AssignBillScreen() {
       });
       setActiveMemberId(id);
     }
-  }, [bulkActionsReadOnly]);
+  }, [peopleManagementReadOnly]);
 
   const handleManagePeople = useCallback(() => {
     Alert.alert(
@@ -463,10 +477,6 @@ export default function AssignBillScreen() {
   }, [handleAddMember]);
 
   const handleClearAssignments = useCallback(() => {
-    if (bulkActionsReadOnly) {
-      assignmentsNotReady();
-      return;
-    }
     Alert.alert(
       "Clear assignments?",
       "Everyone will be removed from every line. You can assign again anytime.",
@@ -476,6 +486,14 @@ export default function AssignBillScreen() {
           text: "Clear",
           style: "destructive",
           onPress: () => {
+            if (isApiMode) {
+              bulkAssignments.clearBillAssignments.mutate(undefined, {
+                onError: showAssignmentError,
+                onSuccess: () => setActiveMemberId(null),
+              });
+              return;
+            }
+
             setAssignments({});
             assignmentsBeforeSplitRef.current = null;
             setActiveMemberId(null);
@@ -483,7 +501,7 @@ export default function AssignBillScreen() {
         },
       ],
     );
-  }, [bulkActionsReadOnly]);
+  }, [bulkAssignments.clearBillAssignments, isApiMode, showAssignmentError]);
 
   const handleSummary = useCallback(() => {
     if (isApiMode) {
