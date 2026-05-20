@@ -15,6 +15,11 @@ export function formatZAR(cents: number): string {
   return `R ${(cents / 100).toFixed(2)}`;
 }
 
+/** Compact ZAR display for lists (e.g. `R814.04`). API values stay in cents. */
+export function formatMoneyFromCents(cents: number): string {
+  return `R${(cents / 100).toFixed(2)}`;
+}
+
 /**
  * Parse a typed amount in major units (e.g. "57.15" or "57,15") to cents.
  * Uses the same rules as fee/tax fields: non-finite or negative → null.
