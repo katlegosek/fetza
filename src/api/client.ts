@@ -35,6 +35,22 @@ export function mobileApiPath(path: string): string {
   return `${MOBILE_API_PREFIX}${normalized}`;
 }
 
+/** ngrok free tier returns an HTML interstitial unless this header is sent. */
+function apiFetchHeaders(
+  extra: Record<string, string> = {},
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    ...extra,
+  };
+
+  if (getApiBaseUrl().includes("ngrok")) {
+    headers["ngrok-skip-browser-warning"] = "true";
+  }
+
+  return headers;
+}
+
 async function parseJson(response: Response): Promise<unknown> {
   const text = await response.text();
   if (!text) {
@@ -59,10 +75,9 @@ export async function apiRequest<T>(
   try {
     response = await fetch(url, {
       method,
-      headers: {
-        Accept: "application/json",
-        ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
-      },
+      headers: apiFetchHeaders(
+        body !== undefined ? { "Content-Type": "application/json" } : {},
+      ),
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch {
@@ -89,9 +104,7 @@ export async function apiMultipartRequest<T>(
   try {
     response = await fetch(url, {
       method,
-      headers: {
-        Accept: "application/json",
-      },
+      headers: apiFetchHeaders(),
       body: formData,
     });
   } catch {
