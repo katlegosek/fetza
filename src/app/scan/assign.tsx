@@ -27,6 +27,7 @@ import {
   useAppColorScheme,
   useBill,
   useBillSummary,
+  useReplaceItemAssignments,
   useThemeColors,
 } from "@/hooks";
 import { assignMemberChipPressableClassName } from "@/lib/assign-member-chip";
@@ -119,7 +120,7 @@ export default function AssignBillScreen() {
   }>();
   const billId = parseBillId(billIdParam);
   const isApiMode = billId > 0;
-  const readOnly = isApiMode;
+  const bulkActionsReadOnly = isApiMode;
 
   const {
     data: billData,
@@ -135,6 +136,18 @@ export default function AssignBillScreen() {
     error: summaryLoadError,
     refetch: refetchSummary,
   } = useBillSummary(billId);
+
+  const replaceItemAssignments = useReplaceItemAssignments(billId);
+  const [assignmentError, setAssignmentError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!assignmentError) {
+      return;
+    }
+
+    const timeout = setTimeout(() => setAssignmentError(null), 4000);
+    return () => clearTimeout(timeout);
+  }, [assignmentError]);
 
   const apiAssignData = useMemo(
     () => (billData ? billShowToAssignData(billData) : null),
@@ -233,12 +246,14 @@ export default function AssignBillScreen() {
 
   const assignedLineCount = useMemo(() => {
     if (isApiMode) {
-      return summaryData?.bill.assigned_items_count ?? 0;
+      return lines.filter(
+        (line) => (displayAssignments[line.id]?.length ?? 0) > 0,
+      ).length;
     }
     if (!draft) return 0;
     return draft.lines.filter((l) => (assignments[l.id]?.length ?? 0) > 0)
       .length;
-  }, [assignments, draft, isApiMode, summaryData?.bill.assigned_items_count]);
+  }, [assignments, displayAssignments, draft, isApiMode, lines]);
 
   const assignmentLineTotal = isApiMode
     ? (summaryData?.bill.items_count ?? lines.length)
@@ -251,30 +266,26 @@ export default function AssignBillScreen() {
 
   const unassignedLineCount = useMemo(() => {
     if (isApiMode) {
-      return summaryData?.bill.unassigned_items_count ?? 0;
+      return Math.max(0, lines.length - assignedLineCount);
     }
     if (!draft) return 0;
     return draft.lines.length - assignedLineCount;
-  }, [
-    assignedLineCount,
-    draft,
-    isApiMode,
-    summaryData?.bill.unassigned_items_count,
-  ]);
+  }, [assignedLineCount, draft, isApiMode, lines.length]);
 
   const allLinesAssigned = useMemo(() => {
     if (assignmentLineTotal === 0) return false;
     if (isApiMode) {
-      return (summaryData?.bill.unassigned_items_count ?? 1) === 0;
+      return lines.length > 0 && assignedLineCount === lines.length;
     }
     if (!draft) return false;
     return draft.lines.every((l) => (assignments[l.id]?.length ?? 0) > 0);
   }, [
+    assignedLineCount,
     assignmentLineTotal,
     assignments,
     draft,
     isApiMode,
-    summaryData?.bill.unassigned_items_count,
+    lines.length,
   ]);
 
   const fullEvenSplit = useMemo(
@@ -288,25 +299,54 @@ export default function AssignBillScreen() {
   const canUndoSplitEqually =
     fullEvenSplit && assignmentsBeforeSplitRef.current !== null;
 
-  const toggleAssignment = useCallback(
-    (lineId: string, memberId: string) => {
-      if (readOnly) {
-        assignmentsNotReady();
+  const showAssignmentError = useCallback((error: unknown) => {
+    const message = isApiError(error)
+      ? error.message
+      : "Could not save assignment. Please try again.";
+    setAssignmentError(message);
+  }, []);
+
+  const persistLineAssignments = useCallback(
+    (lineId: string, participantIds: string[]) => {
+      const receiptItemId = Number(lineId);
+      if (!Number.isFinite(receiptItemId)) {
         return;
       }
-      setAssignments((prev) => {
-        const current = prev[lineId] || [];
-        const nextIds = current.includes(memberId)
-          ? current.filter((id) => id !== memberId)
-          : [...current, memberId];
-        return { ...prev, [lineId]: nextIds };
-      });
+
+      const numericParticipantIds = participantIds
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id));
+
+      replaceItemAssignments.mutate(
+        {
+          receiptItemId,
+          participantIds: numericParticipantIds,
+        },
+        { onError: showAssignmentError },
+      );
     },
-    [readOnly],
+    [replaceItemAssignments, showAssignmentError],
+  );
+
+  const toggleAssignment = useCallback(
+    (lineId: string, memberId: string) => {
+      const current = displayAssignments[lineId] ?? [];
+      const nextIds = current.includes(memberId)
+        ? current.filter((id) => id !== memberId)
+        : [...current, memberId];
+
+      if (isApiMode) {
+        persistLineAssignments(lineId, nextIds);
+        return;
+      }
+
+      setAssignments((prev) => ({ ...prev, [lineId]: nextIds }));
+    },
+    [displayAssignments, isApiMode, persistLineAssignments],
   );
 
   const handleSplitEqually = useCallback(() => {
-    if (readOnly) {
+    if (bulkActionsReadOnly) {
       assignmentsNotReady();
       return;
     }
@@ -326,10 +366,10 @@ export default function AssignBillScreen() {
       }
       return next;
     });
-  }, [draft, members, readOnly]);
+  }, [bulkActionsReadOnly, draft, members]);
 
   const handleUndoSplitEqually = useCallback(() => {
-    if (readOnly) {
+    if (bulkActionsReadOnly) {
       assignmentsNotReady();
       return;
     }
@@ -337,10 +377,10 @@ export default function AssignBillScreen() {
     if (snap === null) return;
     setAssignments(cloneAssignments(snap));
     assignmentsBeforeSplitRef.current = null;
-  }, [readOnly]);
+  }, [bulkActionsReadOnly]);
 
   const handleSplitUnassignedItems = useCallback(() => {
-    if (readOnly) {
+    if (bulkActionsReadOnly) {
       assignmentsNotReady();
       return;
     }
@@ -355,10 +395,10 @@ export default function AssignBillScreen() {
       }
       return next;
     });
-  }, [draft, members, readOnly]);
+  }, [bulkActionsReadOnly, draft, members]);
 
   const handleAddMember = useCallback(() => {
-    if (readOnly) {
+    if (bulkActionsReadOnly) {
       assignmentsNotReady();
       return;
     }
@@ -409,7 +449,7 @@ export default function AssignBillScreen() {
       });
       setActiveMemberId(id);
     }
-  }, [readOnly]);
+  }, [bulkActionsReadOnly]);
 
   const handleManagePeople = useCallback(() => {
     Alert.alert(
@@ -423,7 +463,7 @@ export default function AssignBillScreen() {
   }, [handleAddMember]);
 
   const handleClearAssignments = useCallback(() => {
-    if (readOnly) {
+    if (bulkActionsReadOnly) {
       assignmentsNotReady();
       return;
     }
@@ -443,7 +483,7 @@ export default function AssignBillScreen() {
         },
       ],
     );
-  }, [readOnly]);
+  }, [bulkActionsReadOnly]);
 
   const handleSummary = useCallback(() => {
     if (isApiMode) {
@@ -468,16 +508,12 @@ export default function AssignBillScreen() {
   const onLinePress = useCallback(
     (line: AssignLine | ReceiptLine) => {
       if (activeMemberId) {
-        if (readOnly) {
-          assignmentsNotReady();
-          return;
-        }
         toggleAssignment(line.id, activeMemberId);
         return;
       }
       setSheetLineId(line.id);
     },
-    [activeMemberId, readOnly, toggleAssignment],
+    [activeMemberId, toggleAssignment],
   );
 
   const merchantTopHint = isApiMode
@@ -489,7 +525,7 @@ export default function AssignBillScreen() {
   const formatAmount = isApiMode ? formatMoneyFromCents : undefined;
   const peopleSectionTitle = isApiMode ? "Assign to" : "People";
   const peopleSectionSubtitle = isApiMode
-    ? "Tap an item to see who is assigned"
+    ? "Select a person, then tap items to assign"
     : "Select one or more to bulk assign";
 
   if (isApiMode && billId <= 0) {
@@ -727,13 +763,9 @@ export default function AssignBillScreen() {
                   accessibilityState={{ selected: active }}
                   accessibilityLabel={`Assign to ${m.name}`}
                   className={assignMemberChipPressableClassName(active, m.tone)}
-                  onPress={() => {
-                    if (readOnly) {
-                      assignmentsNotReady();
-                      return;
-                    }
-                    setActiveMemberId((prev) => (prev === m.id ? null : m.id));
-                  }}
+                  onPress={() =>
+                    setActiveMemberId((prev) => (prev === m.id ? null : m.id))
+                  }
                 >
                   <AssignMemberChipFace
                     avatarBackgroundColor={m.avatarBackgroundColor}
@@ -758,7 +790,17 @@ export default function AssignBillScreen() {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {activeAssignMember && !readOnly ? (
+            {assignmentError ? (
+              <NoticeBanner
+                dismissAccessibilityLabel="Dismiss assignment error"
+                icon="alert-circle-outline"
+                message={assignmentError}
+                variant="sky"
+                onDismiss={() => setAssignmentError(null)}
+              />
+            ) : null}
+
+            {activeAssignMember ? (
               <NoticeBanner
                 chrome={memberAssignHighlightFromTones(activeAssignMember)}
                 dismissAccessibilityLabel="Stop assigning to this person"
@@ -847,9 +889,7 @@ export default function AssignBillScreen() {
                     </View>
                   </View>
                   <AppText className="mt-0.5 text-[13px] leading-snug text-muted">
-                    {readOnly
-                      ? "Tap an item to see who is assigned."
-                      : "Tap an item to assign or edit split."}
+                    Tap an item to assign or edit split.
                   </AppText>
                 </View>
               </View>
@@ -875,11 +915,9 @@ export default function AssignBillScreen() {
                       index={index}
                       line={line}
                       lineHint={
-                        readOnly
-                          ? "Opens who is assigned to this item."
-                          : activeMemberId
-                            ? "Adds or removes the selected person on this line."
-                            : "Opens who shared this item."
+                        activeMemberId
+                          ? "Adds or removes the selected person on this line."
+                          : "Opens who shared this item."
                       }
                       unassignedLabel="Tap to assign"
                       variant="assign"
@@ -983,11 +1021,13 @@ export default function AssignBillScreen() {
         visible={sheetLineId !== null}
         onClose={() => setSheetLineId(null)}
         onSave={(memberIds) => {
-          if (readOnly) {
-            assignmentsNotReady();
+          if (sheetLineId === null) return;
+
+          if (isApiMode) {
+            persistLineAssignments(sheetLineId, memberIds);
             return;
           }
-          if (sheetLineId === null) return;
+
           setAssignments((prev) => ({
             ...prev,
             [sheetLineId]: memberIds,

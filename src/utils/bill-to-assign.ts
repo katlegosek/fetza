@@ -94,6 +94,64 @@ export function itemAssignmentsByLineId(
   return map;
 }
 
+function equalAmountsCents(totalCents: number, count: number): number[] {
+  if (count <= 0) {
+    return [];
+  }
+
+  const base = Math.floor(totalCents / count);
+  const remainder = totalCents % count;
+
+  return Array.from({ length: count }, (_, index) =>
+    index < remainder ? base + 1 : base,
+  );
+}
+
+/** Applies equal-split assignments for one receipt item into a bill detail cache snapshot. */
+export function applyOptimisticItemAssignments(
+  bill: BillShowResponse,
+  receiptItemId: number,
+  participantIds: number[],
+): BillShowResponse {
+  const receiptItem = bill.receipt_items.find(
+    (item) => item.id === receiptItemId,
+  );
+  if (!receiptItem) {
+    return bill;
+  }
+
+  const remaining = bill.item_assignments.filter(
+    (assignment) => assignment.receipt_item_id !== receiptItemId,
+  );
+
+  const orderedParticipantIds = participantIds.filter((id) =>
+    bill.bill_participants.some((participant) => participant.id === id),
+  );
+
+  const amounts = equalAmountsCents(
+    receiptItem.total_cents,
+    orderedParticipantIds.length,
+  );
+  const now = new Date().toISOString();
+
+  const optimisticAssignments: ItemAssignment[] = orderedParticipantIds.map(
+    (participantId, index) => ({
+      id: -(receiptItemId * 1_000 + index + 1),
+      receipt_item_id: receiptItemId,
+      bill_participant_id: participantId,
+      amount_cents: amounts[index] ?? 0,
+      split_method: "equal",
+      created_at: now,
+      updated_at: now,
+    }),
+  );
+
+  return {
+    ...bill,
+    item_assignments: [...remaining, ...optimisticAssignments],
+  };
+}
+
 export function billShowToAssignData(data: BillShowResponse): {
   members: AssignMember[];
   lines: AssignLine[];
