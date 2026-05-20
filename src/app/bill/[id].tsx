@@ -197,7 +197,13 @@ function AdjustmentsSection({
   );
 }
 
-function BillSummaryContent({ summary }: { summary: BillSummary }) {
+function BillSummaryContent({
+  summary,
+  onViewReceipt,
+}: {
+  summary: BillSummary;
+  onViewReceipt: () => void;
+}) {
   const participants = [...summary.participants].sort((a, b) => {
     const aSeat = a.seat_index ?? Number.MAX_SAFE_INTEGER;
     const bSeat = b.seat_index ?? Number.MAX_SAFE_INTEGER;
@@ -211,6 +217,17 @@ function BillSummaryContent({ summary }: { summary: BillSummary }) {
   return (
     <>
       <TotalsCard summary={summary} />
+
+      <Button
+        accessibilityLabel="View receipt"
+        className="mt-4 w-full flex-row items-center justify-center gap-2 border border-violet-200/70 bg-white dark:border-violet-900/45 dark:bg-neutral-900"
+        onPress={onViewReceipt}
+      >
+        <Ionicons name="receipt-outline" size={18} color="#7c3aed" />
+        <AppText className="text-base font-semibold text-foreground">
+          View receipt
+        </AppText>
+      </Button>
 
       <AppText className="mt-6 text-base font-semibold text-foreground">
         Who owes what
@@ -349,7 +366,15 @@ export default function BillSummaryFromApiScreen() {
           }
           showsVerticalScrollIndicator={false}
         >
-          <BillSummaryContent summary={data} />
+          <BillSummaryContent
+            summary={data}
+            onViewReceipt={() =>
+              router.push({
+                pathname: "/scan/review",
+                params: { billId: String(billId) },
+              })
+            }
+          />
         </ScrollView>
       </View>
     </ScreenContainer>

@@ -28,11 +28,21 @@ const thermalZigzagStyles = StyleSheet.create({
   },
 });
 
+export type ReceiptFeeRow = {
+  label: string;
+  amountCents: number;
+};
+
 export type ThermalReceiptProps = {
   width: number;
   draft: DraftBill;
   /** When true, renders the same slip as review but without tappable rows or “Add item”. */
   readOnly?: boolean;
+  /** When set, renders these rows instead of VAT / service fee (e.g. API adjustments). */
+  feeRows?: ReceiptFeeRow[];
+  subtotalCents?: number;
+  totalCents?: number;
+  formatAmount?: (cents: number) => string;
   onMerchantPress: () => void;
   onLinePress: (lineId: string) => void;
   onTotalsPress: () => void;
@@ -43,16 +53,47 @@ export function ThermalReceipt({
   width,
   draft,
   readOnly = false,
+  feeRows,
+  subtotalCents: subtotalCentsOverride,
+  totalCents: totalCentsOverride,
+  formatAmount: formatAmountProp,
   onMerchantPress,
   onLinePress,
   onTotalsPress,
   onAddLine,
 }: ThermalReceiptProps) {
-  const subtotal = useMemo(
-    () => sumLineAmountsCents(draft.lines),
-    [draft.lines],
-  );
-  const total = subtotal + draft.vatCents + draft.serviceFeeCents;
+  const formatAmount = formatAmountProp ?? formatZAR;
+  const useFeeRows = (feeRows?.length ?? 0) > 0;
+
+  const subtotal = useMemo(() => {
+    if (subtotalCentsOverride !== undefined) {
+      return subtotalCentsOverride;
+    }
+
+    return sumLineAmountsCents(draft.lines);
+  }, [draft.lines, subtotalCentsOverride]);
+
+  const total = useMemo(() => {
+    if (totalCentsOverride !== undefined) {
+      return totalCentsOverride;
+    }
+
+    if (useFeeRows) {
+      return (
+        subtotal +
+        (feeRows?.reduce((sum, row) => sum + row.amountCents, 0) ?? 0)
+      );
+    }
+
+    return subtotal + draft.vatCents + draft.serviceFeeCents;
+  }, [
+    draft.serviceFeeCents,
+    draft.vatCents,
+    feeRows,
+    subtotal,
+    totalCentsOverride,
+    useFeeRows,
+  ]);
   const teethCount = Math.max(1, Math.floor(width / RECEIPT_ZIGZAG_TOOTH));
 
   return (
@@ -204,7 +245,7 @@ export function ThermalReceipt({
                   }}
                   numberOfLines={1}
                 >
-                  {formatZAR(line.amountCents)}
+                  {formatAmount(line.amountCents)}
                 </AppText>
               </View>
             ) : (
@@ -245,7 +286,7 @@ export function ThermalReceipt({
                   }}
                   numberOfLines={1}
                 >
-                  {formatZAR(line.amountCents)}
+                  {formatAmount(line.amountCents)}
                 </AppText>
               </Pressable>
             ),
@@ -290,11 +331,36 @@ export function ThermalReceipt({
               fontVariant: ["tabular-nums"],
             }}
           >
-            {formatZAR(subtotal)}
+            {formatAmount(subtotal)}
           </AppText>
         </View>
 
-        {readOnly ? (
+        {useFeeRows ? (
+          feeRows?.map((row) => (
+            <View
+              key={row.label}
+              className="-mx-1 flex-row items-center justify-between px-1 py-0.5"
+            >
+              <AppText
+                style={{
+                  color: INK_MUTED,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                }}
+              >
+                {row.label}
+              </AppText>
+              <AppText
+                style={{
+                  color: INK,
+                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                  fontVariant: ["tabular-nums"],
+                }}
+              >
+                {formatAmount(row.amountCents)}
+              </AppText>
+            </View>
+          ))
+        ) : readOnly ? (
           <>
             <View className="-mx-1 flex-row items-center justify-between px-1 py-1">
               <AppText
@@ -312,7 +378,7 @@ export function ThermalReceipt({
                   fontVariant: ["tabular-nums"],
                 }}
               >
-                {formatZAR(draft.vatCents)}
+                {formatAmount(draft.vatCents)}
               </AppText>
             </View>
             <View className="-mx-1 flex-row items-center justify-between px-1 py-0.5">
@@ -331,7 +397,7 @@ export function ThermalReceipt({
                   fontVariant: ["tabular-nums"],
                 }}
               >
-                {formatZAR(draft.serviceFeeCents)}
+                {formatAmount(draft.serviceFeeCents)}
               </AppText>
             </View>
           </>
@@ -358,7 +424,7 @@ export function ThermalReceipt({
                   fontVariant: ["tabular-nums"],
                 }}
               >
-                {formatZAR(draft.vatCents)}
+                {formatAmount(draft.vatCents)}
               </AppText>
             </Pressable>
 
@@ -383,7 +449,7 @@ export function ThermalReceipt({
                   fontVariant: ["tabular-nums"],
                 }}
               >
-                {formatZAR(draft.serviceFeeCents)}
+                {formatAmount(draft.serviceFeeCents)}
               </AppText>
             </Pressable>
           </>
@@ -404,7 +470,7 @@ export function ThermalReceipt({
               fontVariant: ["tabular-nums"],
             }}
           >
-            {formatZAR(total)}
+            {formatAmount(total)}
           </AppText>
         </View>
 
