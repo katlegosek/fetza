@@ -10,8 +10,8 @@ import {
 import { isApiError } from "@/api/errors";
 import { AppText, Button, ScreenContainer } from "@/components";
 import { useBills } from "@/hooks";
-import { formatMoneyFromCents } from "@/lib/helper";
 import type { BillIndexItem } from "@/types/api";
+import { formatMoneyFromCents } from "@/utils/money";
 
 function formatBillDisplayDate(bill: BillIndexItem): string {
   const raw = bill.receipt_date ?? bill.created_at;
