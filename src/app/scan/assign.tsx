@@ -1053,6 +1053,7 @@ export default function AssignBillScreen() {
 
           if (isApiMode) {
             persistLineAssignments(sheetLineId, memberIds);
+            setSheetLineId(null);
             return;
           }
 
