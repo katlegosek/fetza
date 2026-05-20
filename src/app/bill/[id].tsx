@@ -200,9 +200,11 @@ function AdjustmentsSection({
 function BillSummaryContent({
   summary,
   onViewReceipt,
+  onAssignItems,
 }: {
   summary: BillSummary;
   onViewReceipt: () => void;
+  onAssignItems: () => void;
 }) {
   const participants = [...summary.participants].sort((a, b) => {
     const aSeat = a.seat_index ?? Number.MAX_SAFE_INTEGER;
@@ -218,16 +220,28 @@ function BillSummaryContent({
     <>
       <TotalsCard summary={summary} />
 
-      <Button
-        accessibilityLabel="View receipt"
-        className="mt-4 w-full flex-row items-center justify-center gap-2 border border-violet-200/70 bg-white dark:border-violet-900/45 dark:bg-neutral-900"
-        onPress={onViewReceipt}
-      >
-        <Ionicons name="receipt-outline" size={18} color="#7c3aed" />
-        <AppText className="text-base font-semibold text-foreground">
-          View receipt
-        </AppText>
-      </Button>
+      <View className="mt-4 flex-row gap-3">
+        <Button
+          accessibilityLabel="View receipt"
+          className="min-w-0 flex-1 flex-row items-center justify-center gap-2 border border-violet-200/70 bg-white dark:border-violet-900/45 dark:bg-neutral-900"
+          onPress={onViewReceipt}
+        >
+          <Ionicons name="receipt-outline" size={18} color="#7c3aed" />
+          <AppText className="text-base font-semibold text-foreground">
+            Receipt
+          </AppText>
+        </Button>
+        <Button
+          accessibilityLabel="Assign items"
+          className="min-w-0 flex-1 flex-row items-center justify-center gap-2 border border-violet-200/70 bg-white dark:border-violet-900/45 dark:bg-neutral-900"
+          onPress={onAssignItems}
+        >
+          <Ionicons name="people-outline" size={18} color="#7c3aed" />
+          <AppText className="text-base font-semibold text-foreground">
+            Assign
+          </AppText>
+        </Button>
+      </View>
 
       <AppText className="mt-6 text-base font-semibold text-foreground">
         Who owes what
@@ -372,6 +386,12 @@ export default function BillSummaryFromApiScreen() {
             onViewReceipt={() =>
               router.push({
                 pathname: "/scan/review",
+                params: { billId: String(billId) },
+              })
+            }
+            onAssignItems={() =>
+              router.push({
+                pathname: "/scan/assign",
                 params: { billId: String(billId) },
               })
             }

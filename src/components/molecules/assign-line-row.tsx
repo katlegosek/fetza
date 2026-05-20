@@ -7,6 +7,8 @@ import { cn } from "@/lib/cn";
 import { formatZAR } from "@/lib/helper";
 import type { ReceiptLine } from "@/mocks/review-draft.mock";
 
+type AssignLineLike = Pick<ReceiptLine, "qty" | "description" | "amountCents">;
+
 export type AssignLineRowMember = {
   id: string;
   name: string;
@@ -18,18 +20,21 @@ export type AssignLineRowMember = {
 export type AssignLineRowProps =
   | {
       variant: "assign";
-      line: ReceiptLine;
+      line: AssignLineLike;
       assigned: AssignLineRowMember[];
       lineHint: string;
+      unassignedLabel?: string;
+      formatAmount?: (cents: number) => string;
       onPress: () => void;
       index: number;
     }
   | {
       variant: "share";
-      line: ReceiptLine;
+      line: AssignLineLike;
       shareCents: number;
       assigneeCount: number;
       lineHint: string;
+      formatAmount?: (cents: number) => string;
       onPress: () => void;
       index: number;
     };
@@ -42,7 +47,7 @@ function initials(name: string): string {
 }
 
 function lineListIcon(
-  line: ReceiptLine,
+  line: AssignLineLike,
   index: number,
 ): keyof typeof Ionicons.glyphMap {
   const d = line.description.toLowerCase();
@@ -68,6 +73,7 @@ function lineListIcon(
 export function AssignLineRow(props: AssignLineRowProps) {
   const colors = useThemeColors();
   const { line, lineHint, onPress, index } = props;
+  const formatAmount = props.formatAmount ?? formatZAR;
   const qtyLabel = line.qty > 1 ? `${line.qty}x ` : "";
   const listIcon = lineListIcon(line, index);
 
@@ -96,7 +102,7 @@ export function AssignLineRow(props: AssignLineRowProps) {
               {line.description}
             </AppText>
             <AppText className="shrink-0 text-base font-semibold tabular-nums text-foreground">
-              {formatZAR(shareCents)}
+              {formatAmount(shareCents)}
             </AppText>
           </View>
           <AppText
@@ -104,7 +110,7 @@ export function AssignLineRow(props: AssignLineRowProps) {
             numberOfLines={2}
           >
             Split {assigneeCount} {assigneeCount === 1 ? "way" : "ways"} ·{" "}
-            {formatZAR(line.amountCents)} total
+            {formatAmount(line.amountCents)} total
           </AppText>
         </View>
 
@@ -115,14 +121,14 @@ export function AssignLineRow(props: AssignLineRowProps) {
     );
   }
 
-  const { assigned } = props;
+  const { assigned, unassignedLabel = "Tap to assign" } = props;
   const n = assigned.length;
   const perPersonCents = n >= 2 ? Math.round(line.amountCents / n) : 0;
   const assignedLabel =
     n === 1
       ? `Assigned to ${assigned[0]?.name ?? ""}`
       : n >= 2
-        ? `Split ${n} ways · ${formatZAR(perPersonCents)} each`
+        ? `Split ${n} ways · ${formatAmount(perPersonCents)} each`
         : null;
 
   return (
@@ -148,7 +154,7 @@ export function AssignLineRow(props: AssignLineRowProps) {
             {line.description}
           </AppText>
           <AppText className="shrink-0 text-base font-medium tabular-nums text-foreground">
-            {formatZAR(line.amountCents)}
+            {formatAmount(line.amountCents)}
           </AppText>
         </View>
 
@@ -156,7 +162,7 @@ export function AssignLineRow(props: AssignLineRowProps) {
           {n === 0 ? (
             <View className="self-start rounded-full bg-orange-100 px-2.5 py-1 dark:bg-orange-950/50">
               <AppText className="text-[13px] font-semibold text-orange-900 dark:text-orange-200">
-                • Needs assignment
+                • {unassignedLabel}
               </AppText>
             </View>
           ) : (

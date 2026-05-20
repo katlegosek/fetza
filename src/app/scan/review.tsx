@@ -653,12 +653,17 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
 
             <View className="min-w-0 flex-1 basis-0 self-stretch pl-1.5">
               <Button
-                accessibilityLabel="View bill summary"
+                accessibilityLabel="Assign items"
                 className="h-full w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0"
-                onPress={() => router.push(`/bill/${billId}`)}
+                onPress={() =>
+                  router.push({
+                    pathname: "/scan/assign",
+                    params: { billId: String(billId) },
+                  })
+                }
               >
                 <AppText className="text-base font-semibold text-background">
-                  View summary
+                  Assign items
                 </AppText>
                 <Ionicons
                   name="chevron-forward"
