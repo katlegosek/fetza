@@ -1,9 +1,17 @@
 import type { DraftBill } from "@/mocks/review-draft.mock";
-import type { BillShowResponse, ReceiptAdjustment } from "@/types/api";
+import type {
+  BillShowResponse,
+  ReceiptAdjustment,
+  ReceiptAdjustmentKind,
+} from "@/types/api";
 
 export type ReceiptFeeRow = {
+  id: string;
   label: string;
   amountCents: number;
+  kind: ReceiptAdjustmentKind;
+  affectsTotal: boolean;
+  position: number;
 };
 
 export type BillReceiptView = {
@@ -41,8 +49,12 @@ function adjustmentRows(adjustments: ReceiptAdjustment[]): ReceiptFeeRow[] {
     .sort((a, b) => a.position - b.position)
     .filter((adjustment) => adjustment.kind !== "subtotal")
     .map((adjustment) => ({
+      id: String(adjustment.id),
       label: adjustment.label,
       amountCents: adjustment.amount_cents,
+      kind: adjustment.kind,
+      affectsTotal: adjustment.affects_total,
+      position: adjustment.position,
     }));
 }
 

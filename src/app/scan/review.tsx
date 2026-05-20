@@ -14,8 +14,11 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
+  createReceiptAdjustment,
   createReceiptItem,
+  deleteReceiptAdjustment,
   deleteReceiptItem,
+  updateReceiptAdjustment,
   updateReceiptItem,
 } from "@/api/billApi";
 import { isApiError } from "@/api/errors";
@@ -26,6 +29,8 @@ import {
   ClearReceiptSheet,
   NoticeBanner,
   RECEIPT_ZIGZAG_DEPTH,
+  type ReviewAdjustmentSavePayload,
+  ReviewAdjustmentSheet,
   type ReviewItemSavePayload,
   ReviewItemSheet,
   ReviewMerchantSheet,
@@ -35,6 +40,7 @@ import {
   ScreenContainer,
   ScreenHeader,
   ThermalReceipt,
+  defaultAffectsTotalForKind,
 } from "@/components";
 import { useBill, usePullToRefresh, useThemeColors } from "@/hooks";
 import {
@@ -55,6 +61,7 @@ type SheetState =
   | { kind: "line"; lineId: string }
   | { kind: "merchant" }
   | { kind: "totals" }
+  | { kind: "adjustment"; adjustmentId: string }
   | null;
 
 function parseBillId(raw: string | string[] | undefined): number {
@@ -71,6 +78,7 @@ function notConnectedYet() {
 }
 
 const NEW_RECEIPT_ITEM_ID = "__new__";
+const NEW_RECEIPT_ADJUSTMENT_ID = "__new_adj__";
 
 function mutationErrorMessage(error: unknown, fallback: string): string {
   return isApiError(error) ? error.message : fallback;
@@ -381,9 +389,21 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
   const [clearReceiptOpen, setClearReceiptOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [itemSaving, setItemSaving] = useState(false);
+  const [adjustmentSaving, setAdjustmentSaving] = useState(false);
+  const [reviewActionError, setReviewActionError] = useState<string | null>(
+    null,
+  );
 
   const overflowMenuTop = insets.top + 60;
   const closeSheet = useCallback(() => setSheet(null), []);
+
+  const receiptId = data?.receipt?.id;
+
+  const nextAdjustmentPosition = useMemo(() => {
+    const adjustments = data?.receipt_adjustments ?? [];
+    if (adjustments.length === 0) return 0;
+    return Math.max(...adjustments.map((row) => row.position)) + 1;
+  }, [data?.receipt_adjustments]);
 
   const handleAddLine = useCallback(() => {
     setSheet({ kind: "line", lineId: NEW_RECEIPT_ITEM_ID });
@@ -455,6 +475,100 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
     }
   }, [billId, queryClient, sheet]);
 
+  const openAddAdjustment = useCallback(() => {
+    if (!receiptId) {
+      setReviewActionError("This bill has no receipt to edit yet.");
+      return;
+    }
+    setReviewActionError(null);
+    setSheet({ kind: "adjustment", adjustmentId: NEW_RECEIPT_ADJUSTMENT_ID });
+  }, [receiptId]);
+
+  const handleSaveAdjustment = useCallback(
+    async (next: ReviewAdjustmentSavePayload) => {
+      if (sheet?.kind !== "adjustment" || !receiptId) return;
+
+      setAdjustmentSaving(true);
+      setReviewActionError(null);
+
+      try {
+        const payload = {
+          label: next.label,
+          kind: next.kind,
+          amount_cents: next.amountCents,
+          affects_total: next.affectsTotal,
+        };
+
+        if (sheet.adjustmentId === NEW_RECEIPT_ADJUSTMENT_ID) {
+          await createReceiptAdjustment(receiptId, {
+            ...payload,
+            position: nextAdjustmentPosition,
+          });
+        } else {
+          const adjustmentId = Number(sheet.adjustmentId);
+          if (!Number.isFinite(adjustmentId)) {
+            throw new Error("Invalid receipt adjustment.");
+          }
+
+          const existing = data?.receipt_adjustments.find(
+            (row) => row.id === adjustmentId,
+          );
+
+          await updateReceiptAdjustment(adjustmentId, {
+            ...payload,
+            position: existing?.position,
+          });
+        }
+
+        await invalidateBillQueries(queryClient, billId);
+      } catch (saveError) {
+        setReviewActionError(
+          mutationErrorMessage(saveError, "Couldn't save fee or tax."),
+        );
+        throw saveError;
+      } finally {
+        setAdjustmentSaving(false);
+      }
+    },
+    [
+      billId,
+      data?.receipt_adjustments,
+      nextAdjustmentPosition,
+      queryClient,
+      receiptId,
+      sheet,
+    ],
+  );
+
+  const handleDeleteAdjustment = useCallback(async () => {
+    if (
+      sheet?.kind !== "adjustment" ||
+      sheet.adjustmentId === NEW_RECEIPT_ADJUSTMENT_ID
+    ) {
+      return;
+    }
+
+    const adjustmentId = Number(sheet.adjustmentId);
+    if (!Number.isFinite(adjustmentId)) {
+      return;
+    }
+
+    setAdjustmentSaving(true);
+    setReviewActionError(null);
+
+    try {
+      await deleteReceiptAdjustment(adjustmentId);
+      await invalidateBillQueries(queryClient, billId);
+    } catch (deleteError) {
+      setReviewActionError(
+        mutationErrorMessage(deleteError, "Couldn't remove fee or tax."),
+      );
+      throw deleteError;
+    } finally {
+      setAdjustmentSaving(false);
+    }
+  }, [billId, queryClient, sheet]);
+
   const receiptView = useMemo(
     () => (data ? billShowToReceiptView(data) : null),
     [data],
@@ -481,6 +595,35 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
 
   const isNewItemSheet =
     sheet?.kind === "line" && sheet.lineId === NEW_RECEIPT_ITEM_ID;
+
+  const isNewAdjustmentSheet =
+    sheet?.kind === "adjustment" &&
+    sheet.adjustmentId === NEW_RECEIPT_ADJUSTMENT_ID;
+
+  const activeAdjustment =
+    sheet?.kind === "adjustment"
+      ? isNewAdjustmentSheet
+        ? {
+            label: "",
+            kind: "tax" as const,
+            amountCents: 0,
+            affectsTotal: defaultAffectsTotalForKind("tax"),
+          }
+        : (() => {
+            const row = data?.receipt_adjustments.find(
+              (adjustment) => String(adjustment.id) === sheet.adjustmentId,
+            );
+            if (!row) return undefined;
+            return {
+              label: row.label,
+              kind: row.kind,
+              amountCents: row.amount_cents,
+              affectsTotal: row.affects_total,
+            };
+          })()
+      : undefined;
+
+  const adjustmentCount = data?.receipt_adjustments.length ?? 0;
 
   const floatingActionScrollClearance = insets.bottom + 72;
   const headerTitle = data?.bill.title ?? "Review";
@@ -588,10 +731,22 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
               className="mb-6 self-center"
               dismissAccessibilityLabel="Dismiss tip"
               icon="cloud-outline"
-              message="Tap any line to fix · Tap Add item for new lines"
+              message="Tap lines or fees to edit · Add item or Add fee / tax on the slip"
               style={{ width: receiptWidth }}
               variant="violet"
               onDismiss={() => setShowReviewTip(false)}
+            />
+          ) : null}
+
+          {reviewActionError ? (
+            <NoticeBanner
+              className="mb-4 self-center"
+              dismissAccessibilityLabel="Dismiss error"
+              icon="alert-circle-outline"
+              message={reviewActionError}
+              style={{ width: receiptWidth }}
+              variant="sky"
+              onDismiss={() => setReviewActionError(null)}
             />
           ) : null}
 
@@ -606,15 +761,19 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
 
           <ThermalReceipt
             draft={draft}
-            feeRows={feeRows.length > 0 ? feeRows : undefined}
+            feeRows={feeRows}
             formatAmount={formatMoneyFromCents}
             subtotalCents={subtotalCents}
             totalCents={totalCents}
             width={receiptWidth}
+            onAddAdjustment={openAddAdjustment}
             onAddLine={handleAddLine}
+            onFeeRowPress={(adjustmentId) =>
+              setSheet({ kind: "adjustment", adjustmentId })
+            }
             onLinePress={(lineId) => setSheet({ kind: "line", lineId })}
             onMerchantPress={notConnectedYet}
-            onTotalsPress={notConnectedYet}
+            onTotalsPress={openAddAdjustment}
           />
         </ScrollView>
 
@@ -702,7 +861,7 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
         onHelp={() =>
           Alert.alert(
             "Help",
-            "Tap any line on the receipt to edit it. Merchant, tax, and scanning will be available in a later update.",
+            "Tap any line or fee on the receipt to edit it. Use Add fee / tax for VAT, service charge, tip, or discount. Merchant and scanning will be available in a later update.",
           )
         }
         onRescan={() => notConnectedYet()}
@@ -738,6 +897,21 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
         onClose={closeSheet}
         onDelete={handleDeleteItem}
         onSave={handleSaveItem}
+      />
+
+      <ReviewAdjustmentSheet
+        affectsTotal={activeAdjustment?.affectsTotal ?? true}
+        amountCents={activeAdjustment?.amountCents ?? 0}
+        canDelete={!isNewAdjustmentSheet && adjustmentCount > 0}
+        isNew={isNewAdjustmentSheet}
+        isSaving={adjustmentSaving}
+        kind={activeAdjustment?.kind ?? "tax"}
+        label={activeAdjustment?.label ?? ""}
+        visible={sheet?.kind === "adjustment" && activeAdjustment !== undefined}
+        bottomInset={insets.bottom}
+        onClose={closeSheet}
+        onDelete={handleDeleteAdjustment}
+        onSave={handleSaveAdjustment}
       />
     </ScreenContainer>
   );

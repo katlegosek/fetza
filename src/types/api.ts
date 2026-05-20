@@ -211,6 +211,24 @@ export interface ReceiptItemDeleteResponse {
   bill_summary: BillSummary;
 }
 
+export interface ReceiptAdjustmentInput {
+  label: string;
+  kind: ReceiptAdjustmentKind;
+  amount_cents: number;
+  affects_total?: boolean;
+  position?: number;
+}
+
+export interface ReceiptAdjustmentMutationResponse {
+  receipt_adjustment: ReceiptAdjustment;
+  bill_summary: BillSummary;
+}
+
+export interface ReceiptAdjustmentDeleteResponse {
+  receipt_adjustment: ReceiptAdjustment;
+  bill_summary: BillSummary;
+}
+
 export interface BillSummaryMutationResponse {
   bill_summary: BillSummary;
 }

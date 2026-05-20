@@ -36,6 +36,13 @@ export function parseRandStringToCents(raw: string): number | null {
   return Math.round(roundToTwoDecimalPlaces(n) * 100);
 }
 
+/** Signed amounts (e.g. discounts) — allows negative values. */
+export function parseSignedMoneyInputToCents(raw: string): number | null {
+  const n = Number.parseFloat(raw.trim().replace(",", "."));
+  if (!Number.isFinite(n)) return null;
+  return Math.round(roundToTwoDecimalPlaces(n) * 100);
+}
+
 export function sumLineAmountsCents(
   lines: ReadonlyArray<{ amountCents: number }>,
 ): number {

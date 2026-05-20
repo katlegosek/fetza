@@ -7,6 +7,9 @@ import type {
   ParticipantDeleteResponse,
   ParticipantInput,
   ParticipantMutationResponse,
+  ReceiptAdjustmentDeleteResponse,
+  ReceiptAdjustmentInput,
+  ReceiptAdjustmentMutationResponse,
   ReceiptItemDeleteResponse,
   ReceiptItemInput,
   ReceiptItemMutationResponse,
@@ -160,6 +163,43 @@ export function clearBillAssignments(
 ): Promise<BillSummaryMutationResponse> {
   return apiRequest<BillSummaryMutationResponse>(
     `/bills/${billId}/assignments`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+
+export function createReceiptAdjustment(
+  receiptId: number,
+  receiptAdjustment: ReceiptAdjustmentInput,
+): Promise<ReceiptAdjustmentMutationResponse> {
+  return apiRequest<ReceiptAdjustmentMutationResponse>(
+    `/receipts/${receiptId}/adjustments`,
+    {
+      method: "POST",
+      body: { receipt_adjustment: receiptAdjustment },
+    },
+  );
+}
+
+export function updateReceiptAdjustment(
+  adjustmentId: number,
+  receiptAdjustment: Partial<ReceiptAdjustmentInput>,
+): Promise<ReceiptAdjustmentMutationResponse> {
+  return apiRequest<ReceiptAdjustmentMutationResponse>(
+    `/receipt_adjustments/${adjustmentId}`,
+    {
+      method: "PATCH",
+      body: { receipt_adjustment: receiptAdjustment },
+    },
+  );
+}
+
+export function deleteReceiptAdjustment(
+  adjustmentId: number,
+): Promise<ReceiptAdjustmentDeleteResponse> {
+  return apiRequest<ReceiptAdjustmentDeleteResponse>(
+    `/receipt_adjustments/${adjustmentId}`,
     {
       method: "DELETE",
     },

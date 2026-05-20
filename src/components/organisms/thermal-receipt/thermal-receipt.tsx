@@ -29,6 +29,7 @@ const thermalZigzagStyles = StyleSheet.create({
 });
 
 export type ReceiptFeeRow = {
+  id?: string;
   label: string;
   amountCents: number;
 };
@@ -47,6 +48,10 @@ export type ThermalReceiptProps = {
   onLinePress: (lineId: string) => void;
   onTotalsPress: () => void;
   onAddLine: () => void;
+  /** When feeRows mode is active, tap a fee row (requires row.id). */
+  onFeeRowPress?: (adjustmentId: string) => void;
+  /** When feeRows mode is active, add a new adjustment line. */
+  onAddAdjustment?: () => void;
 };
 
 export function ThermalReceipt({
@@ -61,9 +66,12 @@ export function ThermalReceipt({
   onLinePress,
   onTotalsPress,
   onAddLine,
+  onFeeRowPress,
+  onAddAdjustment,
 }: ThermalReceiptProps) {
   const formatAmount = formatAmountProp ?? formatZAR;
-  const useFeeRows = (feeRows?.length ?? 0) > 0;
+  const useFeeRows = feeRows !== undefined;
+  const editableFeeRows = useFeeRows && !readOnly;
 
   const subtotal = useMemo(() => {
     if (subtotalCentsOverride !== undefined) {
@@ -335,32 +343,80 @@ export function ThermalReceipt({
           </AppText>
         </View>
 
-        {useFeeRows ? (
-          feeRows?.map((row) => (
-            <View
-              key={row.label}
-              className="-mx-1 flex-row items-center justify-between px-1 py-0.5"
+        {useFeeRows
+          ? feeRows?.map((row) => {
+              const rowKey = row.id ?? row.label;
+              const canPress =
+                editableFeeRows && onFeeRowPress !== undefined && row.id;
+
+              const rowContent = (
+                <>
+                  <AppText
+                    style={{
+                      color: INK_MUTED,
+                      fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                    }}
+                  >
+                    {row.label}
+                  </AppText>
+                  <AppText
+                    style={{
+                      color: INK,
+                      fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+                      fontVariant: ["tabular-nums"],
+                    }}
+                  >
+                    {formatAmount(row.amountCents)}
+                  </AppText>
+                </>
+              );
+
+              if (canPress) {
+                return (
+                  <Pressable
+                    key={rowKey}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Edit ${row.label}`}
+                    className="-mx-1 flex-row items-center justify-between rounded-md px-1 py-0.5 active:bg-black/[0.05]"
+                    onPress={() => onFeeRowPress(row.id as string)}
+                  >
+                    {rowContent}
+                  </Pressable>
+                );
+              }
+
+              return (
+                <View
+                  key={rowKey}
+                  className="-mx-1 flex-row items-center justify-between px-1 py-0.5"
+                >
+                  {rowContent}
+                </View>
+              );
+            })
+          : null}
+
+        {editableFeeRows && onAddAdjustment ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Add fee or tax"
+            onPress={onAddAdjustment}
+            className="-mx-1 mt-1 flex-row items-center justify-center gap-2 rounded-lg border border-dashed border-stone-500/60 py-2 active:bg-black/[0.05]"
+          >
+            <Ionicons name="add" size={16} color={INK_MUTED} />
+            <AppText
+              className="text-[11px] font-semibold uppercase tracking-wide"
+              style={{
+                color: INK_MUTED,
+                fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
+              }}
             >
-              <AppText
-                style={{
-                  color: INK_MUTED,
-                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-                }}
-              >
-                {row.label}
-              </AppText>
-              <AppText
-                style={{
-                  color: INK,
-                  fontFamily: RECEIPT_MONOSPACE_FONT_FAMILY,
-                  fontVariant: ["tabular-nums"],
-                }}
-              >
-                {formatAmount(row.amountCents)}
-              </AppText>
-            </View>
-          ))
-        ) : readOnly ? (
+              Add fee / tax
+            </AppText>
+          </Pressable>
+        ) : null}
+
+        {!useFeeRows && readOnly ? (
           <>
             <View className="-mx-1 flex-row items-center justify-between px-1 py-1">
               <AppText
@@ -401,7 +457,7 @@ export function ThermalReceipt({
               </AppText>
             </View>
           </>
-        ) : (
+        ) : !useFeeRows ? (
           <>
             <Pressable
               accessibilityRole="button"
@@ -453,7 +509,7 @@ export function ThermalReceipt({
               </AppText>
             </Pressable>
           </>
-        )}
+        ) : null}
 
         <View className="mt-2 flex-row items-center justify-between border-t border-stone-900/15 pt-2">
           <AppText

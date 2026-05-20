@@ -11,6 +11,11 @@ export {
 export { ReviewMerchantSheet } from "./review-merchant-sheet";
 export { ReviewOverflowMenu } from "./review-overflow-menu";
 export {
+  ReviewAdjustmentSheet,
+  defaultAffectsTotalForKind,
+  type ReviewAdjustmentSavePayload,
+} from "./review-adjustment-sheet";
+export {
   ReviewTotalsSheet,
   type SaveBillFees,
 } from "./review-totals-sheet";
