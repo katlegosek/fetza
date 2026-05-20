@@ -32,7 +32,10 @@ import {
   useReplaceItemAssignments,
   useThemeColors,
 } from "@/hooks";
-import { assignMemberChipPressableClassName } from "@/lib/assign-member-chip";
+import {
+  assignMemberChipBorderStyle,
+  assignMemberChipShellClassName,
+} from "@/lib/assign-member-chip";
 import { cn } from "@/lib/cn";
 import { cloneBillDraft, sumLineAmountsCents } from "@/lib/helper";
 import { memberAssignHighlightFromTones } from "@/lib/member-assign-highlight";
@@ -156,9 +159,15 @@ export default function AssignBillScreen() {
   const [mockMembers, setMembers] = useState<Member[]>(SEED_MEMBERS);
   const [assignments, setAssignments] = useState<Assignments>({});
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
+  const activeMemberIdRef = useRef<string | null>(null);
   const [sheetLineId, setSheetLineId] = useState<string | null>(null);
   const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const assignmentsBeforeSplitRef = useRef<Assignments | null>(null);
+
+  const setActiveMember = useCallback((memberId: string | null) => {
+    activeMemberIdRef.current = memberId;
+    setActiveMemberId(memberId);
+  }, []);
 
   useEffect(() => {
     if (!draftParam) {
@@ -172,13 +181,13 @@ export default function AssignBillScreen() {
       setAssignments({});
       assignmentsBeforeSplitRef.current = null;
       setMembers(SEED_MEMBERS);
-      setActiveMemberId(null);
+      setActiveMember(null);
     } catch {
       setDraft(null);
     } finally {
       setHydrated(true);
     }
-  }, [draftParam]);
+  }, [draftParam, setActiveMember]);
 
   const mockLines = draft?.lines ?? [];
   const apiLines = apiAssignData?.lines ?? [];
@@ -420,7 +429,7 @@ export default function AssignBillScreen() {
           {
             onError: showAssignmentError,
             onSuccess: (response) => {
-              setActiveMemberId(String(response.participant.id));
+              setActiveMember(String(response.participant.id));
             },
           },
         );
@@ -440,12 +449,13 @@ export default function AssignBillScreen() {
           ...prev,
         ];
       });
-      setActiveMemberId(id);
+      setActiveMember(id);
     },
     [
       billParticipants.createParticipant,
       isApiMode,
       members.length,
+      setActiveMember,
       showAssignmentError,
     ],
   );
@@ -499,19 +509,24 @@ export default function AssignBillScreen() {
             if (isApiMode) {
               bulkAssignments.clearBillAssignments.mutate(undefined, {
                 onError: showAssignmentError,
-                onSuccess: () => setActiveMemberId(null),
+                onSuccess: () => setActiveMember(null),
               });
               return;
             }
 
             setAssignments({});
             assignmentsBeforeSplitRef.current = null;
-            setActiveMemberId(null);
+            setActiveMember(null);
           },
         },
       ],
     );
-  }, [bulkAssignments.clearBillAssignments, isApiMode, showAssignmentError]);
+  }, [
+    bulkAssignments.clearBillAssignments,
+    isApiMode,
+    setActiveMember,
+    showAssignmentError,
+  ]);
 
   const handleSummary = useCallback(() => {
     if (isApiMode) {
@@ -535,13 +550,14 @@ export default function AssignBillScreen() {
 
   const onLinePress = useCallback(
     (line: AssignLine | ReceiptLine) => {
-      if (activeMemberId) {
-        toggleAssignment(line.id, activeMemberId);
+      const selectedMemberId = activeMemberIdRef.current;
+      if (selectedMemberId) {
+        toggleAssignment(line.id, selectedMemberId);
         return;
       }
       setSheetLineId(line.id);
     },
-    [activeMemberId, toggleAssignment],
+    [toggleAssignment],
   );
 
   const merchantTopHint = isApiMode
@@ -790,18 +806,27 @@ export default function AssignBillScreen() {
                   accessibilityRole="button"
                   accessibilityState={{ selected: active }}
                   accessibilityLabel={`Assign to ${m.name}`}
-                  className={assignMemberChipPressableClassName(active, m.tone)}
-                  onPress={() =>
-                    setActiveMemberId((prev) => (prev === m.id ? null : m.id))
-                  }
+                  hitSlop={6}
+                  style={({ pressed }) => ({
+                    opacity: pressed ? 0.88 : 1,
+                  })}
+                  onPress={() => {
+                    setSheetLineId(null);
+                    setActiveMember(activeMemberId === m.id ? null : m.id);
+                  }}
                 >
-                  <AssignMemberChipFace
-                    avatarBackgroundColor={m.avatarBackgroundColor}
-                    avatarTextColor={m.avatarTextColor}
-                    initialsText={participantInitials(m.name)}
-                    name={m.name}
-                    showYouRibbon={isYou}
-                  />
+                  <View
+                    className={assignMemberChipShellClassName()}
+                    style={assignMemberChipBorderStyle(active, m.tone)}
+                  >
+                    <AssignMemberChipFace
+                      avatarBackgroundColor={m.avatarBackgroundColor}
+                      avatarTextColor={m.avatarTextColor}
+                      initialsText={participantInitials(m.name)}
+                      name={m.name}
+                      showYouRibbon={isYou}
+                    />
+                  </View>
                 </Pressable>
               );
             })}
@@ -834,7 +859,7 @@ export default function AssignBillScreen() {
                 dismissAccessibilityLabel="Stop assigning to this person"
                 icon="people-outline"
                 message={`Assigning to ${activeAssignMember.name} — tap items to add or remove`}
-                onDismiss={() => setActiveMemberId(null)}
+                onDismiss={() => setActiveMember(null)}
               />
             ) : null}
             <View className="gap-3">

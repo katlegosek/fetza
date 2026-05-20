@@ -13,6 +13,7 @@ import type {
   ParticipantInput,
   ParticipantMutationResponse,
 } from "@/types/api";
+import { applyOptimisticParticipantSettled } from "@/utils/bill-summary-settled";
 
 type ParticipantMutationResponseLike = {
   bill_summary: BillSummary;
@@ -47,7 +48,18 @@ export type UpdateBillParticipantVariables = {
   participant: Partial<ParticipantInput>;
 };
 
+export type ToggleParticipantSettledVariables = {
+  participantId: number;
+  settled: boolean;
+};
+
+type ToggleSettledContext = {
+  previousSummary: BillSummary | undefined;
+};
+
 export function useBillParticipants(billId: number) {
+  const queryClient = useQueryClient();
+
   const createParticipantMutation = useParticipantBillMutation<
     CreateBillParticipantVariables,
     ParticipantMutationResponse
@@ -65,10 +77,58 @@ export function useBillParticipants(billId: number) {
     ParticipantDeleteResponse
   >(billId, (participantId) => deleteParticipant(participantId));
 
+  const toggleParticipantSettledMutation = useMutation({
+    mutationFn: ({
+      participantId,
+      settled,
+    }: ToggleParticipantSettledVariables) =>
+      updateParticipant(participantId, { settled }),
+    onMutate: async ({ participantId, settled }) => {
+      await queryClient.cancelQueries({
+        queryKey: billQueryKeys.summary(billId),
+      });
+
+      const previousSummary = queryClient.getQueryData<BillSummary>(
+        billQueryKeys.summary(billId),
+      );
+
+      if (previousSummary) {
+        queryClient.setQueryData<BillSummary>(
+          billQueryKeys.summary(billId),
+          applyOptimisticParticipantSettled(
+            previousSummary,
+            participantId,
+            settled,
+          ),
+        );
+      }
+
+      return { previousSummary } satisfies ToggleSettledContext;
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousSummary) {
+        queryClient.setQueryData(
+          billQueryKeys.summary(billId),
+          context.previousSummary,
+        );
+      }
+    },
+    onSuccess: (response) => {
+      queryClient.setQueryData(
+        billQueryKeys.summary(billId),
+        response.bill_summary,
+      );
+    },
+    onSettled: () => {
+      void invalidateBillQueries(queryClient, billId);
+    },
+  });
+
   return {
     createParticipant: createParticipantMutation,
     updateParticipant: updateParticipantMutation,
     deleteParticipant: deleteParticipantMutation,
+    toggleParticipantSettled: toggleParticipantSettledMutation,
   };
 }
 

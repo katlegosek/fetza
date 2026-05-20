@@ -7,7 +7,7 @@ import {
   RECEIPT_ZIGZAG_DEPTH,
   RECEIPT_ZIGZAG_TOOTH,
   ReceiptZigzagRow,
-} from "@/components/molecules";
+} from "@/components/molecules/receipt-zigzag-row";
 import {
   RECEIPT_MONOSPACE_FONT_FAMILY,
   formatZAR,

@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -10,8 +11,19 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { isApiError } from "@/api/errors";
-import { AppText, Button, ScreenContainer, ScreenHeader } from "@/components";
-import { useBillSummary, usePullToRefresh, useThemeColors } from "@/hooks";
+import {
+  AppText,
+  Button,
+  NoticeBanner,
+  ScreenContainer,
+  ScreenHeader,
+} from "@/components";
+import {
+  useBillParticipants,
+  useBillSummary,
+  usePullToRefresh,
+  useThemeColors,
+} from "@/hooks";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
 import type {
   BillSummary,
@@ -94,9 +106,11 @@ function TotalsCard({ summary }: { summary: BillSummary }) {
 function ParticipantRow({
   participant,
   index,
+  onToggleSettled,
 }: {
   participant: BillSummaryParticipant;
   index: number;
+  onToggleSettled: (participant: BillSummaryParticipant) => void;
 }) {
   const colors = useThemeColors();
   const tones =
@@ -107,8 +121,36 @@ function ParticipantRow({
         }
       : avatarTonesForPaletteIndex(index);
 
+  const settled = participant.settled;
+  const toggleLabel = settled
+    ? `Mark ${participant.name} as not paid`
+    : `Mark ${participant.name} as paid`;
+
   return (
     <View className="flex-row items-center gap-2 px-4 py-3">
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={toggleLabel}
+        accessibilityState={{ checked: settled }}
+        className="shrink-0 active:opacity-80"
+        hitSlop={8}
+        onPress={() => onToggleSettled(participant)}
+      >
+        <View
+          className="size-10 items-center justify-center rounded-full border-2"
+          style={{
+            borderColor: settled ? "#059669" : colors.borderSubtle,
+            backgroundColor: settled ? "#d1fae5" : "transparent",
+          }}
+        >
+          {settled ? (
+            <Ionicons name="checkmark" size={22} color="#059669" />
+          ) : (
+            <View className="size-4 rounded-full border border-stone-300 dark:border-neutral-600" />
+          )}
+        </View>
+      </Pressable>
+
       <View
         className="size-10 shrink-0 items-center justify-center rounded-full"
         style={{ backgroundColor: tones.avatarBackgroundColor }}
@@ -134,7 +176,7 @@ function ParticipantRow({
         </AppText>
       </View>
       <View className="shrink-0 flex-row items-center gap-1.5">
-        {participant.settled ? (
+        {settled ? (
           <View className="flex-row items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 dark:bg-emerald-950/80">
             <Ionicons name="checkmark-circle" size={14} color="#059669" />
             <AppText className="text-[10px] font-bold uppercase text-emerald-800 dark:text-emerald-300">
@@ -146,7 +188,7 @@ function ParticipantRow({
           className="text-sm font-semibold"
           style={{
             fontVariant: ["tabular-nums"],
-            color: participant.settled ? colors.muted : colors.foreground,
+            color: settled ? colors.muted : colors.foreground,
           }}
         >
           {formatMoneyFromCents(participant.amount_due_cents)}
@@ -201,10 +243,12 @@ function BillSummaryContent({
   summary,
   onViewReceipt,
   onAssignItems,
+  onToggleSettled,
 }: {
   summary: BillSummary;
   onViewReceipt: () => void;
   onAssignItems: () => void;
+  onToggleSettled: (participant: BillSummaryParticipant) => void;
 }) {
   const participants = [...summary.participants].sort((a, b) => {
     const aSeat = a.seat_index ?? Number.MAX_SAFE_INTEGER;
@@ -260,7 +304,11 @@ function BillSummaryContent({
               {index > 0 ? (
                 <View className="mx-4 h-px bg-stone-200/30 dark:bg-neutral-700/35" />
               ) : null}
-              <ParticipantRow participant={participant} index={index} />
+              <ParticipantRow
+                participant={participant}
+                index={index}
+                onToggleSettled={onToggleSettled}
+              />
             </View>
           ))}
         </View>
@@ -280,6 +328,37 @@ export default function BillSummaryFromApiScreen() {
   const { data, isLoading, isError, error, refetch } = useBillSummary(billId);
   const { refreshing: pullRefreshing, onRefresh: onPullRefresh } =
     usePullToRefresh(refetch);
+  const { toggleParticipantSettled } = useBillParticipants(billId);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!summaryError) {
+      return;
+    }
+
+    const timeout = setTimeout(() => setSummaryError(null), 4000);
+    return () => clearTimeout(timeout);
+  }, [summaryError]);
+
+  const showSummaryError = useCallback((saveError: unknown) => {
+    const message = isApiError(saveError)
+      ? saveError.message
+      : "Could not update payment status. Please try again.";
+    setSummaryError(message);
+  }, []);
+
+  const handleToggleSettled = useCallback(
+    (participant: BillSummaryParticipant) => {
+      toggleParticipantSettled.mutate(
+        {
+          participantId: participant.id,
+          settled: !participant.settled,
+        },
+        { onError: showSummaryError },
+      );
+    },
+    [showSummaryError, toggleParticipantSettled],
+  );
 
   const headerTitle = data?.bill.title ?? "Summary";
 
@@ -381,8 +460,20 @@ export default function BillSummaryFromApiScreen() {
           }
           showsVerticalScrollIndicator={false}
         >
+          {summaryError ? (
+            <NoticeBanner
+              className="mb-4"
+              dismissAccessibilityLabel="Dismiss error"
+              icon="alert-circle-outline"
+              message={summaryError}
+              variant="sky"
+              onDismiss={() => setSummaryError(null)}
+            />
+          ) : null}
+
           <BillSummaryContent
             summary={data}
+            onToggleSettled={handleToggleSettled}
             onViewReceipt={() =>
               router.push({
                 pathname: "/scan/review",

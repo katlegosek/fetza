@@ -160,13 +160,19 @@ export function AssignLineRow(props: AssignLineRowProps) {
 
         <View className="mt-1.5 flex-row items-center justify-between gap-2">
           {n === 0 ? (
-            <View className="self-start rounded-full bg-orange-100 px-2.5 py-1 dark:bg-orange-950/50">
+            <View
+              key="unassigned"
+              className="self-start rounded-full bg-orange-100 px-2.5 py-1 dark:bg-orange-950/50"
+            >
               <AppText className="text-[13px] font-semibold text-orange-900 dark:text-orange-200">
                 • {unassignedLabel}
               </AppText>
             </View>
           ) : (
-            <>
+            <View
+              key={`assigned-${assigned.map((member) => member.id).join("-")}`}
+              className="min-w-0 flex-1 flex-row items-center justify-between gap-2"
+            >
               <View className="shrink-0 flex-row items-center gap-1">
                 {assigned.map((m) => (
                   <View
@@ -184,16 +190,13 @@ export function AssignLineRow(props: AssignLineRowProps) {
                 ))}
               </View>
               <AppText
-                className={cn(
-                  "min-w-0 flex-1 text-right text-sm font-medium text-muted",
-                  n >= 2 && "tabular-nums",
-                )}
+                className="min-w-0 flex-1 text-right text-sm font-medium tabular-nums text-muted"
                 numberOfLines={2}
                 style={{ textAlign: "right" }}
               >
                 {assignedLabel}
               </AppText>
-            </>
+            </View>
           )}
         </View>
       </View>

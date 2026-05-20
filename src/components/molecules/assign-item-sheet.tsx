@@ -11,7 +11,7 @@ import Animated, {
 
 import { AppText } from "@/components/atoms";
 import { Button } from "@/components/molecules/button";
-import { SheetCloseButton } from "@/components/organisms";
+import { SheetCloseButton } from "@/components/organisms/bottom-sheet/sheet-close-button";
 import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
 import { formatZAR } from "@/lib/helper";

@@ -4,6 +4,7 @@ export { useBillBulkAssignments } from "./use-bill-bulk-assignments";
 export {
   useBillParticipants,
   type CreateBillParticipantVariables,
+  type ToggleParticipantSettledVariables,
   type UpdateBillParticipantVariables,
 } from "./use-bill-participants";
 export {
