@@ -23,6 +23,7 @@ export default function RootLayout() {
             }}
           >
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="bill" />
             <Stack.Screen name="scan" />
           </Stack>
         </View>

@@ -31,11 +31,22 @@ function formatParticipantsCount(count: number): string {
   return count === 1 ? "1 participant" : `${count} participants`;
 }
 
-function BillCard({ bill }: { bill: BillIndexItem }) {
+function BillCard({
+  bill,
+  onPress,
+}: {
+  bill: BillIndexItem;
+  onPress: () => void;
+}) {
   const displayDate = formatBillDisplayDate(bill);
 
   return (
-    <View className="gap-1 rounded-2xl border border-borderSubtle px-4 py-3">
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Open bill ${bill.title}`}
+      className="gap-1 rounded-2xl border border-borderSubtle px-4 py-3 active:opacity-80"
+      onPress={onPress}
+    >
       <View className="flex-row items-start justify-between gap-3">
         <AppText className="min-w-0 flex-1 text-base font-semibold text-foreground">
           {bill.title}
@@ -59,7 +70,7 @@ function BillCard({ bill }: { bill: BillIndexItem }) {
           </>
         ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -130,7 +141,17 @@ export default function HomeScreen() {
       <FlatList
         data={bills}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <BillCard bill={item} />}
+        renderItem={({ item }) => (
+          <BillCard
+            bill={item}
+            onPress={() =>
+              router.push({
+                pathname: "/bill/[id]",
+                params: { id: String(item.id) },
+              })
+            }
+          />
+        )}
         ItemSeparatorComponent={() => <View className="h-3" />}
         ListHeaderComponent={listHeader}
         ListEmptyComponent={
