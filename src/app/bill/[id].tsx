@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { isApiError } from "@/api/errors";
 import { AppText, Button, ScreenContainer, ScreenHeader } from "@/components";
-import { useBillSummary, useThemeColors } from "@/hooks";
+import { useBillSummary, usePullToRefresh, useThemeColors } from "@/hooks";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
 import type {
   BillSummary,
@@ -263,8 +263,9 @@ export default function BillSummaryFromApiScreen() {
   const { id } = useLocalSearchParams<{ id: string | string[] }>();
   const billId = parseBillId(id);
 
-  const { data, isLoading, isError, error, refetch, isRefetching } =
-    useBillSummary(billId);
+  const { data, isLoading, isError, error, refetch } = useBillSummary(billId);
+  const { refreshing: pullRefreshing, onRefresh: onPullRefresh } =
+    usePullToRefresh(refetch);
 
   const headerTitle = data?.bill.title ?? "Summary";
 
@@ -360,8 +361,8 @@ export default function BillSummaryFromApiScreen() {
           keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={() => void refetch()}
+              refreshing={pullRefreshing}
+              onRefresh={onPullRefresh}
             />
           }
           showsVerticalScrollIndicator={false}

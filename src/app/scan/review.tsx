@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -12,13 +13,20 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import {
+  createReceiptItem,
+  deleteReceiptItem,
+  updateReceiptItem,
+} from "@/api/billApi";
 import { isApiError } from "@/api/errors";
+import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
   Button,
   ClearReceiptSheet,
   NoticeBanner,
   RECEIPT_ZIGZAG_DEPTH,
+  type ReviewItemSavePayload,
   ReviewItemSheet,
   ReviewMerchantSheet,
   ReviewOverflowMenu,
@@ -28,7 +36,7 @@ import {
   ScreenHeader,
   ThermalReceipt,
 } from "@/components";
-import { useBill, useThemeColors } from "@/hooks";
+import { useBill, usePullToRefresh, useThemeColors } from "@/hooks";
 import {
   cloneBillDraft,
   formatZAR,
@@ -62,7 +70,11 @@ function notConnectedYet() {
   );
 }
 
-const noop = () => {};
+const NEW_RECEIPT_ITEM_ID = "__new__";
+
+function mutationErrorMessage(error: unknown, fallback: string): string {
+  return isApiError(error) ? error.message : fallback;
+}
 
 function ReviewBillMock() {
   const router = useRouter();
@@ -78,10 +90,14 @@ function ReviewBillMock() {
   const [showReviewTip, setShowReviewTip] = useState(true);
   const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const [clearReceiptOpen, setClearReceiptOpen] = useState(false);
+  const [pendingNewLineId, setPendingNewLineId] = useState<string | null>(null);
 
   const overflowMenuTop = insets.top + 60;
 
-  const closeSheet = useCallback(() => setSheet(null), []);
+  const closeSheet = useCallback(() => {
+    setSheet(null);
+    setPendingNewLineId(null);
+  }, []);
 
   const saveLine = useCallback((lineId: string, next: ReceiptLine) => {
     setDraft((d) => ({
@@ -100,6 +116,7 @@ function ReviewBillMock() {
   const handleAddLine = useCallback(() => {
     setDraft((d) => {
       const id = generateLineId();
+      setPendingNewLineId(id);
       const nextLines = [
         ...d.lines,
         {
@@ -322,6 +339,7 @@ function ReviewBillMock() {
       <ReviewItemSheet
         amountCents={activeLine?.amountCents ?? 0}
         canDelete={draft.lines.length > 1}
+        isNewItem={sheet?.kind === "line" && sheet.lineId === pendingNewLineId}
         itemDescription={activeLine?.description ?? ""}
         quantity={activeLine?.qty ?? 1}
         visible={sheet?.kind === "line" && activeLine !== undefined}
@@ -338,6 +356,7 @@ function ReviewBillMock() {
               qty: next.qty,
               amountCents: next.amountCents,
             });
+            setPendingNewLineId(null);
           }
         }}
       />
@@ -347,21 +366,94 @@ function ReviewBillMock() {
 
 function ReviewBillFromApi({ billId }: { billId: number }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
   const { width } = useWindowDimensions();
   const receiptWidth = Math.min(352, width - 32);
 
-  const { data, isLoading, isError, error, refetch, isRefetching } =
-    useBill(billId);
+  const { data, isLoading, isError, error, refetch } = useBill(billId);
+  const { refreshing: pullRefreshing, onRefresh: onPullRefresh } =
+    usePullToRefresh(refetch);
 
   const [showReviewTip, setShowReviewTip] = useState(true);
   const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const [clearReceiptOpen, setClearReceiptOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
+  const [itemSaving, setItemSaving] = useState(false);
 
   const overflowMenuTop = insets.top + 60;
   const closeSheet = useCallback(() => setSheet(null), []);
+
+  const handleAddLine = useCallback(() => {
+    setSheet({ kind: "line", lineId: NEW_RECEIPT_ITEM_ID });
+  }, []);
+
+  const handleSaveItem = useCallback(
+    async (next: ReviewItemSavePayload) => {
+      if (sheet?.kind !== "line") return;
+
+      setItemSaving(true);
+      try {
+        const name = next.description.trim() || "New item";
+
+        if (sheet.lineId === NEW_RECEIPT_ITEM_ID) {
+          await createReceiptItem(billId, {
+            name,
+            quantity: next.qty,
+            total_cents: next.amountCents,
+          });
+        } else {
+          const receiptItemId = Number(sheet.lineId);
+          if (!Number.isFinite(receiptItemId)) {
+            throw new Error("Invalid receipt item.");
+          }
+
+          await updateReceiptItem(receiptItemId, {
+            name,
+            quantity: next.qty,
+            total_cents: next.amountCents,
+          });
+        }
+
+        await invalidateBillQueries(queryClient, billId);
+      } catch (saveError) {
+        Alert.alert(
+          "Couldn't save item",
+          mutationErrorMessage(saveError, "Please try again."),
+        );
+        throw saveError;
+      } finally {
+        setItemSaving(false);
+      }
+    },
+    [billId, queryClient, sheet],
+  );
+
+  const handleDeleteItem = useCallback(async () => {
+    if (sheet?.kind !== "line" || sheet.lineId === NEW_RECEIPT_ITEM_ID) {
+      return;
+    }
+
+    const receiptItemId = Number(sheet.lineId);
+    if (!Number.isFinite(receiptItemId)) {
+      return;
+    }
+
+    setItemSaving(true);
+    try {
+      await deleteReceiptItem(receiptItemId);
+      await invalidateBillQueries(queryClient, billId);
+    } catch (deleteError) {
+      Alert.alert(
+        "Couldn't remove item",
+        mutationErrorMessage(deleteError, "Please try again."),
+      );
+      throw deleteError;
+    } finally {
+      setItemSaving(false);
+    }
+  }, [billId, queryClient, sheet]);
 
   const receiptView = useMemo(
     () => (data ? billShowToReceiptView(data) : null),
@@ -373,6 +465,22 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
   const subtotalCents = receiptView?.subtotalCents ?? 0;
   const totalCents = receiptView?.totalCents ?? 0;
   const itemCount = draft?.lines.length ?? 0;
+  const receiptItemCount = data?.receipt_items.length ?? 0;
+
+  const activeLine =
+    sheet?.kind === "line"
+      ? sheet.lineId === NEW_RECEIPT_ITEM_ID
+        ? {
+            id: NEW_RECEIPT_ITEM_ID,
+            qty: 1,
+            description: "",
+            amountCents: 0,
+          }
+        : draft?.lines.find((line) => line.id === sheet.lineId)
+      : undefined;
+
+  const isNewItemSheet =
+    sheet?.kind === "line" && sheet.lineId === NEW_RECEIPT_ITEM_ID;
 
   const floatingActionScrollClearance = insets.bottom + 72;
   const headerTitle = data?.bill.title ?? "Review";
@@ -432,11 +540,7 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
     );
   }
 
-  const isEmptyReceipt =
-    itemCount === 0 &&
-    !draft.merchant.trim() &&
-    feeRows.length === 0 &&
-    totalCents === 0;
+  const showEmptyItemsHint = itemCount === 0;
 
   return (
     <ScreenContainer className="flex-1 bg-background">
@@ -464,7 +568,7 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
           className="flex-1"
           contentContainerStyle={{
             alignItems: "center",
-            flexGrow: isEmptyReceipt ? 1 : 0,
+            flexGrow: 1,
             paddingHorizontal: 16,
             paddingTop: 12 + RECEIPT_ZIGZAG_DEPTH,
             paddingBottom:
@@ -473,8 +577,8 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
           keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={() => void refetch()}
+              refreshing={pullRefreshing}
+              onRefresh={onPullRefresh}
             />
           }
           showsVerticalScrollIndicator={false}
@@ -484,37 +588,34 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
               className="mb-6 self-center"
               dismissAccessibilityLabel="Dismiss tip"
               icon="cloud-outline"
-              message="Receipt from your account · editing coming soon"
+              message="Tap any line to fix · Tap Add item for new lines"
               style={{ width: receiptWidth }}
               variant="violet"
               onDismiss={() => setShowReviewTip(false)}
             />
           ) : null}
 
-          {isEmptyReceipt ? (
-            <View
-              className="flex-1 items-center justify-center px-4"
-              style={{ width: receiptWidth, minHeight: 200 }}
+          {showEmptyItemsHint ? (
+            <AppText
+              className="mb-4 text-center text-sm text-muted"
+              style={{ width: receiptWidth }}
             >
-              <AppText className="text-center text-sm text-muted">
-                This bill has no receipt lines yet.
-              </AppText>
-            </View>
-          ) : (
-            <ThermalReceipt
-              draft={draft}
-              feeRows={feeRows.length > 0 ? feeRows : undefined}
-              formatAmount={formatMoneyFromCents}
-              readOnly
-              subtotalCents={subtotalCents}
-              totalCents={totalCents}
-              width={receiptWidth}
-              onAddLine={noop}
-              onLinePress={noop}
-              onMerchantPress={noop}
-              onTotalsPress={noop}
-            />
-          )}
+              No receipt lines yet. Tap Add item on the slip below.
+            </AppText>
+          ) : null}
+
+          <ThermalReceipt
+            draft={draft}
+            feeRows={feeRows.length > 0 ? feeRows : undefined}
+            formatAmount={formatMoneyFromCents}
+            subtotalCents={subtotalCents}
+            totalCents={totalCents}
+            width={receiptWidth}
+            onAddLine={handleAddLine}
+            onLinePress={(lineId) => setSheet({ kind: "line", lineId })}
+            onMerchantPress={notConnectedYet}
+            onTotalsPress={notConnectedYet}
+          />
         </ScrollView>
 
         <View
@@ -596,7 +697,7 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
         onHelp={() =>
           Alert.alert(
             "Help",
-            "This receipt is loaded from your account. Editing and scanning will be available in a later update.",
+            "Tap any line on the receipt to edit it. Merchant, tax, and scanning will be available in a later update.",
           )
         }
         onRescan={() => notConnectedYet()}
@@ -619,15 +720,19 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
       />
 
       <ReviewItemSheet
-        amountCents={0}
-        canDelete={false}
-        itemDescription=""
-        quantity={1}
-        visible={sheet?.kind === "line"}
+        amountCents={activeLine?.amountCents ?? 0}
+        canDelete={
+          !isNewItemSheet && receiptItemCount > 1 && activeLine !== undefined
+        }
+        isNewItem={isNewItemSheet}
+        isSaving={itemSaving}
+        itemDescription={activeLine?.description ?? ""}
+        quantity={activeLine?.qty ?? 1}
+        visible={sheet?.kind === "line" && activeLine !== undefined}
         bottomInset={insets.bottom}
         onClose={closeSheet}
-        onDelete={notConnectedYet}
-        onSave={notConnectedYet}
+        onDelete={handleDeleteItem}
+        onSave={handleSaveItem}
       />
     </ScreenContainer>
   );

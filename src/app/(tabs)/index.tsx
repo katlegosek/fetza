@@ -9,7 +9,7 @@ import {
 
 import { isApiError } from "@/api/errors";
 import { AppText, Button, ScreenContainer } from "@/components";
-import { useBills } from "@/hooks";
+import { useBills, usePullToRefresh } from "@/hooks";
 import type { BillIndexItem } from "@/types/api";
 import { formatMoneyFromCents } from "@/utils/money";
 
@@ -92,7 +92,9 @@ function BillsListHeader({ onScan }: { onScan: () => void }) {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { data, isLoading, isError, error, refetch, isRefetching } = useBills();
+  const { data, isLoading, isError, error, refetch } = useBills();
+  const { refreshing: pullRefreshing, onRefresh: onPullRefresh } =
+    usePullToRefresh(refetch);
   const bills = data?.bills ?? [];
 
   const listHeader = <BillsListHeader onScan={() => router.push("/scan")} />;
@@ -164,8 +166,8 @@ export default function HomeScreen() {
         contentContainerStyle={bills.length === 0 ? { flexGrow: 1 } : undefined}
         refreshControl={
           <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={() => void refetch()}
+            refreshing={pullRefreshing}
+            onRefresh={onPullRefresh}
           />
         }
         showsVerticalScrollIndicator={false}

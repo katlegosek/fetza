@@ -10,19 +10,24 @@ import {
 } from "@/components/organisms";
 import { parseRandStringToCents } from "@/lib/helper";
 
+export type ReviewItemSavePayload = {
+  description: string;
+  amountCents: number;
+  qty: number;
+};
+
 export type ReviewItemSheetProps = {
   visible: boolean;
   itemDescription: string;
   amountCents: number;
   quantity: number;
   canDelete: boolean;
+  /** True while opening the sheet for a new line (shows Clear instead of Cancel). */
+  isNewItem?: boolean;
+  isSaving?: boolean;
   bottomInset?: number;
-  onSave: (next: {
-    description: string;
-    amountCents: number;
-    qty: number;
-  }) => void;
-  onDelete: () => void;
+  onSave: (next: ReviewItemSavePayload) => void | Promise<void>;
+  onDelete: () => void | Promise<void>;
   onClose: () => void;
 };
 
@@ -32,6 +37,8 @@ export function ReviewItemSheet({
   amountCents,
   quantity,
   canDelete,
+  isNewItem = false,
+  isSaving = false,
   bottomInset = 0,
   onSave,
   onDelete,
@@ -51,19 +58,45 @@ export function ReviewItemSheet({
     }
   }, [visible, itemDescription, amountCents, quantity]);
 
-  const handleSave = () => {
+  const resetFields = () => {
+    setDesc("");
+    setPriceStr("0.00");
+    setQtyStr("1");
+  };
+
+  const handleSave = async () => {
+    if (isSaving) return;
+
     const q = Math.max(
       1,
       Number.parseInt(qtyStr.replace(/\D/g, "") || "1", 10),
     );
     const cents = parseRandStringToCents(priceStr);
     if (cents === null) return;
-    onSave({
-      description: desc.trim() || itemDescription,
-      amountCents: cents,
-      qty: q,
-    });
-    onClose();
+
+    try {
+      await Promise.resolve(
+        onSave({
+          description: desc.trim() || itemDescription,
+          amountCents: cents,
+          qty: q,
+        }),
+      );
+      onClose();
+    } catch {
+      // Parent shows errors; keep the sheet open.
+    }
+  };
+
+  const handleDelete = async () => {
+    if (isSaving) return;
+
+    try {
+      await Promise.resolve(onDelete());
+      onClose();
+    } catch {
+      // Parent shows errors; keep the sheet open.
+    }
   };
 
   return (
@@ -136,40 +169,47 @@ export function ReviewItemSheet({
             accessibilityRole="button"
             accessibilityLabel="Remove line"
             className={sheetForm.btnDanger}
-            onPress={() => {
-              onDelete();
-              onClose();
-            }}
+            disabled={isSaving}
+            style={isSaving ? { opacity: 0.5 } : undefined}
+            onPress={() => void handleDelete()}
           >
             <AppText className={sheetForm.btnDangerText}>Remove</AppText>
           </Pressable>
         ) : null}
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Cancel"
+          accessibilityLabel={isNewItem ? "Clear fields" : "Cancel"}
           className={sheetForm.btnSecondary}
-          style={{ borderColor: a.border }}
-          onPress={onClose}
+          disabled={isSaving}
+          style={[
+            { borderColor: a.border },
+            isSaving ? { opacity: 0.5 } : undefined,
+          ]}
+          onPress={isNewItem ? resetFields : onClose}
         >
           <AppText
             className={sheetForm.btnSecondaryText}
             style={{ color: a.ink }}
           >
-            Cancel
+            {isNewItem ? "Clear" : "Cancel"}
           </AppText>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Save line"
           className={sheetForm.btnPrimary}
-          style={{ backgroundColor: a.ink }}
-          onPress={handleSave}
+          disabled={isSaving}
+          style={[
+            { backgroundColor: a.ink },
+            isSaving ? { opacity: 0.5 } : undefined,
+          ]}
+          onPress={() => void handleSave()}
         >
           <AppText
             className={sheetForm.btnPrimaryText}
             style={{ color: a.onPrimary }}
           >
-            Save
+            {isSaving ? "Saving…" : "Save"}
           </AppText>
         </Pressable>
       </View>
