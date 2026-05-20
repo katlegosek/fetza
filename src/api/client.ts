@@ -11,6 +11,11 @@ export interface ApiRequestOptions {
   body?: unknown;
 }
 
+export interface ApiMultipartRequestOptions {
+  method?: "POST" | "PATCH" | "PUT";
+  formData: FormData;
+}
+
 export function getApiBaseUrl(): string {
   const fromEnv = process.env.EXPO_PUBLIC_API_URL;
   const fromExtra = Constants.expoConfig?.extra?.apiUrl as string | undefined;
@@ -59,6 +64,35 @@ export async function apiRequest<T>(
         ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw ApiError.network();
+  }
+
+  const data = await parseJson(response);
+
+  if (!response.ok) {
+    throw ApiError.fromResponse(response.status, data);
+  }
+
+  return data as T;
+}
+
+export async function apiMultipartRequest<T>(
+  path: string,
+  options: ApiMultipartRequestOptions,
+): Promise<T> {
+  const { method = "POST", formData } = options;
+  const url = `${getApiBaseUrl()}${mobileApiPath(path)}`;
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method,
+      headers: {
+        Accept: "application/json",
+      },
+      body: formData,
     });
   } catch {
     throw ApiError.network();

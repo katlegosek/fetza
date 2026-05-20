@@ -62,6 +62,56 @@ export interface BillDetail {
   updated_at: IsoDateTime;
 }
 
+export type ProcessingRunStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed";
+
+export interface ReceiptStatusPayload {
+  id: number;
+  status: ReceiptStatus;
+}
+
+export interface ReceiptProcessingRun {
+  id: number;
+  receipt_id: number;
+  provider: string;
+  status: ProcessingRunStatus;
+  error_message: string | null;
+  started_at: IsoDateTime | null;
+  completed_at: IsoDateTime | null;
+  created_at: IsoDateTime;
+  updated_at: IsoDateTime;
+}
+
+export interface ReceiptImage {
+  id: number;
+  receipt_id: number;
+  position: number;
+  capture_type: string;
+  image_url: string | null;
+  created_at: IsoDateTime;
+  updated_at: IsoDateTime;
+}
+
+export interface ReceiptUploadResponse {
+  receipt: ReceiptStatusPayload;
+  receipt_image: ReceiptImage;
+  processing_run: ReceiptProcessingRun;
+}
+
+export interface ReceiptShowResponse {
+  receipt: Receipt;
+  processing_run: ReceiptProcessingRun | null;
+  receipt_items?: ReceiptItem[];
+  receipt_adjustments?: ReceiptAdjustment[];
+}
+
+export interface BillCreateResponse {
+  bill: BillDetail;
+}
+
 export interface Receipt {
   id: number;
   bill_id: number;

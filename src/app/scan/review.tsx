@@ -864,7 +864,12 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
             "Tap any line or fee on the receipt to edit it. Use Add fee / tax for VAT, service charge, tip, or discount. Merchant and scanning will be available in a later update.",
           )
         }
-        onRescan={() => notConnectedYet()}
+        onRescan={() =>
+          router.replace({
+            pathname: "/scan",
+            params: { billId: String(billId) },
+          })
+        }
         onViewOriginal={() =>
           Alert.alert(
             "View original receipt",

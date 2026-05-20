@@ -30,6 +30,11 @@ export {
   type SummaryTableSeatProps,
 } from "./summary-table-seat";
 export {
+  ReceiptProcessingCard,
+  RECEIPT_PROCESSING_STEPS,
+  type ReceiptProcessingCardProps,
+} from "./receipt-processing-card";
+export {
   ReceiptZigzagRow,
   RECEIPT_ZIGZAG_DEPTH,
   RECEIPT_ZIGZAG_TOOTH,

@@ -1,5 +1,6 @@
-import { apiRequest } from "@/api/client";
+import { apiMultipartRequest, apiRequest } from "@/api/client";
 import type {
+  BillCreateResponse,
   BillShowResponse,
   BillSummary,
   BillSummaryMutationResponse,
@@ -13,6 +14,8 @@ import type {
   ReceiptItemDeleteResponse,
   ReceiptItemInput,
   ReceiptItemMutationResponse,
+  ReceiptShowResponse,
+  ReceiptUploadResponse,
   ReplaceAssignmentsInput,
 } from "@/types/api";
 
@@ -26,8 +29,36 @@ export const billQueryKeys = {
   summary: (billId: number) => [...billQueryKeys.summaries(), billId] as const,
 };
 
+export const receiptQueryKeys = {
+  all: ["receipts"] as const,
+  details: () => [...receiptQueryKeys.all, "detail"] as const,
+  detail: (receiptId: number) =>
+    [...receiptQueryKeys.details(), receiptId] as const,
+};
+
 export function getBills(): Promise<BillsIndexResponse> {
   return apiRequest<BillsIndexResponse>("/bills");
+}
+
+export function createBill(title?: string): Promise<BillCreateResponse> {
+  return apiRequest<BillCreateResponse>("/bills", {
+    method: "POST",
+    body: title ? { bill: { title } } : {},
+  });
+}
+
+export function getReceipt(receiptId: number): Promise<ReceiptShowResponse> {
+  return apiRequest<ReceiptShowResponse>(`/receipts/${receiptId}`);
+}
+
+export function uploadReceiptImage(
+  billId: number,
+  formData: FormData,
+): Promise<ReceiptUploadResponse> {
+  return apiMultipartRequest<ReceiptUploadResponse>(
+    `/bills/${billId}/receipt_images`,
+    { formData },
+  );
 }
 
 export function getBill(billId: number): Promise<BillShowResponse> {
