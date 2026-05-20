@@ -27,6 +27,7 @@ import {
   useAppColorScheme,
   useBill,
   useBillBulkAssignments,
+  useBillParticipants,
   useBillSummary,
   useReplaceItemAssignments,
   useThemeColors,
@@ -44,6 +45,7 @@ import type { DraftBill, ReceiptLine } from "@/mocks/review-draft.mock";
 import { type AssignLine, billShowToAssignData } from "@/utils/bill-to-assign";
 import { formatMoneyFromCents } from "@/utils/money";
 import { participantInitials } from "@/utils/participant";
+import { buildParticipantInput } from "@/utils/participant-input";
 
 type Member = {
   id: string;
@@ -103,13 +105,6 @@ function parseBillId(raw: string | string[] | undefined): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function assignmentsNotReady() {
-  Alert.alert(
-    "Coming soon",
-    "Saving assignments is not connected to the server yet.",
-  );
-}
-
 export default function AssignBillScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -121,7 +116,6 @@ export default function AssignBillScreen() {
   }>();
   const billId = parseBillId(billIdParam);
   const isApiMode = billId > 0;
-  const peopleManagementReadOnly = isApiMode;
 
   const {
     data: billData,
@@ -140,6 +134,7 @@ export default function AssignBillScreen() {
 
   const replaceItemAssignments = useReplaceItemAssignments(billId);
   const bulkAssignments = useBillBulkAssignments(billId);
+  const billParticipants = useBillParticipants(billId);
   const [assignmentError, setAssignmentError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -411,11 +406,51 @@ export default function AssignBillScreen() {
     showAssignmentError,
   ]);
 
+  const addMemberWithName = useCallback(
+    (name: string) => {
+      const trimmed = name.trim();
+      if (!trimmed) {
+        return;
+      }
+
+      if (isApiMode) {
+        const seatIndex = members.length;
+        billParticipants.createParticipant.mutate(
+          { participant: buildParticipantInput(trimmed, seatIndex) },
+          {
+            onError: showAssignmentError,
+            onSuccess: (response) => {
+              setActiveMemberId(String(response.participant.id));
+            },
+          },
+        );
+        return;
+      }
+
+      const id = `m-${Date.now().toString(36)}`;
+      setMembers((prev) => {
+        const i = prev.length;
+        return [
+          {
+            id,
+            name: trimmed,
+            tone: memberChipBorderToneForIndex(i),
+            ...avatarTonesForPaletteIndex(i),
+          },
+          ...prev,
+        ];
+      });
+      setActiveMemberId(id);
+    },
+    [
+      billParticipants.createParticipant,
+      isApiMode,
+      members.length,
+      showAssignmentError,
+    ],
+  );
+
   const handleAddMember = useCallback(() => {
-    if (peopleManagementReadOnly) {
-      assignmentsNotReady();
-      return;
-    }
     const isIOS = typeof Alert.prompt === "function";
     if (isIOS) {
       Alert.prompt(
@@ -426,44 +461,19 @@ export default function AssignBillScreen() {
           {
             text: "Add",
             onPress: (name?: string) => {
-              const trimmed = name?.trim();
-              if (!trimmed) return;
-              const id = `m-${Date.now().toString(36)}`;
-              setMembers((prev) => {
-                const i = prev.length;
-                return [
-                  {
-                    id,
-                    name: trimmed,
-                    tone: memberChipBorderToneForIndex(i),
-                    ...avatarTonesForPaletteIndex(i),
-                  },
-                  ...prev,
-                ];
-              });
-              setActiveMemberId(id);
+              if (name) {
+                addMemberWithName(name);
+              }
             },
           },
         ],
         "plain-text",
       );
-    } else {
-      const id = `m-${Date.now().toString(36)}`;
-      setMembers((prev) => {
-        const i = prev.length;
-        return [
-          {
-            id,
-            name: `Person ${prev.length + 1}`,
-            tone: memberChipBorderToneForIndex(i),
-            ...avatarTonesForPaletteIndex(i),
-          },
-          ...prev,
-        ];
-      });
-      setActiveMemberId(id);
+      return;
     }
-  }, [peopleManagementReadOnly]);
+
+    addMemberWithName(`Person ${members.length + 1}`);
+  }, [addMemberWithName, members.length]);
 
   const handleManagePeople = useCallback(() => {
     Alert.alert(
