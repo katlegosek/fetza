@@ -33,6 +33,7 @@ import {
   defaultAffectsTotalForKind,
 } from "@/components";
 import { usePullToRefresh, useThemeColors } from "@/hooks";
+import { billShowToReceiptView } from "@/screens/review/mappers/bill-to-receipt-view";
 import { useBill } from "@/services/bills/bill.hooks";
 import {
   createReceiptAdjustment,
@@ -42,7 +43,6 @@ import {
   updateReceiptAdjustment,
   updateReceiptItem,
 } from "@/services/receipts/receipt.service";
-import { billShowToReceiptView } from "@/utils/bill-to-draft";
 import { formatMoneyFromCents } from "@/utils/money";
 
 import { ReviewBottomBar } from "@/screens/review/ReviewBottomBar";

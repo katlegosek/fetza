@@ -15,7 +15,7 @@ import {
   ScreenHeader,
 } from "@/components";
 import { useThemeColors } from "@/hooks";
-import { cloneBillDraft, generateLineId } from "@/lib/helper";
+import { cloneBillDraft, generateLineId } from "@/mocks/draft-bill.helpers";
 import type { ReceiptLine } from "@/mocks/review-draft.mock";
 import { AssignBottomBar } from "@/screens/assign/AssignBottomBar";
 import { AssignEmptyState } from "@/screens/assign/AssignEmptyState";
@@ -35,7 +35,7 @@ import { useAssignData } from "@/screens/assign/hooks/useAssignData";
 import { useAssignItemMutations } from "@/screens/assign/hooks/useAssignItemMutations";
 import { useAssignMockState } from "@/screens/assign/hooks/useAssignMockState";
 import { useAssignParticipants } from "@/screens/assign/hooks/useAssignParticipants";
-import type { AssignLine } from "@/utils/bill-to-assign";
+import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 
 // TODO(production): Remove mock assign path (no billId / SEED_* data) — API-only. See docs/DEV_ONLY_TODOS.md
 export type AssignMockScreenProps = {

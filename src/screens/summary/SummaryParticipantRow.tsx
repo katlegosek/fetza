@@ -3,13 +3,16 @@ import { Pressable, View } from "react-native";
 
 import { AnimatedZarAmount, AppText } from "@/components";
 import { useThemeColors } from "@/hooks";
-import { assignedLineCountForMember, formatZAR } from "@/lib/helper";
-import type { AssignmentMap } from "@/lib/helper";
+import { formatZAR } from "@/lib/helper";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
 import type { SettlementMap } from "@/lib/member-settlement-storage";
 import { isMemberSettled } from "@/lib/member-settlement-storage";
 import type { DraftBill } from "@/mocks/review-draft.mock";
 import type { SummaryMember } from "@/screens/summary/summary.constants";
+import {
+  type AssignmentMap,
+  assignedLineCountForMember,
+} from "@/screens/summary/summary.helpers";
 import { initials, isYouMember } from "@/screens/summary/summary.helpers";
 
 export type SummaryParticipantRowProps = {

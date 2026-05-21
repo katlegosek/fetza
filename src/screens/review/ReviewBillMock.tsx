@@ -25,12 +25,8 @@ import {
   ThermalReceipt,
 } from "@/components";
 import { useThemeColors } from "@/hooks";
-import {
-  cloneBillDraft,
-  formatZAR,
-  generateLineId,
-  sumLineAmountsCents,
-} from "@/lib/helper";
+import { formatZAR, sumLineAmountsCents } from "@/lib/helper";
+import { cloneBillDraft, generateLineId } from "@/mocks/draft-bill.helpers";
 import {
   type DraftBill,
   MOCK_DRAFT_BILL,

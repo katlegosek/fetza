@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenContainer } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { appendSummarySnapshot } from "@/lib/bill-summary-snapshot-storage";
-import { cloneBillDraft } from "@/lib/helper";
+import { cloneBillDraft } from "@/mocks/draft-bill.helpers";
 import { SummaryBottomActions } from "@/screens/summary/SummaryBottomActions";
 import { SummaryEmptyState } from "@/screens/summary/SummaryEmptyState";
 import { SummaryHeader } from "@/screens/summary/SummaryHeader";

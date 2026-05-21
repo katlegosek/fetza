@@ -28,7 +28,7 @@ import { useAssignAssignmentError } from "@/screens/assign/hooks/useAssignAssign
 import { useAssignData } from "@/screens/assign/hooks/useAssignData";
 import { useAssignItemMutations } from "@/screens/assign/hooks/useAssignItemMutations";
 import { useAssignParticipants } from "@/screens/assign/hooks/useAssignParticipants";
-import type { AssignLine } from "@/utils/bill-to-assign";
+import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 import { formatMoneyFromCents } from "@/utils/money";
 
 export type AssignApiScreenProps = {

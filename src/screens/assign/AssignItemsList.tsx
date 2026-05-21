@@ -7,7 +7,7 @@ import { memberAssignHighlightFromTones } from "@/lib/member-assign-highlight";
 import type { ReceiptLine } from "@/mocks/review-draft.mock";
 import { AssignItemCard } from "@/screens/assign/AssignItemCard";
 import type { AssignMember } from "@/screens/assign/assign.constants";
-import type { AssignLine } from "@/utils/bill-to-assign";
+import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 
 export type AssignItemsListProps = {
   lines: Array<AssignLine | ReceiptLine>;

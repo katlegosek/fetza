@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
+import { billShowToAssignData } from "@/screens/assign/mappers/bill-to-assign";
 import { useBill, useBillSummary } from "@/services/bills/bill.hooks";
-import { billShowToAssignData } from "@/utils/bill-to-assign";
 
 export function useAssignApiData(billId: number) {
   const billQuery = useBill(billId);

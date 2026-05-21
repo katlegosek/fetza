@@ -4,7 +4,7 @@ import { AssignLineRow } from "@/components";
 import { cn } from "@/lib/cn";
 import type { ReceiptLine } from "@/mocks/review-draft.mock";
 import type { AssignMember } from "@/screens/assign/assign.constants";
-import type { AssignLine } from "@/utils/bill-to-assign";
+import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 
 export type AssignItemCardProps = {
   line: AssignLine | ReceiptLine;

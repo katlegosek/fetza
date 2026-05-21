@@ -14,13 +14,7 @@ import {
 } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
-import {
-  type AssignmentMap,
-  cloneBillDraft,
-  formatZAR,
-  memberLineShares,
-  owedCentsByMember,
-} from "@/lib/helper";
+import { formatZAR } from "@/lib/helper";
 import {
   avatarTonesForPaletteIndex,
   memberChipBorderToneForIndex,
@@ -29,7 +23,13 @@ import {
   loadMemberSettlement,
   saveMemberSettlement,
 } from "@/lib/member-settlement-storage";
+import { cloneBillDraft } from "@/mocks/draft-bill.helpers";
 import type { DraftBill } from "@/mocks/review-draft.mock";
+import {
+  type AssignmentMap,
+  memberLineShares,
+  owedCentsByMember,
+} from "@/screens/summary/summary.helpers";
 
 type ShareMember = { id: string; name: string };
 

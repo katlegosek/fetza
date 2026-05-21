@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { cloneBillDraft } from "@/lib/helper";
+import { cloneBillDraft } from "@/mocks/draft-bill.helpers";
 import type { DraftBill } from "@/mocks/review-draft.mock";
 import {
   type AssignMember,

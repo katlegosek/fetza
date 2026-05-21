@@ -1,12 +1,12 @@
 import { View } from "react-native";
 
 import { AppText } from "@/components";
-import type { AssignmentMap } from "@/lib/helper";
 import type { SettlementMap } from "@/lib/member-settlement-storage";
 import type { DraftBill } from "@/mocks/review-draft.mock";
 import { SummaryBillTotalCard } from "@/screens/summary/SummaryBillTotalCard";
 import { SummaryParticipantRow } from "@/screens/summary/SummaryParticipantRow";
 import type { SummaryMember } from "@/screens/summary/summary.constants";
+import type { AssignmentMap } from "@/screens/summary/summary.helpers";
 
 export type SummaryParticipantListProps = {
   draft: DraftBill;

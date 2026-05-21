@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
+import { applyOptimisticItemAssignments } from "@/screens/assign/mappers/bill-to-assign";
 import {
   clearBillAssignments,
   clearReceiptItemAssignments,
@@ -11,7 +12,6 @@ import {
 import type { BillSummaryMutationResponse } from "@/services/assignments/assignment.types";
 import { billQueryKeys } from "@/services/bills/bill.keys";
 import type { BillShowResponse } from "@/services/bills/bill.types";
-import { applyOptimisticItemAssignments } from "@/utils/bill-to-assign";
 
 export type ReplaceItemAssignmentsVariables = {
   receiptItemId: number;

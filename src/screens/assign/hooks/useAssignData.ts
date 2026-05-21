@@ -4,8 +4,8 @@ import { sumLineAmountsCents } from "@/lib/helper";
 import type { DraftBill } from "@/mocks/review-draft.mock";
 import type { ReceiptLine } from "@/mocks/review-draft.mock";
 import type { Assignments } from "@/screens/assign/assign.constants";
+import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 import type { BillSummary } from "@/services/bills/bill.types";
-import type { AssignLine } from "@/utils/bill-to-assign";
 
 export type UseAssignDataOptions = {
   isApiMode: boolean;

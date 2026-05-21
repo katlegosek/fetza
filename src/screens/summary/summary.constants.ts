@@ -1,5 +1,7 @@
-import type { AssignmentMap } from "@/lib/helper";
 import type { DraftBill } from "@/mocks/review-draft.mock";
+import type { AssignmentMap } from "@/screens/summary/summary.helpers";
+
+export type { AssignmentMap } from "@/screens/summary/summary.helpers";
 
 export type SummaryMember = { id: string; name: string };
 
