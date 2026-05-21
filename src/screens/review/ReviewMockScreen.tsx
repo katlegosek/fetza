@@ -41,8 +41,13 @@ import {
   reviewReceiptWidth,
 } from "@/screens/review/review.helpers";
 
-// TODO(production): Remove ReviewBillMock — API-only review with billId. See docs/DEV_ONLY_TODOS.md
-export const ReviewBillMock = () => {
+/**
+ * Mock fallback for local/demo flows without `billId` (draft JSON in navigation).
+ * API mode is {@link ReviewApiScreen} — the primary path when `billId > 0`.
+ *
+ * TODO(production): Remove — require billId. See docs/DEV_ONLY_TODOS.md
+ */
+export const ReviewMockScreen = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();

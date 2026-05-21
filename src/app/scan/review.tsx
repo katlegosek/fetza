@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 
-import { ReviewScreen } from "@/screens/review/ReviewScreen";
+import { ReviewApiScreen } from "@/screens/review/ReviewApiScreen";
+import { ReviewMockScreen } from "@/screens/review/ReviewMockScreen";
 import { parseBillId } from "@/utils/parse-bill-id";
 
 export default function ReviewBillScreen() {
@@ -9,5 +10,10 @@ export default function ReviewBillScreen() {
   }>();
   const billId = parseBillId(billIdParam);
 
-  return <ReviewScreen billId={billId} />;
+  // Mock fallback is kept for local/demo flows without billId. API mode is the primary path.
+  if (billId > 0) {
+    return <ReviewApiScreen billId={billId} />;
+  }
+
+  return <ReviewMockScreen />;
 }

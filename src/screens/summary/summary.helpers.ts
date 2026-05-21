@@ -1,11 +1,11 @@
 import { sumLineAmountsCents } from "@/lib/helper";
 import { cloneBillDraft } from "@/mocks/draft-bill.helpers";
 import type { DraftBill } from "@/mocks/review-draft.mock";
-
 import type {
   SummaryMember,
   SummaryPayload,
 } from "@/screens/summary/summary.constants";
+import { asSingleRouteParam } from "@/utils/route-params";
 
 export type AssignmentMap = Record<string, string[]>;
 
@@ -119,12 +119,8 @@ export function assignedLineCountForMember(
   return n;
 }
 
-export function asSingleParam(
-  v: string | string[] | undefined,
-): string | undefined {
-  if (v === undefined) return undefined;
-  return Array.isArray(v) ? v[0] : v;
-}
+/** @deprecated Prefer `asSingleRouteParam` from `@/utils/route-params` in route files. */
+export const asSingleParam = asSingleRouteParam;
 
 export function isYouMember(m: SummaryMember): boolean {
   return m.id === "m-you" || m.name.trim().toLowerCase() === "you";

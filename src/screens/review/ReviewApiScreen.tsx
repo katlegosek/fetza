@@ -65,11 +65,12 @@ import {
   validateReviewItemSave,
 } from "@/screens/review/review.schema";
 
-export type ReviewBillFromApiProps = {
+/** Primary review path: loads and edits receipt data for an existing bill. */
+export type ReviewApiScreenProps = {
   billId: number;
 };
 
-export const ReviewBillFromApi = ({ billId }: ReviewBillFromApiProps) => {
+export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();

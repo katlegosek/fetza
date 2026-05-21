@@ -15,6 +15,7 @@ import type { BillDetailScreenProps } from "@/screens/bill-detail/bill-detail.ty
 import { useBillDetailData } from "@/screens/bill-detail/hooks/useBillDetailData";
 import { useParticipantSettlement } from "@/screens/bill-detail/hooks/useParticipantSettlement";
 
+/** API-only bill summary/detail (no mock fallback). Requires a valid `billId` from the route. */
 export const BillDetailScreen = ({ billId }: BillDetailScreenProps) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();

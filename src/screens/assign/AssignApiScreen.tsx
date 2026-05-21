@@ -31,6 +31,7 @@ import { useAssignParticipants } from "@/screens/assign/hooks/useAssignParticipa
 import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 import { formatMoneyFromCents } from "@/utils/money";
 
+/** Primary assign path: bill participants, items, and assignments from the API. */
 export type AssignApiScreenProps = {
   billId: number;
 };

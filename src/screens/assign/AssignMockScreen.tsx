@@ -37,7 +37,12 @@ import { useAssignMockState } from "@/screens/assign/hooks/useAssignMockState";
 import { useAssignParticipants } from "@/screens/assign/hooks/useAssignParticipants";
 import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 
-// TODO(production): Remove mock assign path (no billId / SEED_* data) — API-only. See docs/DEV_ONLY_TODOS.md
+/**
+ * Mock fallback for local/demo flows without `billId` (optional `draft` param).
+ * API mode is {@link AssignApiScreen} — the primary path when `billId > 0`.
+ *
+ * TODO(production): Remove — API-only assign. See docs/DEV_ONLY_TODOS.md
+ */
 export type AssignMockScreenProps = {
   draftParam?: string;
 };

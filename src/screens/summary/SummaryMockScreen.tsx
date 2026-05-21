@@ -23,7 +23,12 @@ import {
   parseSummaryPayload,
 } from "@/screens/summary/summary.helpers";
 
-// TODO(production): Remove mock summary path — API-only via billId. See docs/DEV_ONLY_TODOS.md
+/**
+ * Mock fallback for local/demo flows without `billId` (`data` JSON payload).
+ * API mode is {@link SummaryApiScreen} — redirects to `/bill/[id]` when `billId > 0`.
+ *
+ * TODO(production): Remove — API-only summary. See docs/DEV_ONLY_TODOS.md
+ */
 export type SummaryMockScreenProps = {
   dataParam?: string;
 };
