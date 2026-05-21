@@ -1,18 +1,7 @@
-import type { BillSummary, IsoDateTime } from "@/services/bills/bill.types";
+import type { BillSummary } from "@/services/bills/bill.schema";
+import type { BillParticipant } from "@/services/participants/participant.schema";
 
-export interface BillParticipant {
-  id: number;
-  bill_id: number;
-  name: string;
-  initials: string | null;
-  avatar_background_color: string | null;
-  avatar_text_color: string | null;
-  seat_index: number | null;
-  is_host: boolean;
-  settled: boolean;
-  created_at: IsoDateTime;
-  updated_at: IsoDateTime;
-}
+export type { BillParticipant } from "@/services/participants/participant.schema";
 
 export interface ParticipantInput {
   name: string;

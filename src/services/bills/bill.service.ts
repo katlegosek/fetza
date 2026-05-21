@@ -1,5 +1,11 @@
 import { apiRequest } from "@/api/client";
+import { parseApiResponse } from "@/api/parse-api-response";
 import { billEndpoints } from "@/services/bills/bill.endpoints";
+import {
+  BillListResponseSchema,
+  BillShowResponseSchema,
+  BillSummaryResponseSchema,
+} from "@/services/bills/bill.schema";
 import type {
   BillCreateResponse,
   BillShowResponse,
@@ -8,7 +14,8 @@ import type {
 } from "@/services/bills/bill.types";
 
 export async function getBills(): Promise<BillsIndexResponse> {
-  return apiRequest<BillsIndexResponse>(billEndpoints.bills());
+  const data = await apiRequest<unknown>(billEndpoints.bills());
+  return parseApiResponse(BillListResponseSchema, data);
 }
 
 export async function createBill(title?: string): Promise<BillCreateResponse> {
@@ -19,9 +26,11 @@ export async function createBill(title?: string): Promise<BillCreateResponse> {
 }
 
 export async function getBill(billId: number): Promise<BillShowResponse> {
-  return apiRequest<BillShowResponse>(billEndpoints.bill(billId));
+  const data = await apiRequest<unknown>(billEndpoints.bill(billId));
+  return parseApiResponse(BillShowResponseSchema, data);
 }
 
 export async function getBillSummary(billId: number): Promise<BillSummary> {
-  return apiRequest<BillSummary>(billEndpoints.billSummary(billId));
+  const data = await apiRequest<unknown>(billEndpoints.billSummary(billId));
+  return parseApiResponse(BillSummaryResponseSchema, data);
 }

@@ -1,5 +1,7 @@
 import { apiMultipartRequest, apiRequest } from "@/api/client";
+import { parseApiResponse } from "@/api/parse-api-response";
 import { receiptEndpoints } from "@/services/receipts/receipt.endpoints";
+import { ReceiptShowResponseSchema } from "@/services/receipts/receipt.schema";
 import type {
   ReceiptAdjustmentDeleteResponse,
   ReceiptAdjustmentInput,
@@ -14,7 +16,8 @@ import type {
 export async function getReceipt(
   receiptId: number,
 ): Promise<ReceiptShowResponse> {
-  return apiRequest<ReceiptShowResponse>(receiptEndpoints.receipt(receiptId));
+  const data = await apiRequest<unknown>(receiptEndpoints.receipt(receiptId));
+  return parseApiResponse(ReceiptShowResponseSchema, data);
 }
 
 export async function uploadReceiptImage(
