@@ -24,10 +24,10 @@ import {
 } from "@/lib/receipt-upload";
 import { createBill } from "@/services/bills/bill.service";
 import {
+  isReceiptProcessingComplete,
   useReceipt,
   useUploadReceiptImage,
 } from "@/services/receipts/receipt.hooks";
-import { isReceiptProcessingComplete } from "@/services/receipts/receipt.hooks";
 import { parseBillId } from "@/utils/parse-bill-id";
 
 type ScanPhase = "idle" | "uploading" | "processing" | "failed";
