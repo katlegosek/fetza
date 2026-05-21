@@ -4,7 +4,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
 
-import { createBill } from "@/api/billApi";
 import { mutationErrorMessage } from "@/api/errors";
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
@@ -21,6 +20,7 @@ import {
   buildReceiptUploadFormData,
   pickReceiptImage,
 } from "@/lib/receipt-upload";
+import { createBill } from "@/services/bills/bill.service";
 import { isReceiptProcessingComplete } from "@/services/receipts/receipt.hooks";
 import { parseBillId } from "@/utils/parse-bill-id";
 

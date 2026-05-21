@@ -1,5 +1,5 @@
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
-import type { ParticipantInput } from "@/types/api";
+import type { ParticipantInput } from "@/services/participants/participant.types";
 import { participantInitials } from "@/utils/participant";
 
 export function buildParticipantInput(

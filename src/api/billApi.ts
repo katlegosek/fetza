@@ -1,4 +1,7 @@
-/** Compatibility barrel — prefer @/services imports for new code. */
+/**
+ * @deprecated Compatibility barrel — prefer direct service imports for new code
+ * (e.g. @/services/bills/bill.service).
+ */
 export { billQueryKeys } from "@/services/bills/bill.keys";
 export {
   createBill,

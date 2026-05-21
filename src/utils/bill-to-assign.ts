@@ -3,12 +3,10 @@ import {
   avatarTonesForPaletteIndex,
   memberChipBorderToneForIndex,
 } from "@/lib/member-avatar-tones";
-import type {
-  BillParticipant,
-  BillShowResponse,
-  ItemAssignment,
-  ReceiptItem,
-} from "@/types/api";
+import type { ItemAssignment } from "@/services/assignments/assignment.types";
+import type { BillShowResponse } from "@/services/bills/bill.types";
+import type { BillParticipant } from "@/services/participants/participant.types";
+import type { ReceiptItem } from "@/services/receipts/receipt.types";
 
 export type AssignMember = {
   id: string;

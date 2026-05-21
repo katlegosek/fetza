@@ -10,7 +10,7 @@ import {
 import { isApiError } from "@/api/errors";
 import { AppText, Button, ScreenContainer } from "@/components";
 import { useBills, usePullToRefresh } from "@/hooks";
-import type { BillIndexItem } from "@/types/api";
+import type { BillIndexItem } from "@/services/bills/bill.types";
 import { formatMoneyFromCents } from "@/utils/money";
 
 function formatBillDisplayDate(bill: BillIndexItem): string {

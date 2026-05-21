@@ -29,7 +29,7 @@ import type {
   BillSummary,
   BillSummaryAdjustment,
   BillSummaryParticipant,
-} from "@/types/api";
+} from "@/services/bills/bill.types";
 import { formatMoneyFromCents } from "@/utils/money";
 import { parseBillId } from "@/utils/parse-bill-id";
 import { participantInitials } from "@/utils/participant";

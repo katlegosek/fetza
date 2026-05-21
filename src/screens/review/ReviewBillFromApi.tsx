@@ -12,14 +12,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {
-  createReceiptAdjustment,
-  createReceiptItem,
-  deleteReceiptAdjustment,
-  deleteReceiptItem,
-  updateReceiptAdjustment,
-  updateReceiptItem,
-} from "@/api/billApi";
 import { isApiError, mutationErrorMessage } from "@/api/errors";
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
@@ -41,6 +33,14 @@ import {
   defaultAffectsTotalForKind,
 } from "@/components";
 import { useBill, usePullToRefresh, useThemeColors } from "@/hooks";
+import {
+  createReceiptAdjustment,
+  createReceiptItem,
+  deleteReceiptAdjustment,
+  deleteReceiptItem,
+  updateReceiptAdjustment,
+  updateReceiptItem,
+} from "@/services/receipts/receipt.service";
 import { billShowToReceiptView } from "@/utils/bill-to-draft";
 import { formatMoneyFromCents } from "@/utils/money";
 

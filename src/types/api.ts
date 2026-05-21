@@ -1,3 +1,7 @@
+/**
+ * @deprecated Compatibility barrel — prefer direct service type imports for new code
+ * (e.g. @/services/bills/bill.types). ApiError types below are shared, not service-specific.
+ */
 /** Shared API error types (used by api/client and api/errors). */
 export type ApiErrorCode =
   | "validation_error"

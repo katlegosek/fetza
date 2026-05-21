@@ -1,4 +1,4 @@
-import type { BillSummary } from "@/types/api";
+import type { BillSummary } from "@/services/bills/bill.types";
 
 /** Optimistic summary patch when toggling a participant's settled flag. */
 export function applyOptimisticParticipantSettled(

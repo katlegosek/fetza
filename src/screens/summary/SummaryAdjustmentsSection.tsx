@@ -1,7 +1,7 @@
 import { View } from "react-native";
 
 import { AppText } from "@/components";
-import type { BillSummaryAdjustment } from "@/types/api";
+import type { BillSummaryAdjustment } from "@/services/bills/bill.types";
 import { formatMoneyFromCents } from "@/utils/money";
 
 export type SummaryAdjustmentsSectionProps = {
