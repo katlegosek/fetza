@@ -41,6 +41,10 @@ the app — see Implemented.)
       share is wildly out of proportion (>4×) compared to others.
 - [ ] **Select-everyone toggle on the Assign chip bar** — quick toggle to
       assign the next tap to all members at once.
+- [ ] **Bulk assigning** — multi-select lines on Assign (or “apply to all
+      unassigned”) and add/remove the same member(s) in one confirm step;
+      optional: select all / invert selection, and undo for the last bulk
+      action.
 
 ## Settings polish
 
