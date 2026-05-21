@@ -1,4 +1,4 @@
-import { isApiError } from "@/api/errors";
+import { getApiErrorMessage } from "@/api/api-error-message";
 import type { BillSummaryParticipant } from "@/services/bills/bill.types";
 
 export function sortBillDetailParticipants(
@@ -16,13 +16,12 @@ export function sortBillDetailParticipants(
 }
 
 export function billDetailLoadErrorMessage(error: unknown): string {
-  return isApiError(error)
-    ? error.message
-    : "Something went wrong loading this bill.";
+  return getApiErrorMessage(error, "Something went wrong loading this bill.");
 }
 
 export function billDetailSettlementErrorMessage(error: unknown): string {
-  return isApiError(error)
-    ? error.message
-    : "Could not update payment status. Please try again.";
+  return getApiErrorMessage(
+    error,
+    "Could not update payment status. Please try again.",
+  );
 }

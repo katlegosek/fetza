@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { isApiError, mutationErrorMessage } from "@/api/errors";
+import { getApiErrorMessage } from "@/api/api-error-message";
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
@@ -61,7 +61,6 @@ import {
   reviewReceiptWidth,
 } from "@/screens/review/review.helpers";
 import {
-  reviewSaveErrorMessage,
   validateReviewAdjustmentSave,
   validateReviewItemSave,
 } from "@/screens/review/review.schema";
@@ -144,7 +143,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
         await invalidateBillQueries(queryClient, billId);
       } catch (saveError) {
         setReviewActionError(
-          reviewSaveErrorMessage(
+          getApiErrorMessage(
             saveError,
             "Couldn't save item. Please try again.",
           ),
@@ -173,7 +172,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
       await invalidateBillQueries(queryClient, billId);
     } catch (deleteError) {
       setReviewActionError(
-        mutationErrorMessage(
+        getApiErrorMessage(
           deleteError,
           "Couldn't remove item. Please try again.",
         ),
@@ -239,7 +238,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
         await invalidateBillQueries(queryClient, billId);
       } catch (saveError) {
         setReviewActionError(
-          reviewSaveErrorMessage(saveError, "Couldn't save fee or tax."),
+          getApiErrorMessage(saveError, "Couldn't save fee or tax."),
         );
         throw saveError;
       } finally {
@@ -277,7 +276,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
       await invalidateBillQueries(queryClient, billId);
     } catch (deleteError) {
       setReviewActionError(
-        mutationErrorMessage(deleteError, "Couldn't remove fee or tax."),
+        getApiErrorMessage(deleteError, "Couldn't remove fee or tax."),
       );
       throw deleteError;
     } finally {
@@ -359,9 +358,10 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
   }
 
   if (isError) {
-    const message = isApiError(error)
-      ? error.message
-      : "Something went wrong loading this receipt.";
+    const message = getApiErrorMessage(
+      error,
+      "Something went wrong loading this receipt.",
+    );
 
     return (
       <ScreenErrorState

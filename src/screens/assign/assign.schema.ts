@@ -1,7 +1,6 @@
 import type { ZodError } from "zod";
 import { z } from "zod";
 
-import { isApiError } from "@/api/errors";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
 import type { ParticipantInput } from "@/services/participants/participant.types";
 import { participantInitials } from "@/utils/participant";
@@ -21,20 +20,6 @@ export const AssignParticipantSaveSchema = z.object({
 });
 
 export type AssignParticipantSave = z.infer<typeof AssignParticipantSaveSchema>;
-
-/** API errors, validation messages, and other Error text; otherwise fallback. */
-export function assignSaveErrorMessage(
-  error: unknown,
-  fallback: string,
-): string {
-  if (isApiError(error)) {
-    return error.message;
-  }
-  if (error instanceof Error && error.message.length > 0) {
-    return error.message;
-  }
-  return fallback;
-}
 
 function validationMessage(error: ZodError): string {
   const first = error.issues[0];

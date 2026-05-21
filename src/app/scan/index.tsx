@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
 
-import { mutationErrorMessage } from "@/api/errors";
+import { getApiErrorMessage } from "@/api/api-error-message";
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
@@ -149,7 +149,7 @@ export default function ScanScreen() {
       } catch (error) {
         setPhase("failed");
         setScanError(
-          mutationErrorMessage(error, "Couldn't upload receipt. Try again."),
+          getApiErrorMessage(error, "Couldn't upload receipt. Try again."),
         );
       }
     },

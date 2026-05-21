@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { isApiError } from "@/api/errors";
+import { getApiErrorMessage } from "@/api/api-error-message";
 import {
   AssignItemSheet,
   AssignOverflowMenu,
@@ -144,9 +144,10 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
   }
 
   if (isError) {
-    const message = isApiError(loadError)
-      ? loadError.message
-      : "Something went wrong loading this bill.";
+    const message = getApiErrorMessage(
+      loadError,
+      "Something went wrong loading this bill.",
+    );
 
     return (
       <ScreenErrorState

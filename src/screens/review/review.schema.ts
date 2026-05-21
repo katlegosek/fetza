@@ -1,7 +1,6 @@
 import type { ZodError } from "zod";
 import { z } from "zod";
 
-import { isApiError } from "@/api/errors";
 import type { ReviewAdjustmentSavePayload } from "@/components/review-adjustment-sheet";
 import type { ReviewItemSavePayload } from "@/components/review-item-sheet";
 import { ReceiptAdjustmentKindSchema } from "@/services/receipts/receipt.schema";
@@ -27,20 +26,6 @@ export const ReviewAdjustmentSaveSchema = z.object({
 
 export type ReviewItemSave = z.infer<typeof ReviewItemSaveSchema>;
 export type ReviewAdjustmentSave = z.infer<typeof ReviewAdjustmentSaveSchema>;
-
-/** API errors, validation throws, and other Error messages; otherwise fallback. */
-export function reviewSaveErrorMessage(
-  error: unknown,
-  fallback: string,
-): string {
-  if (isApiError(error)) {
-    return error.message;
-  }
-  if (error instanceof Error && error.message.length > 0) {
-    return error.message;
-  }
-  return fallback;
-}
 
 function validationMessage(error: ZodError): string {
   const first = error.issues[0];
