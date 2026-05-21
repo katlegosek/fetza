@@ -58,6 +58,11 @@ import {
   reviewOverflowMenuTop,
   reviewReceiptWidth,
 } from "@/screens/review/review.helpers";
+import {
+  reviewSaveErrorMessage,
+  validateReviewAdjustmentSave,
+  validateReviewItemSave,
+} from "@/screens/review/review.schema";
 
 export type ReviewBillFromApiProps = {
   billId: number;
@@ -104,15 +109,21 @@ export const ReviewBillFromApi = ({ billId }: ReviewBillFromApiProps) => {
     async (next: ReviewItemSavePayload) => {
       if (sheet?.kind !== "line") return;
 
+      const validation = validateReviewItemSave(next);
+      if (!validation.ok) {
+        setReviewActionError(validation.message);
+        throw new Error(validation.message);
+      }
+
       setItemSaving(true);
       try {
-        const name = next.description.trim() || "New item";
+        const { description, qty, amountCents } = validation.data;
 
         if (sheet.lineId === NEW_RECEIPT_ITEM_ID) {
           await createReceiptItem(billId, {
-            name,
-            quantity: next.qty,
-            total_cents: next.amountCents,
+            name: description,
+            quantity: qty,
+            total_cents: amountCents,
           });
         } else {
           const receiptItemId = Number(sheet.lineId);
@@ -121,16 +132,16 @@ export const ReviewBillFromApi = ({ billId }: ReviewBillFromApiProps) => {
           }
 
           await updateReceiptItem(receiptItemId, {
-            name,
-            quantity: next.qty,
-            total_cents: next.amountCents,
+            name: description,
+            quantity: qty,
+            total_cents: amountCents,
           });
         }
 
         await invalidateBillQueries(queryClient, billId);
       } catch (saveError) {
         setReviewActionError(
-          mutationErrorMessage(
+          reviewSaveErrorMessage(
             saveError,
             "Couldn't save item. Please try again.",
           ),
@@ -183,15 +194,22 @@ export const ReviewBillFromApi = ({ billId }: ReviewBillFromApiProps) => {
     async (next: ReviewAdjustmentSavePayload) => {
       if (sheet?.kind !== "adjustment" || !receiptId) return;
 
+      const validation = validateReviewAdjustmentSave(next);
+      if (!validation.ok) {
+        setReviewActionError(validation.message);
+        throw new Error(validation.message);
+      }
+
       setAdjustmentSaving(true);
       setReviewActionError(null);
 
       try {
+        const { label, kind, amountCents, affectsTotal } = validation.data;
         const payload = {
-          label: next.label,
-          kind: next.kind,
-          amount_cents: next.amountCents,
-          affects_total: next.affectsTotal,
+          label,
+          kind,
+          amount_cents: amountCents,
+          affects_total: affectsTotal,
         };
 
         if (sheet.adjustmentId === NEW_RECEIPT_ADJUSTMENT_ID) {
@@ -218,7 +236,7 @@ export const ReviewBillFromApi = ({ billId }: ReviewBillFromApiProps) => {
         await invalidateBillQueries(queryClient, billId);
       } catch (saveError) {
         setReviewActionError(
-          mutationErrorMessage(saveError, "Couldn't save fee or tax."),
+          reviewSaveErrorMessage(saveError, "Couldn't save fee or tax."),
         );
         throw saveError;
       } finally {
