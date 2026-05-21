@@ -15,7 +15,7 @@ import { SheetCloseButton } from "@/components/organisms/bottom-sheet/sheet-clos
 import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
 import { formatZAR } from "@/lib/helper";
-import type { ReceiptLine } from "@/mocks/review-draft.mock";
+import type { ReceiptLine } from "@/types/draft-bill";
 
 export type AssignItemSheetMember = {
   id: string;

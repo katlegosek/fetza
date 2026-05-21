@@ -7,24 +7,22 @@ import {
 } from "react";
 import { Alert } from "react-native";
 
-import type { DraftBill } from "@/mocks/review-draft.mock";
-import type {
-  AssignMember,
-  Assignments,
-} from "@/screens/assign/assign.constants";
+import type { MockAssignMember } from "@/reference/mock-flow/assign-mock.constants";
 import {
+  type MockAssignments,
   cloneAssignments,
   isBillSplitEquallyAmongAll,
-} from "@/screens/assign/assign.helpers";
+} from "@/reference/mock-flow/assign-mock.helpers";
+import type { DraftBill } from "@/types/draft-bill";
 
 export type UseAssignBulkActionsOptions = {
   draft: DraftBill | null;
-  members: AssignMember[];
-  assignments: Assignments;
-  setAssignments: Dispatch<SetStateAction<Assignments>>;
-  assignmentsBeforeSplitRef: MutableRefObject<Assignments | null>;
+  members: MockAssignMember[];
+  assignments: MockAssignments;
+  setAssignments: Dispatch<SetStateAction<MockAssignments>>;
+  assignmentsBeforeSplitRef: MutableRefObject<MockAssignments | null>;
   resetAssignmentsBeforeSplit: () => void;
-  snapshotAssignmentsBeforeSplit: (current: Assignments) => void;
+  snapshotAssignmentsBeforeSplit: (current: MockAssignments) => void;
   restoreAssignmentsBeforeSplit: () => void;
   setActiveMember: (memberId: string | null) => void;
 };
@@ -63,7 +61,7 @@ export function useAssignBulkActions({
         return previous;
       }
       snapshotAssignmentsBeforeSplit(previous);
-      const next: Assignments = {};
+      const next: MockAssignments = {};
       for (const line of draft.lines) {
         next[line.id] = [...allMemberIds];
       }

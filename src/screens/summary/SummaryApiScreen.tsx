@@ -1,9 +1,6 @@
 import { Redirect } from "expo-router";
 
-/**
- * Primary summary path for API bills: redirects to bill detail (`/bill/[id]`).
- * Mock table/list UI lives in {@link SummaryMockScreen}.
- */
+/** API summary: redirects to bill detail (`/bill/[id]`). */
 export type SummaryApiScreenProps = {
   billId: number;
 };

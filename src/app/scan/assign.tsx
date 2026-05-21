@@ -1,22 +1,23 @@
 import { useLocalSearchParams } from "expo-router";
 
+import { MissingBillState } from "@/components/feedback";
 import { AssignApiScreen } from "@/screens/assign/AssignApiScreen";
-import { AssignMockScreen } from "@/screens/assign/AssignMockScreen";
 import { parseBillId } from "@/utils/parse-bill-id";
-import { asSingleRouteParam } from "@/utils/route-params";
 
 export default function AssignBillScreen() {
-  const { billId: billIdParam, draft: draftParamRaw } = useLocalSearchParams<{
+  const { billId: billIdParam } = useLocalSearchParams<{
     billId?: string | string[];
-    draft?: string | string[];
   }>();
   const billId = parseBillId(billIdParam);
-  const draftParam = asSingleRouteParam(draftParamRaw);
 
-  // Mock fallback is kept for local/demo flows without billId. API mode is the primary path.
-  if (billId > 0) {
-    return <AssignApiScreen billId={billId} />;
+  if (billId <= 0) {
+    return (
+      <MissingBillState
+        title="Assign Items"
+        message="Missing bill. Please open a bill before assigning items."
+      />
+    );
   }
 
-  return <AssignMockScreen draftParam={draftParam} />;
+  return <AssignApiScreen billId={billId} />;
 }

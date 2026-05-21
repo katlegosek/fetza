@@ -7,13 +7,16 @@ import { formatZAR } from "@/lib/helper";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
 import type { SettlementMap } from "@/lib/member-settlement-storage";
 import { isMemberSettled } from "@/lib/member-settlement-storage";
-import type { DraftBill } from "@/mocks/review-draft.mock";
-import type { SummaryMember } from "@/screens/summary/summary.constants";
+import type { SummaryMember } from "@/reference/mock-flow/summary/summary.constants";
 import {
   type AssignmentMap,
   assignedLineCountForMember,
-} from "@/screens/summary/summary.helpers";
-import { initials, isYouMember } from "@/screens/summary/summary.helpers";
+} from "@/reference/mock-flow/summary/summary.helpers";
+import {
+  initials,
+  isYouMember,
+} from "@/reference/mock-flow/summary/summary.helpers";
+import type { DraftBill } from "@/types/draft-bill";
 
 export type SummaryParticipantRowProps = {
   member: SummaryMember;

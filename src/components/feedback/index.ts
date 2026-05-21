@@ -1,4 +1,8 @@
 export {
+  MissingBillState,
+  type MissingBillStateProps,
+} from "./MissingBillState";
+export {
   ScreenEmptyState,
   type ScreenEmptyStateProps,
 } from "./ScreenEmptyState";

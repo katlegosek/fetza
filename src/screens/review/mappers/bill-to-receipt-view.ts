@@ -1,9 +1,9 @@
-import type { DraftBill } from "@/mocks/review-draft.mock";
 import type { BillShowResponse } from "@/services/bills/bill.types";
 import type {
   ReceiptAdjustment,
   ReceiptAdjustmentKind,
 } from "@/services/receipts/receipt.types";
+import type { DraftBill } from "@/types/draft-bill";
 
 export type ReceiptFeeRow = {
   id: string;

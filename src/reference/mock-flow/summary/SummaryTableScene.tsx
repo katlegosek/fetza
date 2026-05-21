@@ -5,12 +5,12 @@ import { type Person, TableScene } from "@/components";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
 import type { SettlementMap } from "@/lib/member-settlement-storage";
 import { isMemberSettled } from "@/lib/member-settlement-storage";
-import type { SummaryMember } from "@/screens/summary/summary.constants";
+import type { SummaryMember } from "@/reference/mock-flow/summary/summary.constants";
 import {
   initials,
   isYouMember,
   sortMembersYouFirst,
-} from "@/screens/summary/summary.helpers";
+} from "@/reference/mock-flow/summary/summary.helpers";
 
 export type SummaryTableSceneProps = {
   members: SummaryMember[];

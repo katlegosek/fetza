@@ -1,24 +1,6 @@
-// TODO(production): Remove mock draft — use API bill/receipt types only. See docs/DEV_ONLY_TODOS.md
-/** Bill types + seed payload for the scan → review flow (sample / dev data). */
+import type { DraftBill } from "@/types/draft-bill";
 
-export type ReceiptLine = {
-  id: string;
-  qty: number;
-  description: string;
-  amountCents: number;
-};
-
-export type DraftBill = {
-  merchant: string;
-  billId: string;
-  timestamp: string;
-  lines: ReceiptLine[];
-  /** VAT / tax amount included (use 0 when the slip has none). */
-  vatCents: number;
-  /** Mandatory service charge / levy (use 0 when none). */
-  serviceFeeCents: number;
-};
-
+/** Seed payload for mock review flow (reference only). */
 export const MOCK_DRAFT_BILL: DraftBill = {
   merchant: "Observatory Small Plates",
   billId: "RCPT-77-QZ41",

@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 
-import { cloneBillDraft } from "@/mocks/draft-bill.helpers";
-import type { DraftBill } from "@/mocks/review-draft.mock";
 import {
-  type AssignMember,
-  type Assignments,
+  type MockAssignMember,
   SEED_MEMBERS,
-} from "@/screens/assign/assign.constants";
-import { cloneAssignments } from "@/screens/assign/assign.helpers";
+} from "@/reference/mock-flow/assign-mock.constants";
+import {
+  type MockAssignments,
+  cloneAssignments,
+} from "@/reference/mock-flow/assign-mock.helpers";
+import { cloneBillDraft } from "@/reference/mock-flow/draft-bill.helpers";
+import type { DraftBill } from "@/types/draft-bill";
 
 export function useAssignMockState(draftParam: string | undefined) {
   const [draft, setDraft] = useState<DraftBill | null>(null);
   const [hydrated, setHydrated] = useState(false);
-  const [members, setMembers] = useState<AssignMember[]>(SEED_MEMBERS);
-  const [assignments, setAssignments] = useState<Assignments>({});
-  const assignmentsBeforeSplitRef = useRef<Assignments | null>(null);
+  const [members, setMembers] = useState<MockAssignMember[]>(SEED_MEMBERS);
+  const [assignments, setAssignments] = useState<MockAssignments>({});
+  const assignmentsBeforeSplitRef = useRef<MockAssignments | null>(null);
 
   useEffect(() => {
     if (!draftParam) {
@@ -40,7 +42,7 @@ export function useAssignMockState(draftParam: string | undefined) {
     assignmentsBeforeSplitRef.current = null;
   };
 
-  const snapshotAssignmentsBeforeSplit = (current: Assignments) => {
+  const snapshotAssignmentsBeforeSplit = (current: MockAssignments) => {
     assignmentsBeforeSplitRef.current = cloneAssignments(current);
   };
 

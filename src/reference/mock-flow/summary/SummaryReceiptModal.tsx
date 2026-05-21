@@ -15,12 +15,12 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { RECEIPT_ZIGZAG_DEPTH, ThermalReceipt } from "@/components";
-import type { DraftBill } from "@/mocks/review-draft.mock";
 import {
   SUMMARY_RECEIPT_MODAL_INNER_PAD_Y,
   SUMMARY_RECEIPT_MODAL_SHIFT_DOWN,
   SUMMARY_RECEIPT_MODAL_VERTICAL_MARGIN,
-} from "@/screens/summary/summary.constants";
+} from "@/reference/mock-flow/summary/summary.constants";
+import type { DraftBill } from "@/types/draft-bill";
 
 export type SummaryReceiptModalProps = {
   draft: DraftBill;

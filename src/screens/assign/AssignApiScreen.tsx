@@ -14,7 +14,6 @@ import {
   ScreenLoadingState,
 } from "@/components";
 import { useThemeColors } from "@/hooks";
-import type { ReceiptLine } from "@/mocks/review-draft.mock";
 import { AssignBottomBar } from "@/screens/assign/AssignBottomBar";
 import { AssignEmptyState } from "@/screens/assign/AssignEmptyState";
 import { AssignItemsList } from "@/screens/assign/AssignItemsList";
@@ -29,6 +28,7 @@ import { useAssignData } from "@/screens/assign/hooks/useAssignData";
 import { useAssignItemMutations } from "@/screens/assign/hooks/useAssignItemMutations";
 import { useAssignParticipants } from "@/screens/assign/hooks/useAssignParticipants";
 import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
+import type { ReceiptLine } from "@/types/draft-bill";
 import { formatMoneyFromCents } from "@/utils/money";
 
 /** Primary assign path: bill participants, items, and assignments from the API. */
@@ -76,14 +76,9 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
   }, [members]);
 
   const progress = useAssignData({
-    isApiMode: true,
     lines,
     displayAssignments,
-    draft: null,
-    mockAssignments: {},
     summaryData,
-    draftLines: [],
-    apiLines,
   });
 
   const { persistLineAssignments, toggleAssignment } = useAssignItemMutations({

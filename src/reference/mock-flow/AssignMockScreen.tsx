@@ -15,27 +15,30 @@ import {
   ScreenHeader,
 } from "@/components";
 import { useThemeColors } from "@/hooks";
-import { cloneBillDraft, generateLineId } from "@/mocks/draft-bill.helpers";
-import type { ReceiptLine } from "@/mocks/review-draft.mock";
+import { AssignEmptyState } from "@/reference/mock-flow/AssignEmptyState";
+import {
+  cloneAssignments,
+  isDraftParamReady,
+} from "@/reference/mock-flow/assign-mock.helpers";
+import { useAssignBulkActions } from "@/reference/mock-flow/assign/hooks/useAssignBulkActions";
+import { useAssignMockData } from "@/reference/mock-flow/assign/hooks/useAssignMockData";
+import { useAssignMockState } from "@/reference/mock-flow/assign/hooks/useAssignMockState";
+import {
+  cloneBillDraft,
+  generateLineId,
+} from "@/reference/mock-flow/draft-bill.helpers";
 import { AssignBottomBar } from "@/screens/assign/AssignBottomBar";
-import { AssignEmptyState } from "@/screens/assign/AssignEmptyState";
 import { AssignItemsList } from "@/screens/assign/AssignItemsList";
 import { AssignPeopleRow } from "@/screens/assign/AssignPeopleRow";
 import type { AssignSheetState } from "@/screens/assign/assign.constants";
 import type { AssignMember } from "@/screens/assign/assign.constants";
-import {
-  assignOverflowMenuTop,
-  cloneAssignments,
-  isDraftParamReady,
-} from "@/screens/assign/assign.helpers";
+import { assignOverflowMenuTop } from "@/screens/assign/assign.helpers";
 import { useAssignActiveMember } from "@/screens/assign/hooks/useAssignActiveMember";
 import { useAssignAssignmentError } from "@/screens/assign/hooks/useAssignAssignmentError";
-import { useAssignBulkActions } from "@/screens/assign/hooks/useAssignBulkActions";
-import { useAssignData } from "@/screens/assign/hooks/useAssignData";
 import { useAssignItemMutations } from "@/screens/assign/hooks/useAssignItemMutations";
-import { useAssignMockState } from "@/screens/assign/hooks/useAssignMockState";
 import { useAssignParticipants } from "@/screens/assign/hooks/useAssignParticipants";
 import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
+import type { ReceiptLine } from "@/types/draft-bill";
 
 /**
  * Mock fallback for local/demo flows without `billId` (optional `draft` param).
@@ -95,7 +98,7 @@ export const AssignMockScreen = ({ draftParam }: AssignMockScreenProps) => {
     return map;
   }, [members]);
 
-  const progress = useAssignData({
+  const progress = useAssignMockData({
     isApiMode: false,
     lines,
     displayAssignments,

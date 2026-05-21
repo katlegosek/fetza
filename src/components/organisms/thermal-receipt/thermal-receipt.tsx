@@ -13,7 +13,7 @@ import {
   formatZAR,
   sumLineAmountsCents,
 } from "@/lib/helper";
-import type { DraftBill } from "@/mocks/review-draft.mock";
+import type { DraftBill } from "@/types/draft-bill";
 
 const PAPER = "#f4f1e8";
 const INK = "#1c1917";

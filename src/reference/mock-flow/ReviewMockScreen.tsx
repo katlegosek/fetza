@@ -26,12 +26,12 @@ import {
 } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { formatZAR, sumLineAmountsCents } from "@/lib/helper";
-import { cloneBillDraft, generateLineId } from "@/mocks/draft-bill.helpers";
 import {
-  type DraftBill,
-  MOCK_DRAFT_BILL,
-  type ReceiptLine,
-} from "@/mocks/review-draft.mock";
+  cloneBillDraft,
+  generateLineId,
+} from "@/reference/mock-flow/draft-bill.helpers";
+import { MOCK_DRAFT_BILL } from "@/reference/mock-flow/review-draft.mock";
+import type { DraftBill, ReceiptLine } from "@/types/draft-bill";
 
 import { ReviewBottomBar } from "@/screens/review/ReviewBottomBar";
 import type { SheetState } from "@/screens/review/review.constants";

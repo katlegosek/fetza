@@ -308,20 +308,6 @@ export default function ScanScreen() {
                 Manual entry instead
               </AppText>
             </Pressable>
-
-            {/* TODO(production): Remove dev mock review entry — docs/DEV_ONLY_TODOS.md */}
-            {__DEV__ ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Open review without scanning"
-                className="items-center py-2 active:opacity-70"
-                onPress={() => router.push("/scan/review")}
-              >
-                <AppText className="text-xs text-muted">
-                  Dev: mock review
-                </AppText>
-              </Pressable>
-            ) : null}
           </>
         )}
 

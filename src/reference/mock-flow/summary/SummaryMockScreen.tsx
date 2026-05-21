@@ -6,22 +6,22 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenContainer } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { appendSummarySnapshot } from "@/lib/bill-summary-snapshot-storage";
-import { cloneBillDraft } from "@/mocks/draft-bill.helpers";
-import { SummaryBottomActions } from "@/screens/summary/SummaryBottomActions";
-import { SummaryEmptyState } from "@/screens/summary/SummaryEmptyState";
-import { SummaryHeader } from "@/screens/summary/SummaryHeader";
-import { SummaryParticipantList } from "@/screens/summary/SummaryParticipantList";
-import { SummaryReceiptModal } from "@/screens/summary/SummaryReceiptModal";
-import { SummaryTableScene } from "@/screens/summary/SummaryTableScene";
-import { SummaryTotalsCard } from "@/screens/summary/SummaryTotalsCard";
-import { useParticipantSettlement } from "@/screens/summary/hooks/useParticipantSettlement";
-import { useSummaryData } from "@/screens/summary/hooks/useSummaryData";
-import type { SummaryViewMode } from "@/screens/summary/summary.constants";
-import { SUMMARY_SCROLL_PAD_BOTTOM_NAV } from "@/screens/summary/summary.constants";
+import { cloneBillDraft } from "@/reference/mock-flow/draft-bill.helpers";
+import { SummaryBottomActions } from "@/reference/mock-flow/summary/SummaryBottomActions";
+import { SummaryEmptyState } from "@/reference/mock-flow/summary/SummaryEmptyState";
+import { SummaryHeader } from "@/reference/mock-flow/summary/SummaryHeader";
+import { SummaryParticipantList } from "@/reference/mock-flow/summary/SummaryParticipantList";
+import { SummaryReceiptModal } from "@/reference/mock-flow/summary/SummaryReceiptModal";
+import { SummaryTableScene } from "@/reference/mock-flow/summary/SummaryTableScene";
+import { SummaryTotalsCard } from "@/reference/mock-flow/summary/SummaryTotalsCard";
+import type { SummaryViewMode } from "@/reference/mock-flow/summary/summary.constants";
+import { SUMMARY_SCROLL_PAD_BOTTOM_NAV } from "@/reference/mock-flow/summary/summary.constants";
 import {
   isYouMember,
   parseSummaryPayload,
-} from "@/screens/summary/summary.helpers";
+} from "@/reference/mock-flow/summary/summary.helpers";
+import { useParticipantSettlement } from "@/reference/mock-flow/summary/useParticipantSettlement";
+import { useSummaryData } from "@/reference/mock-flow/summary/useSummaryData";
 
 /**
  * Mock fallback for local/demo flows without `billId` (`data` JSON payload).

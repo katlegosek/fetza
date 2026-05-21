@@ -1,7 +1,7 @@
-import type { DraftBill } from "@/mocks/review-draft.mock";
-import type { AssignmentMap } from "@/screens/summary/summary.helpers";
+import type { AssignmentMap } from "@/reference/mock-flow/summary/summary.helpers";
+import type { DraftBill } from "@/types/draft-bill";
 
-export type { AssignmentMap } from "@/screens/summary/summary.helpers";
+export type { AssignmentMap } from "@/reference/mock-flow/summary/summary.helpers";
 
 export type SummaryMember = { id: string; name: string };
 

@@ -5,7 +5,7 @@ import { AppText } from "@/components/atoms";
 import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
 import { formatZAR } from "@/lib/helper";
-import type { ReceiptLine } from "@/mocks/review-draft.mock";
+import type { ReceiptLine } from "@/types/draft-bill";
 
 type AssignLineLike = Pick<ReceiptLine, "qty" | "description" | "amountCents">;
 

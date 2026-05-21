@@ -1,10 +1,10 @@
 import { sumLineAmountsCents } from "@/lib/helper";
-import { cloneBillDraft } from "@/mocks/draft-bill.helpers";
-import type { DraftBill } from "@/mocks/review-draft.mock";
+import { cloneBillDraft } from "@/reference/mock-flow/draft-bill.helpers";
 import type {
   SummaryMember,
   SummaryPayload,
-} from "@/screens/summary/summary.constants";
+} from "@/reference/mock-flow/summary/summary.constants";
+import type { DraftBill } from "@/types/draft-bill";
 import { asSingleRouteParam } from "@/utils/route-params";
 
 export type AssignmentMap = Record<string, string[]>;

@@ -2,11 +2,11 @@ import { View } from "react-native";
 
 import { AppText } from "@/components";
 import type { SettlementMap } from "@/lib/member-settlement-storage";
-import type { DraftBill } from "@/mocks/review-draft.mock";
-import { SummaryBillTotalCard } from "@/screens/summary/SummaryBillTotalCard";
-import { SummaryParticipantRow } from "@/screens/summary/SummaryParticipantRow";
-import type { SummaryMember } from "@/screens/summary/summary.constants";
-import type { AssignmentMap } from "@/screens/summary/summary.helpers";
+import { SummaryBillTotalCard } from "@/reference/mock-flow/summary/SummaryBillTotalCard";
+import { SummaryParticipantRow } from "@/reference/mock-flow/summary/SummaryParticipantRow";
+import type { SummaryMember } from "@/reference/mock-flow/summary/summary.constants";
+import type { AssignmentMap } from "@/reference/mock-flow/summary/summary.helpers";
+import type { DraftBill } from "@/types/draft-bill";
 
 export type SummaryParticipantListProps = {
   draft: DraftBill;

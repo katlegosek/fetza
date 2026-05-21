@@ -5,7 +5,7 @@ import {
   buildSummaryModel,
   parseSummaryPayload,
   sortMembersYouFirst,
-} from "@/screens/summary/summary.helpers";
+} from "@/reference/mock-flow/summary/summary.helpers";
 
 export function useSummaryData(
   dataParam: string | undefined,

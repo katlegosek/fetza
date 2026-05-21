@@ -2,7 +2,7 @@ import { Pressable, View } from "react-native";
 
 import { AppText, ScreenHeader } from "@/components";
 import { cn } from "@/lib/cn";
-import type { SummaryViewMode } from "@/screens/summary/summary.constants";
+import type { SummaryViewMode } from "@/reference/mock-flow/summary/summary.constants";
 
 export type TableListToggleProps = {
   value: SummaryViewMode;
