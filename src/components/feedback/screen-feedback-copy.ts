@@ -9,6 +9,7 @@ export const SCREEN_TITLES = {
 export const FEEDBACK_MESSAGES = {
   invalidBillLink: "This bill link is invalid.",
   billDetailLoading: "Loading bill summary…",
+  billDetailLoadError: "Something went wrong loading this bill.",
   billDetailNoData: "No summary data for this bill.",
   assignLoading: "Loading bill…",
   assignLoadError: "Something went wrong loading this bill.",

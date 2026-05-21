@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { getApiErrorMessage } from "@/api/api-error-message";
 import {
   NoticeBanner,
   ScreenContainer,
@@ -15,7 +16,6 @@ import { BillDetailAdjustmentsSection } from "@/screens/bill-detail/BillDetailAd
 import { BillDetailEmptyState } from "@/screens/bill-detail/BillDetailEmptyState";
 import { BillDetailParticipantList } from "@/screens/bill-detail/BillDetailParticipantList";
 import { BillDetailTotalsCard } from "@/screens/bill-detail/BillDetailTotalsCard";
-import { billDetailLoadErrorMessage } from "@/screens/bill-detail/bill-detail.helpers";
 import type { BillDetailScreenProps } from "@/screens/bill-detail/bill-detail.types";
 import { useBillDetailData } from "@/screens/bill-detail/hooks/useBillDetailData";
 import { useParticipantSettlement } from "@/screens/bill-detail/hooks/useParticipantSettlement";
@@ -60,7 +60,10 @@ export const BillDetailScreen = ({ billId }: BillDetailScreenProps) => {
     return (
       <ScreenErrorState
         title={headerTitle}
-        message={billDetailLoadErrorMessage(error)}
+        message={getApiErrorMessage(
+          error,
+          FEEDBACK_MESSAGES.billDetailLoadError,
+        )}
         onBack={handleBack}
         actionLabel="Try again"
         onAction={() => void refetch()}

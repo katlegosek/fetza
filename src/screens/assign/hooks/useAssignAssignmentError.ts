@@ -1,28 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
-
-import { getApiErrorMessage } from "@/api/api-error-message";
+import { MUTATION_ERROR_FALLBACKS } from "@/api/api-error-message";
+import { useMutationErrorBanner } from "@/hooks/use-mutation-error-banner";
 
 export function useAssignAssignmentError() {
-  const [assignmentError, setAssignmentError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!assignmentError) {
-      return;
-    }
-
-    const timeout = setTimeout(() => setAssignmentError(null), 4000);
-    return () => clearTimeout(timeout);
-  }, [assignmentError]);
-
-  const showAssignmentError = useCallback((error: unknown) => {
-    setAssignmentError(
-      getApiErrorMessage(error, "Could not save assignment. Please try again."),
-    );
-  }, []);
+  const { message, setMessage, showError } = useMutationErrorBanner(
+    MUTATION_ERROR_FALLBACKS.assignAssignment,
+  );
 
   return {
-    assignmentError,
-    setAssignmentError,
-    showAssignmentError,
+    assignmentError: message,
+    setAssignmentError: setMessage,
+    showAssignmentError: showError,
   };
 }

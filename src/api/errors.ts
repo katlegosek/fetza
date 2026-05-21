@@ -43,9 +43,6 @@ export function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError;
 }
 
-/** @deprecated Use `getApiErrorMessage` from `@/api/api-error-message`. */
-export { getApiErrorMessage as mutationErrorMessage } from "@/api/api-error-message";
-
 export function isApiErrorResponse(body: unknown): body is ApiErrorResponse {
   if (typeof body !== "object" || body === null) {
     return false;

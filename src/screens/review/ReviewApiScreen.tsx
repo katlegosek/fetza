@@ -12,7 +12,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { getApiErrorMessage } from "@/api/api-error-message";
+import {
+  MUTATION_ERROR_FALLBACKS,
+  getApiErrorMessage,
+} from "@/api/api-error-message";
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
@@ -150,7 +153,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
         setReviewActionError(
           getApiErrorMessage(
             saveError,
-            "Couldn't save item. Please try again.",
+            MUTATION_ERROR_FALLBACKS.reviewSaveItem,
           ),
         );
         throw saveError;
@@ -179,7 +182,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
       setReviewActionError(
         getApiErrorMessage(
           deleteError,
-          "Couldn't remove item. Please try again.",
+          MUTATION_ERROR_FALLBACKS.reviewDeleteItem,
         ),
       );
       throw deleteError;
@@ -243,7 +246,10 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
         await invalidateBillQueries(queryClient, billId);
       } catch (saveError) {
         setReviewActionError(
-          getApiErrorMessage(saveError, "Couldn't save fee or tax."),
+          getApiErrorMessage(
+            saveError,
+            MUTATION_ERROR_FALLBACKS.reviewSaveAdjustment,
+          ),
         );
         throw saveError;
       } finally {
@@ -281,7 +287,10 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
       await invalidateBillQueries(queryClient, billId);
     } catch (deleteError) {
       setReviewActionError(
-        getApiErrorMessage(deleteError, "Couldn't remove fee or tax."),
+        getApiErrorMessage(
+          deleteError,
+          MUTATION_ERROR_FALLBACKS.reviewDeleteAdjustment,
+        ),
       );
       throw deleteError;
     } finally {
