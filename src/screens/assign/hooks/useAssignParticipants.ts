@@ -1,7 +1,6 @@
 import { type Dispatch, type SetStateAction, useCallback } from "react";
 import { Alert } from "react-native";
 
-import { useBillParticipants } from "@/hooks";
 import {
   avatarTonesForPaletteIndex,
   memberChipBorderToneForIndex,
@@ -11,6 +10,7 @@ import {
   participantInputFromAssignSave,
   validateAssignParticipantSave,
 } from "@/screens/assign/assign.schema";
+import { useBillParticipants } from "@/services/participants/participant.hooks";
 
 export type UseAssignParticipantsOptions = {
   billId: number;

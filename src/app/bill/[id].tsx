@@ -18,18 +18,15 @@ import {
   ScreenContainer,
   ScreenHeader,
 } from "@/components";
-import {
-  useBillParticipants,
-  useBillSummary,
-  usePullToRefresh,
-  useThemeColors,
-} from "@/hooks";
+import { usePullToRefresh, useThemeColors } from "@/hooks";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
+import { useBillSummary } from "@/services/bills/bill.hooks";
 import type {
   BillSummary,
   BillSummaryAdjustment,
   BillSummaryParticipant,
 } from "@/services/bills/bill.types";
+import { useBillParticipants } from "@/services/participants/participant.hooks";
 import { formatMoneyFromCents } from "@/utils/money";
 import { parseBillId } from "@/utils/parse-bill-id";
 import { participantInitials } from "@/utils/participant";

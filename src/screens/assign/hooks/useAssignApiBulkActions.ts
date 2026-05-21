@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Alert } from "react-native";
 
-import { useBillBulkAssignments } from "@/hooks";
+import { useBillBulkAssignments } from "@/services/assignments/assignment.hooks";
 
 export type UseAssignApiBulkActionsOptions = {
   billId: number;

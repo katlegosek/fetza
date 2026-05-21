@@ -1,7 +1,7 @@
 import { type Dispatch, type SetStateAction, useCallback } from "react";
 
-import { useReplaceItemAssignments } from "@/hooks";
 import type { Assignments } from "@/screens/assign/assign.constants";
+import { useReplaceItemAssignments } from "@/services/assignments/assignment.hooks";
 
 export type UseAssignItemMutationsOptions = {
   billId: number;

@@ -14,13 +14,16 @@ import {
   ScreenContainer,
   ScreenHeader,
 } from "@/components";
-import { useReceipt, useUploadReceiptImage } from "@/hooks";
 import {
   type ReceiptImageSource,
   buildReceiptUploadFormData,
   pickReceiptImage,
 } from "@/lib/receipt-upload";
 import { createBill } from "@/services/bills/bill.service";
+import {
+  useReceipt,
+  useUploadReceiptImage,
+} from "@/services/receipts/receipt.hooks";
 import { isReceiptProcessingComplete } from "@/services/receipts/receipt.hooks";
 import { parseBillId } from "@/utils/parse-bill-id";
 

@@ -32,7 +32,8 @@ import {
   ThermalReceipt,
   defaultAffectsTotalForKind,
 } from "@/components";
-import { useBill, usePullToRefresh, useThemeColors } from "@/hooks";
+import { usePullToRefresh, useThemeColors } from "@/hooks";
+import { useBill } from "@/services/bills/bill.hooks";
 import {
   createReceiptAdjustment,
   createReceiptItem,

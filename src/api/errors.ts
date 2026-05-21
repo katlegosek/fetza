@@ -2,7 +2,7 @@ import type {
   ApiErrorCode,
   ApiErrorPayload,
   ApiErrorResponse,
-} from "@/types/api";
+} from "@/api/api.types";
 
 export class ApiError extends Error {
   readonly status: number;
