@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 
-import { billQueryKeys } from "@/api/billApi";
+import { billQueryKeys } from "@/services/bills/bill.keys";
 
 export async function invalidateBillQueries(
   queryClient: QueryClient,

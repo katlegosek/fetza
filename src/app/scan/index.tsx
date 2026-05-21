@@ -21,6 +21,7 @@ import {
   buildReceiptUploadFormData,
   pickReceiptImage,
 } from "@/lib/receipt-upload";
+import { isReceiptProcessingComplete } from "@/services/receipts/receipt.hooks";
 import { parseBillId } from "@/utils/parse-bill-id";
 
 type ScanPhase = "idle" | "uploading" | "processing" | "failed";
@@ -48,7 +49,19 @@ export default function ScanScreen() {
   });
 
   const receiptStatus = receiptData?.receipt.status;
+  const processingRunStatus = receiptData?.processing_run?.status;
   const processingRunError = receiptData?.processing_run?.error_message;
+  const processingComplete = isReceiptProcessingComplete(
+    receiptStatus,
+    processingRunStatus,
+  );
+  const processingFailed =
+    receiptStatus === "failed" || processingRunStatus === "failed";
+  const processingSucceeded =
+    processingComplete &&
+    (receiptStatus === "ready" ||
+      receiptStatus === "confirmed" ||
+      processingRunStatus === "completed");
 
   useEffect(() => {
     if (phase !== "processing" || receiptStatus !== "processing") {
@@ -69,21 +82,24 @@ export default function ScanScreen() {
       return;
     }
 
-    if (receiptStatus === "ready" || receiptStatus === "confirmed") {
+    if (processingSucceeded) {
       navigatedRef.current = true;
       const targetBillId = receiptData?.receipt.bill_id ?? billId;
 
-      void invalidateBillQueries(queryClient, targetBillId).then(() => {
-        router.replace({
-          pathname: "/scan/review",
-          params: { billId: String(targetBillId) },
-        });
+      setPhase("idle");
+      setReceiptId(0);
+
+      router.replace({
+        pathname: "/scan/review",
+        params: { billId: String(targetBillId) },
       });
+      void invalidateBillQueries(queryClient, targetBillId);
       return;
     }
 
-    if (receiptStatus === "failed") {
+    if (processingFailed) {
       setPhase("failed");
+      setReceiptId(0);
       setScanError(
         processingRunError?.trim() ||
           "We couldn't read this receipt. Try again with a clearer photo.",
@@ -92,10 +108,11 @@ export default function ScanScreen() {
   }, [
     billId,
     phase,
+    processingFailed,
     processingRunError,
+    processingSucceeded,
     queryClient,
     receiptData?.receipt.bill_id,
-    receiptStatus,
     router,
   ]);
 
@@ -182,12 +199,12 @@ export default function ScanScreen() {
       return 0;
     }
 
-    if (receiptStatus === "ready" || receiptStatus === "confirmed") {
+    if (processingSucceeded) {
       return 3;
     }
 
     return processingStepIndex;
-  }, [phase, processingStepIndex, receiptStatus]);
+  }, [phase, processingStepIndex, processingSucceeded]);
 
   const rescanHint =
     existingBillId > 0
@@ -226,9 +243,7 @@ export default function ScanScreen() {
         {showProcessing ? (
           <ReceiptProcessingCard
             activeStepIndex={activeStepIndex}
-            allComplete={
-              receiptStatus === "ready" || receiptStatus === "confirmed"
-            }
+            allComplete={processingSucceeded}
           />
         ) : phase === "failed" ? (
           <View className="gap-4">
