@@ -9,7 +9,7 @@ import {
   useBottomSheetAppearance,
 } from "@/components/organisms";
 import { parseSignedMoneyInputToCents } from "@/lib/helper";
-import type { ReceiptAdjustmentKind } from "@/services/receipts/receipt.types";
+import type { ReceiptAdjustmentKind } from "@/services/receipts/types";
 
 export type ReviewAdjustmentSavePayload = {
   label: string;

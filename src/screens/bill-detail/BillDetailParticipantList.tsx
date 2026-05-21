@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { AppText } from "@/components";
 import { BillDetailParticipantRow } from "@/screens/bill-detail/BillDetailParticipantRow";
 import { sortBillDetailParticipants } from "@/screens/bill-detail/bill-detail.helpers";
-import type { BillSummaryParticipant } from "@/services/bills/bill.types";
+import type { BillSummaryParticipant } from "@/services/bills/types";
 
 export type BillDetailParticipantListProps = {
   participants: BillSummaryParticipant[];

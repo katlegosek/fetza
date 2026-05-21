@@ -4,7 +4,7 @@ import { sumLineAmountsCents } from "@/lib/helper";
 import type { MockAssignments } from "@/reference/mock-flow/assign-mock.helpers";
 import type { Assignments } from "@/screens/assign/assign.constants";
 import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
-import type { BillSummary } from "@/services/bills/bill.types";
+import type { BillSummary } from "@/services/bills/types";
 import type { DraftBill, ReceiptLine } from "@/types/draft-bill";
 
 export type UseAssignMockDataOptions = {

@@ -4,7 +4,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
-import type { BillSummaryParticipant } from "@/services/bills/bill.types";
+import type { BillSummaryParticipant } from "@/services/bills/types";
 import { formatMoneyFromCents } from "@/utils/money";
 import { participantInitials } from "@/utils/participant";
 

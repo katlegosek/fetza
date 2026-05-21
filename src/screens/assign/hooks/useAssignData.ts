@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 import type { Assignments } from "@/screens/assign/assign.constants";
 import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
-import type { BillSummary } from "@/services/bills/bill.types";
+import type { BillSummary } from "@/services/bills/types";
 
 export type UseAssignDataOptions = {
   lines: AssignLine[];

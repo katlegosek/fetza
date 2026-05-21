@@ -1,14 +1,13 @@
 import { apiMultipartRequest, apiRequest } from "@/api/client";
-import { parseApiResponse } from "@/api/parse-api-response";
-import { receiptEndpoints } from "@/services/receipts/receipt.endpoints";
 import {
-  ReceiptAdjustmentDeleteResponseSchema,
-  ReceiptAdjustmentMutationResponseSchema,
-  ReceiptImageUploadResponseSchema,
-  ReceiptItemDeleteResponseSchema,
-  ReceiptItemMutationResponseSchema,
-  ReceiptShowResponseSchema,
-} from "@/services/receipts/receipt.schema";
+  parseReceiptAdjustmentDeleteResponse,
+  parseReceiptAdjustmentMutationResponse,
+  parseReceiptItemDeleteResponse,
+  parseReceiptItemMutationResponse,
+  parseReceiptShowResponse,
+  parseReceiptUploadResponse,
+} from "@/services/receipts/receipt.model";
+import { receiptUrls } from "@/services/receipts/receipt.urls";
 import type {
   ReceiptAdjustmentDeleteResponse,
   ReceiptAdjustmentInput,
@@ -18,13 +17,13 @@ import type {
   ReceiptItemMutationResponse,
   ReceiptShowResponse,
   ReceiptUploadResponse,
-} from "@/services/receipts/receipt.types";
+} from "@/services/receipts/types";
 
 export async function getReceipt(
   receiptId: number,
 ): Promise<ReceiptShowResponse> {
-  const data = await apiRequest<unknown>(receiptEndpoints.receipt(receiptId));
-  return parseApiResponse(ReceiptShowResponseSchema, data);
+  const data = await apiRequest<unknown>(receiptUrls.receipt(receiptId));
+  return parseReceiptShowResponse(data);
 }
 
 export async function uploadReceiptImage(
@@ -32,24 +31,21 @@ export async function uploadReceiptImage(
   formData: FormData,
 ): Promise<ReceiptUploadResponse> {
   const data = await apiMultipartRequest<unknown>(
-    receiptEndpoints.billReceiptImages(billId),
+    receiptUrls.billReceiptImages(billId),
     { formData },
   );
-  return parseApiResponse(ReceiptImageUploadResponseSchema, data);
+  return parseReceiptUploadResponse(data);
 }
 
 export async function createReceiptItem(
   billId: number,
   receiptItem: ReceiptItemInput,
 ): Promise<ReceiptItemMutationResponse> {
-  const data = await apiRequest<unknown>(
-    receiptEndpoints.billReceiptItems(billId),
-    {
-      method: "POST",
-      body: { receipt_item: receiptItem },
-    },
-  );
-  return parseApiResponse(ReceiptItemMutationResponseSchema, data);
+  const data = await apiRequest<unknown>(receiptUrls.billReceiptItems(billId), {
+    method: "POST",
+    body: { receipt_item: receiptItem },
+  });
+  return parseReceiptItemMutationResponse(data);
 }
 
 export async function updateReceiptItem(
@@ -57,25 +53,25 @@ export async function updateReceiptItem(
   receiptItem: Partial<ReceiptItemInput>,
 ): Promise<ReceiptItemMutationResponse> {
   const data = await apiRequest<unknown>(
-    receiptEndpoints.receiptItem(receiptItemId),
+    receiptUrls.receiptItem(receiptItemId),
     {
       method: "PATCH",
       body: { receipt_item: receiptItem },
     },
   );
-  return parseApiResponse(ReceiptItemMutationResponseSchema, data);
+  return parseReceiptItemMutationResponse(data);
 }
 
 export async function deleteReceiptItem(
   receiptItemId: number,
 ): Promise<ReceiptItemDeleteResponse> {
   const data = await apiRequest<unknown>(
-    receiptEndpoints.receiptItem(receiptItemId),
+    receiptUrls.receiptItem(receiptItemId),
     {
       method: "DELETE",
     },
   );
-  return parseApiResponse(ReceiptItemDeleteResponseSchema, data);
+  return parseReceiptItemDeleteResponse(data);
 }
 
 export async function createReceiptAdjustment(
@@ -83,13 +79,13 @@ export async function createReceiptAdjustment(
   receiptAdjustment: ReceiptAdjustmentInput,
 ): Promise<ReceiptAdjustmentMutationResponse> {
   const data = await apiRequest<unknown>(
-    receiptEndpoints.receiptAdjustments(receiptId),
+    receiptUrls.receiptAdjustments(receiptId),
     {
       method: "POST",
       body: { receipt_adjustment: receiptAdjustment },
     },
   );
-  return parseApiResponse(ReceiptAdjustmentMutationResponseSchema, data);
+  return parseReceiptAdjustmentMutationResponse(data);
 }
 
 export async function updateReceiptAdjustment(
@@ -97,23 +93,23 @@ export async function updateReceiptAdjustment(
   receiptAdjustment: Partial<ReceiptAdjustmentInput>,
 ): Promise<ReceiptAdjustmentMutationResponse> {
   const data = await apiRequest<unknown>(
-    receiptEndpoints.receiptAdjustment(adjustmentId),
+    receiptUrls.receiptAdjustment(adjustmentId),
     {
       method: "PATCH",
       body: { receipt_adjustment: receiptAdjustment },
     },
   );
-  return parseApiResponse(ReceiptAdjustmentMutationResponseSchema, data);
+  return parseReceiptAdjustmentMutationResponse(data);
 }
 
 export async function deleteReceiptAdjustment(
   adjustmentId: number,
 ): Promise<ReceiptAdjustmentDeleteResponse> {
   const data = await apiRequest<unknown>(
-    receiptEndpoints.receiptAdjustment(adjustmentId),
+    receiptUrls.receiptAdjustment(adjustmentId),
     {
       method: "DELETE",
     },
   );
-  return parseApiResponse(ReceiptAdjustmentDeleteResponseSchema, data);
+  return parseReceiptAdjustmentDeleteResponse(data);
 }

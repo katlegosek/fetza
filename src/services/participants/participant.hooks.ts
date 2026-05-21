@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import { billQueryKeys } from "@/services/bills/bill.keys";
-import type { BillSummary } from "@/services/bills/bill.types";
+import type { BillSummary } from "@/services/bills/types";
 import {
   createParticipant,
   deleteParticipant,
@@ -12,7 +12,7 @@ import type {
   ParticipantDeleteResponse,
   ParticipantInput,
   ParticipantMutationResponse,
-} from "@/services/participants/participant.types";
+} from "@/services/participants/types";
 import { applyOptimisticParticipantSettled } from "@/utils/bill-summary-settled";
 
 type ParticipantMutationResponseLike = {

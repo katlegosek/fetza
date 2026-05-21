@@ -11,7 +11,7 @@ import { isApiError } from "@/api/errors";
 import { AppText, Button, ScreenContainer } from "@/components";
 import { usePullToRefresh } from "@/hooks";
 import { useBills } from "@/services/bills/bill.hooks";
-import type { BillIndexItem } from "@/services/bills/bill.types";
+import type { BillIndexItem } from "@/services/bills/types";
 import { formatMoneyFromCents } from "@/utils/money";
 
 function formatBillDisplayDate(bill: BillIndexItem): string {

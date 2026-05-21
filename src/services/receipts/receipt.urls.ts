@@ -1,4 +1,4 @@
-export const receiptEndpoints = {
+export const receiptUrls = {
   receipt: (receiptId: number) => `/receipts/${receiptId}`,
   billReceiptImages: (billId: number) => `/bills/${billId}/receipt_images`,
   billReceiptItems: (billId: number) => `/bills/${billId}/receipt_items`,

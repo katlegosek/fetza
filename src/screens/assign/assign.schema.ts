@@ -2,7 +2,7 @@ import type { ZodError } from "zod";
 import { z } from "zod";
 
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
-import type { ParticipantInput } from "@/services/participants/participant.types";
+import type { ParticipantInput } from "@/services/participants/types";
 import { participantInitials } from "@/utils/participant";
 
 export const AssignParticipantSaveSchema = z.object({

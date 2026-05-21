@@ -1,4 +1,4 @@
-export const assignmentEndpoints = {
+export const assignmentUrls = {
   receiptItemAssignments: (receiptItemId: number) =>
     `/receipt_items/${receiptItemId}/assignments`,
   splitAllEqually: (billId: number) => `/bills/${billId}/split_all_equally`,

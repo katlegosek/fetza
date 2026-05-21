@@ -9,9 +9,9 @@ import {
   splitAllEqually,
   splitUnassignedEqually,
 } from "@/services/assignments/assignment.service";
-import type { BillSummaryMutationResponse } from "@/services/assignments/assignment.types";
+import type { BillSummaryMutationResponse } from "@/services/assignments/types";
 import { billQueryKeys } from "@/services/bills/bill.keys";
-import type { BillShowResponse } from "@/services/bills/bill.types";
+import type { BillShowResponse } from "@/services/bills/types";
 
 export type ReplaceItemAssignmentsVariables = {
   receiptItemId: number;

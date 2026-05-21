@@ -1,28 +1,27 @@
 import { apiRequest } from "@/api/client";
-import { parseApiResponse } from "@/api/parse-api-response";
-import { participantEndpoints } from "@/services/participants/participant.endpoints";
 import {
-  ParticipantDeleteResponseSchema,
-  ParticipantMutationResponseSchema,
-} from "@/services/participants/participant.schema";
+  parseParticipantDeleteResponse,
+  parseParticipantMutationResponse,
+} from "@/services/participants/participant.model";
+import { participantUrls } from "@/services/participants/participant.urls";
 import type {
   ParticipantDeleteResponse,
   ParticipantInput,
   ParticipantMutationResponse,
-} from "@/services/participants/participant.types";
+} from "@/services/participants/types";
 
 export async function createParticipant(
   billId: number,
   participant: ParticipantInput,
 ): Promise<ParticipantMutationResponse> {
   const data = await apiRequest<unknown>(
-    participantEndpoints.billParticipants(billId),
+    participantUrls.billParticipants(billId),
     {
       method: "POST",
       body: { participant },
     },
   );
-  return parseApiResponse(ParticipantMutationResponseSchema, data);
+  return parseParticipantMutationResponse(data);
 }
 
 export async function updateParticipant(
@@ -30,23 +29,23 @@ export async function updateParticipant(
   participant: Partial<ParticipantInput>,
 ): Promise<ParticipantMutationResponse> {
   const data = await apiRequest<unknown>(
-    participantEndpoints.participant(participantId),
+    participantUrls.participant(participantId),
     {
       method: "PATCH",
       body: { participant },
     },
   );
-  return parseApiResponse(ParticipantMutationResponseSchema, data);
+  return parseParticipantMutationResponse(data);
 }
 
 export async function deleteParticipant(
   participantId: number,
 ): Promise<ParticipantDeleteResponse> {
   const data = await apiRequest<unknown>(
-    participantEndpoints.participant(participantId),
+    participantUrls.participant(participantId),
     {
       method: "DELETE",
     },
   );
-  return parseApiResponse(ParticipantDeleteResponseSchema, data);
+  return parseParticipantDeleteResponse(data);
 }

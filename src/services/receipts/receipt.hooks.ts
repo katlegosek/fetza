@@ -7,7 +7,7 @@ import {
 import type {
   ProcessingRunStatus,
   ReceiptStatus,
-} from "@/services/receipts/receipt.types";
+} from "@/services/receipts/types";
 
 export const receiptQueryKeys = {
   all: ["receipts"] as const,

@@ -1,4 +1,4 @@
-import type { BillSummaryParticipant } from "@/services/bills/bill.types";
+import type { BillSummaryParticipant } from "@/services/bills/types";
 
 export function sortBillDetailParticipants(
   participants: BillSummaryParticipant[],
