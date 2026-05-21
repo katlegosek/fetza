@@ -28,13 +28,17 @@ import {
   ReviewOverflowMenu,
   ReviewTotalsSheet,
   ScreenContainer,
-  ScreenEmptyState,
   ScreenErrorState,
   ScreenHeader,
   ScreenLoadingState,
   ThermalReceipt,
   defaultAffectsTotalForKind,
 } from "@/components";
+import {
+  FEEDBACK_MESSAGES,
+  REVIEW_FEEDBACK_CONTAINER_CLASS,
+  SCREEN_TITLES,
+} from "@/components/feedback/screen-feedback-copy";
 import { usePullToRefresh, useThemeColors } from "@/hooks";
 import { billShowToReceiptView } from "@/screens/review/mappers/bill-to-receipt-view";
 import { useBill } from "@/services/bills/bill.hooks";
@@ -49,6 +53,7 @@ import {
 import { formatMoneyFromCents } from "@/utils/money";
 
 import { ReviewBottomBar } from "@/screens/review/ReviewBottomBar";
+import { ReviewEmptyState } from "@/screens/review/ReviewEmptyState";
 import {
   NEW_RECEIPT_ADJUSTMENT_ID,
   NEW_RECEIPT_ITEM_ID,
@@ -343,48 +348,36 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
   const floatingActionScrollClearance = reviewFloatingActionScrollClearance(
     insets.bottom,
   );
-  const headerTitle = data?.bill.title ?? "Review";
+  const headerTitle = data?.bill.title ?? SCREEN_TITLES.review;
+  const handleBack = useCallback(() => router.back(), [router]);
 
   if (isLoading) {
     return (
       <ScreenLoadingState
         title={headerTitle}
-        message="Loading receipt…"
-        onBack={() => router.back()}
-        containerClassName="bg-background"
+        message={FEEDBACK_MESSAGES.reviewLoading}
+        onBack={handleBack}
+        containerClassName={REVIEW_FEEDBACK_CONTAINER_CLASS}
         loadingAccessibilityLabel="Loading receipt"
       />
     );
   }
 
   if (isError) {
-    const message = getApiErrorMessage(
-      error,
-      "Something went wrong loading this receipt.",
-    );
-
     return (
       <ScreenErrorState
         title={headerTitle}
-        message={message}
-        onBack={() => router.back()}
+        message={getApiErrorMessage(error, FEEDBACK_MESSAGES.reviewLoadError)}
+        onBack={handleBack}
         actionLabel="Try again"
         onAction={() => void refetch()}
-        containerClassName="bg-background"
+        containerClassName={REVIEW_FEEDBACK_CONTAINER_CLASS}
       />
     );
   }
 
   if (!data || !draft) {
-    return (
-      <ScreenEmptyState
-        title={headerTitle}
-        message="No receipt data for this bill."
-        onBack={() => router.back()}
-        onAction={() => router.back()}
-        containerClassName="bg-background"
-      />
-    );
+    return <ReviewEmptyState title={headerTitle} onBack={handleBack} />;
   }
 
   const showEmptyItemsHint = itemCount === 0;

@@ -1,4 +1,10 @@
 import { ScreenEmptyState } from "@/components/feedback";
+import {
+  CENTERED_EMPTY_CONTAINER_CLASS,
+  CENTERED_EMPTY_MESSAGE_CLASS,
+  FEEDBACK_MESSAGES,
+  SCREEN_TITLES,
+} from "@/components/feedback/screen-feedback-copy";
 
 export type AssignEmptyStateVariant =
   | "invalid-bill"
@@ -14,10 +20,10 @@ export type AssignEmptyStateProps = {
 };
 
 const MESSAGES: Record<AssignEmptyStateVariant, string> = {
-  "invalid-bill": "This bill link is invalid.",
-  "no-assignment-data": "No assignment data for this bill.",
-  "no-lines": "No receipt items to assign on this bill yet.",
-  "no-participants": "No participants on this bill yet.",
+  "invalid-bill": FEEDBACK_MESSAGES.invalidBillLink,
+  "no-assignment-data": FEEDBACK_MESSAGES.assignNoAssignmentData,
+  "no-lines": FEEDBACK_MESSAGES.assignNoLines,
+  "no-participants": FEEDBACK_MESSAGES.assignNoParticipants,
 };
 
 export const AssignEmptyState = ({
@@ -34,8 +40,8 @@ export const AssignEmptyState = ({
       <ScreenEmptyState
         message={message}
         showHeader={false}
-        containerClassName="items-center justify-center px-6"
-        messageClassName="text-center text-base text-muted-foreground"
+        containerClassName={CENTERED_EMPTY_CONTAINER_CLASS}
+        messageClassName={CENTERED_EMPTY_MESSAGE_CLASS}
         actionLabel="Go back"
         onAction={onBack}
       />
@@ -44,7 +50,7 @@ export const AssignEmptyState = ({
 
   return (
     <ScreenEmptyState
-      title="Assign Items"
+      title={SCREEN_TITLES.assign}
       topHint={showHeader ? merchantTopHint : undefined}
       message={message}
       showHeader={showHeader}

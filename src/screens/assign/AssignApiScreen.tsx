@@ -13,6 +13,10 @@ import {
   ScreenHeader,
   ScreenLoadingState,
 } from "@/components";
+import {
+  FEEDBACK_MESSAGES,
+  SCREEN_TITLES,
+} from "@/components/feedback/screen-feedback-copy";
 import { useThemeColors } from "@/hooks";
 import { AssignBottomBar } from "@/screens/assign/AssignBottomBar";
 import { AssignEmptyState } from "@/screens/assign/AssignEmptyState";
@@ -117,38 +121,36 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
     [activeMemberIdRef, toggleAssignment],
   );
 
+  const handleBack = useCallback(() => router.back(), [router]);
+
   const handleSummary = useCallback(() => {
     router.push(`/bill/${billId}`);
   }, [billId, router]);
 
   if (billId <= 0) {
-    return (
-      <AssignEmptyState variant="invalid-bill" onBack={() => router.back()} />
-    );
+    return <AssignEmptyState variant="invalid-bill" onBack={handleBack} />;
   }
 
   if (isLoading) {
     return (
       <ScreenLoadingState
-        title="Assign Items"
-        message="Loading bill…"
-        onBack={() => router.back()}
+        title={SCREEN_TITLES.assign}
+        message={FEEDBACK_MESSAGES.assignLoading}
+        onBack={handleBack}
         loadingAccessibilityLabel="Loading bill assignments"
       />
     );
   }
 
   if (isError) {
-    const message = getApiErrorMessage(
-      loadError,
-      "Something went wrong loading this bill.",
-    );
-
     return (
       <ScreenErrorState
-        title="Assign Items"
-        message={message}
-        onBack={() => router.back()}
+        title={SCREEN_TITLES.assign}
+        message={getApiErrorMessage(
+          loadError,
+          FEEDBACK_MESSAGES.assignLoadError,
+        )}
+        onBack={handleBack}
         actionLabel="Try again"
         onAction={() => {
           void refetchBill();
@@ -160,10 +162,7 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
 
   if (!billData || !summaryData || !apiAssignData) {
     return (
-      <AssignEmptyState
-        variant="no-assignment-data"
-        onBack={() => router.back()}
-      />
+      <AssignEmptyState variant="no-assignment-data" onBack={handleBack} />
     );
   }
 
@@ -172,7 +171,7 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
       <AssignEmptyState
         variant="no-lines"
         merchantTopHint={merchantTopHint}
-        onBack={() => router.back()}
+        onBack={handleBack}
         onReviewReceipt={() =>
           router.push({
             pathname: "/scan/review",
@@ -188,7 +187,7 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
       <AssignEmptyState
         variant="no-participants"
         merchantTopHint={merchantTopHint}
-        onBack={() => router.back()}
+        onBack={handleBack}
       />
     );
   }
@@ -205,9 +204,9 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
     <ScreenContainer className="flex-1">
       <ScreenHeader
         className="pb-4"
-        title="Assign Items"
+        title={SCREEN_TITLES.assign}
         topHint={merchantTopHint}
-        onBack={() => router.back()}
+        onBack={handleBack}
         rightSlot={
           <Pressable
             accessibilityLabel="More options"

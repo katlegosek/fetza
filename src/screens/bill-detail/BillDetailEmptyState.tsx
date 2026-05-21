@@ -1,4 +1,8 @@
 import { ScreenEmptyState } from "@/components/feedback";
+import {
+  FEEDBACK_MESSAGES,
+  SCREEN_TITLES,
+} from "@/components/feedback/screen-feedback-copy";
 import type { BillDetailEmptyStateVariant } from "@/screens/bill-detail/bill-detail.types";
 
 export type BillDetailEmptyStateProps = {
@@ -8,13 +12,13 @@ export type BillDetailEmptyStateProps = {
 };
 
 const MESSAGES: Record<BillDetailEmptyStateVariant, string> = {
-  "invalid-bill": "This bill link is invalid.",
-  "no-data": "No summary data for this bill.",
+  "invalid-bill": FEEDBACK_MESSAGES.invalidBillLink,
+  "no-data": FEEDBACK_MESSAGES.billDetailNoData,
 };
 
 export const BillDetailEmptyState = ({
   variant,
-  title = "Summary",
+  title = SCREEN_TITLES.billDetail,
   onBack,
 }: BillDetailEmptyStateProps) => {
   return (

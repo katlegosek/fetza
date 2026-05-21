@@ -9,6 +9,7 @@ import {
   ScreenHeader,
   ScreenLoadingState,
 } from "@/components";
+import { FEEDBACK_MESSAGES } from "@/components/feedback/screen-feedback-copy";
 import { BillDetailActions } from "@/screens/bill-detail/BillDetailActions";
 import { BillDetailAdjustmentsSection } from "@/screens/bill-detail/BillDetailAdjustmentsSection";
 import { BillDetailEmptyState } from "@/screens/bill-detail/BillDetailEmptyState";
@@ -48,7 +49,7 @@ export const BillDetailScreen = ({ billId }: BillDetailScreenProps) => {
     return (
       <ScreenLoadingState
         title={headerTitle}
-        message="Loading bill summary…"
+        message={FEEDBACK_MESSAGES.billDetailLoading}
         onBack={handleBack}
         loadingAccessibilityLabel="Loading bill summary"
       />

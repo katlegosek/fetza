@@ -2,6 +2,8 @@ import { useRouter } from "expo-router";
 
 import { ScreenEmptyState } from "@/components/feedback/ScreenEmptyState";
 
+/** Route-level empty state when `billId` is missing (scan flows). */
+
 export type MissingBillStateProps = {
   title: string;
   message: string;
