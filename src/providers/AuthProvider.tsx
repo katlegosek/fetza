@@ -11,13 +11,14 @@ import {
 
 import { isApiError } from "@/api/errors";
 import { isAuthEnabled } from "@/lib/auth-config";
+import { isAuthSessionError } from "@/services/auth/auth.errors";
 import { authKeys } from "@/services/auth/auth.keys";
 import {
-  getCurrentUser,
   login as loginService,
   logout as logoutService,
+  restoreSession,
 } from "@/services/auth/auth.service";
-import { clearAuthTokens, getAccessToken } from "@/services/auth/auth.storage";
+import { getAccessToken } from "@/services/auth/auth.storage";
 import type { AuthUser, LoginPayload } from "@/services/auth/types";
 import { billQueryKeys } from "@/services/bills/bill.keys";
 
@@ -32,6 +33,13 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+async function syncHasToken(
+  setHasToken: (value: boolean) => void,
+): Promise<void> {
+  const token = await getAccessToken();
+  setHasToken(Boolean(token));
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
@@ -64,38 +72,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const {
     data: user,
-    error: userError,
-    isPending: isUserPending,
-    isFetching: isUserFetching,
-    refetch: refetchUser,
+    error: sessionError,
+    isPending: isSessionPending,
+    isFetching: isSessionFetching,
+    refetch: refetchSession,
   } = useQuery({
     queryKey: authKeys.currentUser(),
-    queryFn: getCurrentUser,
+    queryFn: restoreSession,
     enabled: authEnabled && hasToken && tokenChecked,
     retry: false,
   });
 
   useEffect(() => {
-    if (!authEnabled || !userError) {
+    if (!authEnabled || !sessionError) {
       return;
     }
 
-    if (!isApiError(userError) || userError.status !== 401) {
-      return;
+    if (isAuthSessionError(sessionError) || isApiError(sessionError)) {
+      void syncHasToken(setHasToken);
     }
-
-    async function handleUnauthorized() {
-      await clearAuthTokens();
-      setHasToken(false);
-      queryClient.removeQueries({ queryKey: authKeys.all });
-    }
-
-    void handleUnauthorized();
-  }, [authEnabled, queryClient, userError]);
+  }, [authEnabled, sessionError]);
 
   const isLoadingAuth =
     !tokenChecked ||
-    (authEnabled && hasToken && (isUserPending || isUserFetching) && !user);
+    (authEnabled &&
+      hasToken &&
+      (isSessionPending || isSessionFetching) &&
+      user === undefined &&
+      !sessionError);
 
   const isAuthenticated = authEnabled ? hasToken : true;
 
@@ -121,15 +125,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    await syncHasToken(setHasToken);
     const token = await getAccessToken();
-    setHasToken(Boolean(token));
 
     if (!token) {
       return;
     }
 
-    await refetchUser();
-  }, [authEnabled, refetchUser]);
+    await refetchSession();
+  }, [authEnabled, refetchSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

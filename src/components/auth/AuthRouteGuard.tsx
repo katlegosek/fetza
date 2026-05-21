@@ -25,7 +25,7 @@ export function AuthRouteGuard({ children }: { children: ReactNode }) {
     }
 
     if (isAuthenticated && inAuthGroup) {
-      router.replace("/");
+      router.replace("/" as never);
     }
   }, [inAuthGroup, isAuthenticated, isAuthEnabled, isLoadingAuth, router]);
 

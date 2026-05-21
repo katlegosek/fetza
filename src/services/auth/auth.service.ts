@@ -1,4 +1,6 @@
 import { apiRequest } from "@/api/client";
+import { isApiError } from "@/api/errors";
+import { AuthSessionError } from "@/services/auth/auth.errors";
 import { loginModel, meModel } from "@/services/auth/auth.model";
 import {
   clearAuthTokens,
@@ -42,9 +44,16 @@ export async function getCurrentUser(): Promise<AuthUser> {
 
 export async function refreshSession(): Promise<AuthSession> {
   const refreshToken = await getRefreshToken();
+
+  if (!refreshToken) {
+    throw new AuthSessionError(
+      "No refresh token available. Please sign in again.",
+    );
+  }
+
   const data = await apiRequest<unknown>(authUrls.refresh(), {
     method: "POST",
-    body: refreshToken ? { refresh_token: refreshToken } : {},
+    body: { refresh_token: refreshToken },
   });
   const session = loginModel(data);
   await setAuthTokens({
@@ -52,4 +61,30 @@ export async function refreshSession(): Promise<AuthSession> {
     refreshToken: session.refresh_token,
   });
   return session;
+}
+
+/** Load the current user, refreshing tokens once on 401. Clears tokens if session cannot be restored. */
+export async function restoreSession(): Promise<AuthUser> {
+  try {
+    return await getCurrentUser();
+  } catch (error) {
+    if (!isApiError(error) || error.status !== 401) {
+      throw error;
+    }
+
+    const refreshToken = await getRefreshToken();
+
+    if (!refreshToken) {
+      await clearAuthTokens();
+      throw new AuthSessionError("Session expired. Please sign in again.");
+    }
+
+    try {
+      await refreshSession();
+      return await getCurrentUser();
+    } catch (refreshError) {
+      await clearAuthTokens();
+      throw refreshError;
+    }
+  }
 }

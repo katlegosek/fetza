@@ -7,10 +7,15 @@ export {
 } from "@/services/auth/auth.hooks";
 export { loginModel, meModel } from "@/services/auth/auth.model";
 export {
+  AuthSessionError,
+  isAuthSessionError,
+} from "@/services/auth/auth.errors";
+export {
   getCurrentUser,
   login,
   logout,
   refreshSession,
+  restoreSession,
 } from "@/services/auth/auth.service";
 export {
   clearAuthTokens,
