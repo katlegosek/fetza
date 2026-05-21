@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { authQueryKeys } from "@/services/auth/auth.keys";
+import { authKeys } from "@/services/auth/auth.keys";
 import {
   getCurrentUser,
   login,
@@ -8,15 +8,18 @@ import {
   refreshSession,
 } from "@/services/auth/auth.service";
 import type { LoginPayload } from "@/services/auth/types";
+import { billQueryKeys } from "@/services/bills/bill.keys";
 
 export function useLogin() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (payload: LoginPayload) => login(payload),
-    onSuccess: () => {
+    onSuccess: (session) => {
+      queryClient.setQueryData(authKeys.currentUser(), session.user);
+      queryClient.setQueryData(authKeys.session(), session);
       void queryClient.invalidateQueries({
-        queryKey: authQueryKeys.currentUser(),
+        queryKey: authKeys.currentUser(),
       });
     },
   });
@@ -28,15 +31,18 @@ export function useLogout() {
   return useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: authQueryKeys.all });
+      queryClient.removeQueries({ queryKey: authKeys.all });
+      queryClient.removeQueries({ queryKey: billQueryKeys.all });
     },
   });
 }
 
-export function useCurrentUser() {
+export function useCurrentUser(options?: { enabled?: boolean }) {
   return useQuery({
-    queryKey: authQueryKeys.currentUser(),
+    queryKey: authKeys.currentUser(),
     queryFn: getCurrentUser,
+    enabled: options?.enabled ?? false,
+    retry: false,
   });
 }
 
@@ -45,9 +51,11 @@ export function useRefreshSession() {
 
   return useMutation({
     mutationFn: refreshSession,
-    onSuccess: () => {
+    onSuccess: (session) => {
+      queryClient.setQueryData(authKeys.currentUser(), session.user);
+      queryClient.setQueryData(authKeys.session(), session);
       void queryClient.invalidateQueries({
-        queryKey: authQueryKeys.currentUser(),
+        queryKey: authKeys.currentUser(),
       });
     },
   });

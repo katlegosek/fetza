@@ -1,6 +1,7 @@
 import Constants from "expo-constants";
 
 import { ApiError } from "@/api/errors";
+import { getAccessToken } from "@/services/auth/auth.storage";
 
 const MOBILE_API_PREFIX = "/api/mobile/v1";
 
@@ -35,6 +36,14 @@ export function mobileApiPath(path: string): string {
   return `${MOBILE_API_PREFIX}${normalized}`;
 }
 
+function resolveMobileApiUrl(path: string): string {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  const apiPath = normalized.startsWith(MOBILE_API_PREFIX)
+    ? normalized
+    : mobileApiPath(normalized);
+  return `${getApiBaseUrl()}${apiPath}`;
+}
+
 // TODO(production): Remove ngrok header block — dev tunnel only. See docs/DEV_ONLY_TODOS.md
 /** ngrok free tier returns an HTML interstitial unless this header is sent. */
 function apiFetchHeaders(
@@ -47,6 +56,19 @@ function apiFetchHeaders(
 
   if (getApiBaseUrl().includes("ngrok")) {
     headers["ngrok-skip-browser-warning"] = "true";
+  }
+
+  return headers;
+}
+
+async function buildRequestHeaders(
+  extra: Record<string, string> = {},
+): Promise<Record<string, string>> {
+  const headers = apiFetchHeaders(extra);
+  const token = await getAccessToken();
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
 
   return headers;
@@ -70,13 +92,13 @@ export async function apiRequest<T>(
   options: ApiRequestOptions = {},
 ): Promise<T> {
   const { method = "GET", body } = options;
-  const url = `${getApiBaseUrl()}${mobileApiPath(path)}`;
+  const url = resolveMobileApiUrl(path);
 
   let response: Response;
   try {
     response = await fetch(url, {
       method,
-      headers: apiFetchHeaders(
+      headers: await buildRequestHeaders(
         body !== undefined ? { "Content-Type": "application/json" } : {},
       ),
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -99,13 +121,13 @@ export async function apiMultipartRequest<T>(
   options: ApiMultipartRequestOptions,
 ): Promise<T> {
   const { method = "POST", formData } = options;
-  const url = `${getApiBaseUrl()}${mobileApiPath(path)}`;
+  const url = resolveMobileApiUrl(path);
 
   let response: Response;
   try {
     response = await fetch(url, {
       method,
-      headers: apiFetchHeaders(),
+      headers: await buildRequestHeaders(),
       body: formData,
     });
   } catch {

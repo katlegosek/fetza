@@ -38,7 +38,8 @@
           "photosPermission": "Allow Fetza to choose receipt photos from your library.",
           "cameraPermission": "Allow Fetza to take photos of receipts."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

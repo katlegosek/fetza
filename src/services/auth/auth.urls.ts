@@ -1,7 +1,10 @@
-/** Path segments under `/api/mobile/v1` (see `mobileApiPath` in `@/api/client`). */
-export const authUrls = {
-  login: () => "/auth/login",
-  logout: () => "/auth/logout",
-  me: () => "/auth/me",
-  refresh: () => "/auth/refresh",
+const baseUrl = "/api/mobile/v1/auth";
+
+const authUrls = {
+  login: () => `${baseUrl}/login`,
+  logout: () => `${baseUrl}/logout`,
+  me: () => `${baseUrl}/me`,
+  refresh: () => `${baseUrl}/refresh`,
 } as const;
+
+export default authUrls;

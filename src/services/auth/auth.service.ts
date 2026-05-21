@@ -1,43 +1,55 @@
 import { apiRequest } from "@/api/client";
+import { loginModel, meModel } from "@/services/auth/auth.model";
 import {
-  parseLoginResponse,
-  parseMeResponse,
-} from "@/services/auth/auth.model";
-import { clearAccessToken, setAccessToken } from "@/services/auth/auth.storage";
-import { authUrls } from "@/services/auth/auth.urls";
+  clearAuthTokens,
+  getRefreshToken,
+  setAuthTokens,
+} from "@/services/auth/auth.storage";
+import authUrls from "@/services/auth/auth.urls";
 import type {
+  AuthSession,
+  AuthUser,
   LoginPayload,
-  LoginResponse,
-  MeResponse,
 } from "@/services/auth/types";
 
-export async function login(payload: LoginPayload): Promise<LoginResponse> {
+export async function login(payload: LoginPayload): Promise<AuthSession> {
   const data = await apiRequest<unknown>(authUrls.login(), {
     method: "POST",
     body: payload,
   });
-  const response = parseLoginResponse(data);
-  await setAccessToken(response.session.access_token);
-  return response;
+  const session = loginModel(data);
+  await setAuthTokens({
+    accessToken: session.access_token,
+    refreshToken: session.refresh_token,
+  });
+  return session;
 }
 
 export async function logout(): Promise<void> {
-  await apiRequest<unknown>(authUrls.logout(), { method: "POST" });
-  await clearAccessToken();
+  try {
+    await apiRequest<unknown>(authUrls.logout(), { method: "POST" });
+  } catch {
+    // Always clear local session even when the backend logout call fails.
+  } finally {
+    await clearAuthTokens();
+  }
 }
 
-export async function getCurrentUser(): Promise<MeResponse> {
-  // TODO(auth): attach Authorization header from getAccessToken() once Rails auth is wired
+export async function getCurrentUser(): Promise<AuthUser> {
   const data = await apiRequest<unknown>(authUrls.me());
-  return parseMeResponse(data);
+  return meModel(data);
 }
 
-export async function refreshSession(): Promise<LoginResponse> {
-  // TODO(auth): send refresh token when Rails auth refresh contract is defined
+export async function refreshSession(): Promise<AuthSession> {
+  const refreshToken = await getRefreshToken();
   const data = await apiRequest<unknown>(authUrls.refresh(), {
     method: "POST",
+    body: refreshToken ? { refresh_token: refreshToken } : {},
   });
-  const response = parseLoginResponse(data);
-  await setAccessToken(response.session.access_token);
-  return response;
+  const session = loginModel(data);
+  await setAuthTokens({
+    accessToken: session.access_token,
+    refreshToken: session.refresh_token,
+  });
+  return session;
 }

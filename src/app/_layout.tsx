@@ -6,28 +6,35 @@ import { Stack } from "expo-router";
 import { View } from "react-native";
 
 import { queryClient } from "@/api/queryClient";
+import { AuthRouteGuard } from "@/components/auth/AuthRouteGuard";
 import { useRootLayoutAppearance } from "@/hooks";
 import { NAV_THEME } from "@/lib/constants";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 export default function RootLayout() {
   const { scheme, rootClassName } = useRootLayoutAppearance();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={NAV_THEME[scheme]}>
-        <View className={rootClassName}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: "default",
-            }}
-          >
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="bill" />
-            <Stack.Screen name="scan" />
-          </Stack>
-        </View>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider value={NAV_THEME[scheme]}>
+          <View className={rootClassName}>
+            <AuthRouteGuard>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: "default",
+                }}
+              >
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="bill" />
+                <Stack.Screen name="scan" />
+                <Stack.Screen name="auth" />
+              </Stack>
+            </AuthRouteGuard>
+          </View>
+        </ThemeProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

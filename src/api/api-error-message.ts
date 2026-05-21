@@ -9,6 +9,7 @@ export const MUTATION_ERROR_FALLBACKS = {
   reviewSaveAdjustment: "Couldn't save fee or tax.",
   reviewDeleteAdjustment: "Couldn't remove fee or tax.",
   scanUploadReceipt: "Couldn't upload receipt. Try again.",
+  authLogin: "Could not sign in. Please try again.",
 } as const;
 
 /**
@@ -25,4 +26,13 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
   }
 
   return fallback;
+}
+
+/** Auth-specific copy when Rails mobile auth endpoints are missing or misconfigured. */
+export function getAuthErrorMessage(error: unknown, fallback: string): string {
+  if (isApiError(error) && error.status === 404) {
+    return "Sign-in is not available yet. Mobile auth endpoints are not enabled on the server.";
+  }
+
+  return getApiErrorMessage(error, fallback);
 }

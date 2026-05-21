@@ -3,12 +3,13 @@ import {
   LoginResponseSchema,
   MeResponseSchema,
 } from "@/services/auth/auth.schema";
-import type { LoginResponse, MeResponse } from "@/services/auth/types";
+import type { AuthSession, AuthUser } from "@/services/auth/types";
 
-export function parseLoginResponse(data: unknown): LoginResponse {
+export function loginModel(data: unknown): AuthSession {
   return parseApiResponse(LoginResponseSchema, data);
 }
 
-export function parseMeResponse(data: unknown): MeResponse {
-  return parseApiResponse(MeResponseSchema, data);
+export function meModel(data: unknown): AuthUser {
+  const response = parseApiResponse(MeResponseSchema, data);
+  return response.user;
 }
