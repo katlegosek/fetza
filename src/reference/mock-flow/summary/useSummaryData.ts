@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import type { SettlementMap } from "@/lib/member-settlement-storage";
+import type { SettlementMap } from "@/reference/mock-flow/lib/member-settlement-storage";
 import {
   buildSummaryModel,
   parseSummaryPayload,

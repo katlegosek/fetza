@@ -23,7 +23,7 @@ export type ClearReceiptSheetProps = {
 };
 
 /**
- * Destructive confirm sheet: matches review “Clear receipt?” mock — single primary action only.
+ * Destructive confirm sheet for clearing all receipt lines — single primary action only.
  */
 export function ClearReceiptSheet({
   visible,

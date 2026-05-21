@@ -23,13 +23,6 @@ export {
   type ScreenHeaderTextActionProps,
 } from "./screen-header";
 export {
-  SummaryTableSeat,
-  summaryTableSeatEdge,
-  type SummaryTableChairRect,
-  type SummaryTableSeatEdge,
-  type SummaryTableSeatProps,
-} from "./summary-table-seat";
-export {
   ReceiptProcessingCard,
   RECEIPT_PROCESSING_STEPS,
   type ReceiptProcessingCardProps,

@@ -5,8 +5,8 @@ import { AnimatedZarAmount, AppText } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { formatZAR } from "@/lib/helper";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
-import type { SettlementMap } from "@/lib/member-settlement-storage";
-import { isMemberSettled } from "@/lib/member-settlement-storage";
+import type { SettlementMap } from "@/reference/mock-flow/lib/member-settlement-storage";
+import { isMemberSettled } from "@/reference/mock-flow/lib/member-settlement-storage";
 import type { SummaryMember } from "@/reference/mock-flow/summary/summary.constants";
 import {
   type AssignmentMap,

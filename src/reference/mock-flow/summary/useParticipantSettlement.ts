@@ -6,7 +6,7 @@ import {
   isMemberSettled,
   loadSettlementMap,
   saveMemberSettlement,
-} from "@/lib/member-settlement-storage";
+} from "@/reference/mock-flow/lib/member-settlement-storage";
 
 export function useParticipantSettlement(settlementBillId: string) {
   const [settlementByMember, setSettlementByMember] = useState<SettlementMap>(

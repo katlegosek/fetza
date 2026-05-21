@@ -1,10 +1,13 @@
 import { useMemo } from "react";
 import { View } from "react-native";
 
-import { type Person, TableScene } from "@/components";
 import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
-import type { SettlementMap } from "@/lib/member-settlement-storage";
-import { isMemberSettled } from "@/lib/member-settlement-storage";
+import {
+  type Person,
+  TableScene,
+} from "@/reference/mock-flow/components/tableScene";
+import type { SettlementMap } from "@/reference/mock-flow/lib/member-settlement-storage";
+import { isMemberSettled } from "@/reference/mock-flow/lib/member-settlement-storage";
 import type { SummaryMember } from "@/reference/mock-flow/summary/summary.constants";
 import {
   initials,

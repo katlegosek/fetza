@@ -1,7 +1,7 @@
 import { View } from "react-native";
 
 import { AppText } from "@/components";
-import type { SettlementMap } from "@/lib/member-settlement-storage";
+import type { SettlementMap } from "@/reference/mock-flow/lib/member-settlement-storage";
 import { SummaryBillTotalCard } from "@/reference/mock-flow/summary/SummaryBillTotalCard";
 import { SummaryParticipantRow } from "@/reference/mock-flow/summary/SummaryParticipantRow";
 import type { SummaryMember } from "@/reference/mock-flow/summary/summary.constants";
