@@ -32,6 +32,7 @@ export type AssignItemSheetProps = {
   /** Current assignees for this line when the sheet opens. */
   initialSelectedIds: string[];
   bottomInset?: number;
+  formatAmount?: (cents: number) => string;
   onClose: () => void;
   /** Persist chosen members for this line (may be empty). Ignored when `readOnly`. */
   onSave: (memberIds: string[]) => void;
@@ -54,10 +55,12 @@ export function AssignItemSheet({
   members,
   initialSelectedIds,
   bottomInset = 0,
+  formatAmount: formatAmountProp,
   onClose,
   onSave,
   readOnly = false,
 }: AssignItemSheetProps) {
+  const formatAmount = formatAmountProp ?? formatZAR;
   const colors = useThemeColors();
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -171,7 +174,7 @@ export function AssignItemSheet({
       : line?.description;
 
   const eachPaysAmount =
-    localIds.length === 0 ? "—" : formatZAR(perPersonCents);
+    localIds.length === 0 ? "—" : formatAmount(perPersonCents);
 
   const equalCardActive = equalAllSelected;
   const customCardActive = splitFocus === "custom" && !equalAllSelected;
@@ -235,7 +238,7 @@ export function AssignItemSheet({
             {qtyLabel ?? ""}
           </AppText>
           <AppText className="mt-0.5 text-base tabular-nums text-muted">
-            {formatZAR(line.amountCents)}
+            {formatAmount(line.amountCents)}
           </AppText>
 
           <AppText className="mt-4 text-[15px] font-semibold text-foreground">

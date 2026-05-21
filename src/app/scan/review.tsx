@@ -21,7 +21,7 @@ import {
   updateReceiptAdjustment,
   updateReceiptItem,
 } from "@/api/billApi";
-import { isApiError } from "@/api/errors";
+import { isApiError, mutationErrorMessage } from "@/api/errors";
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
@@ -56,6 +56,7 @@ import {
 } from "@/mocks/review-draft.mock";
 import { billShowToReceiptView } from "@/utils/bill-to-draft";
 import { formatMoneyFromCents } from "@/utils/money";
+import { parseBillId } from "@/utils/parse-bill-id";
 
 type SheetState =
   | { kind: "line"; lineId: string }
@@ -63,12 +64,6 @@ type SheetState =
   | { kind: "totals" }
   | { kind: "adjustment"; adjustmentId: string }
   | null;
-
-function parseBillId(raw: string | string[] | undefined): number {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
 
 // TODO(production): Remove notConnectedYet stubs — connect merchant/clear/rescan to API. See docs/DEV_ONLY_TODOS.md
 function notConnectedYet() {
@@ -80,10 +75,6 @@ function notConnectedYet() {
 
 const NEW_RECEIPT_ITEM_ID = "__new__";
 const NEW_RECEIPT_ADJUSTMENT_ID = "__new_adj__";
-
-function mutationErrorMessage(error: unknown, fallback: string): string {
-  return isApiError(error) ? error.message : fallback;
-}
 
 // TODO(production): Remove ReviewBillMock — API-only review with billId. See docs/DEV_ONLY_TODOS.md
 function ReviewBillMock() {
@@ -440,9 +431,11 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
 
         await invalidateBillQueries(queryClient, billId);
       } catch (saveError) {
-        Alert.alert(
-          "Couldn't save item",
-          mutationErrorMessage(saveError, "Please try again."),
+        setReviewActionError(
+          mutationErrorMessage(
+            saveError,
+            "Couldn't save item. Please try again.",
+          ),
         );
         throw saveError;
       } finally {
@@ -467,9 +460,11 @@ function ReviewBillFromApi({ billId }: { billId: number }) {
       await deleteReceiptItem(receiptItemId);
       await invalidateBillQueries(queryClient, billId);
     } catch (deleteError) {
-      Alert.alert(
-        "Couldn't remove item",
-        mutationErrorMessage(deleteError, "Please try again."),
+      setReviewActionError(
+        mutationErrorMessage(
+          deleteError,
+          "Couldn't remove item. Please try again.",
+        ),
       );
       throw deleteError;
     } finally {

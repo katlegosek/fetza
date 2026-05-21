@@ -31,13 +31,8 @@ import type {
   BillSummaryParticipant,
 } from "@/types/api";
 import { formatMoneyFromCents } from "@/utils/money";
+import { parseBillId } from "@/utils/parse-bill-id";
 import { participantInitials } from "@/utils/participant";
-
-function parseBillId(raw: string | string[] | undefined): number {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
 
 function TotalsCard({ summary }: { summary: BillSummary }) {
   const { bill, totals } = summary;

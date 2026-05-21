@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
 
 import { createBill } from "@/api/billApi";
-import { isApiError } from "@/api/errors";
+import { mutationErrorMessage } from "@/api/errors";
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
@@ -21,18 +21,9 @@ import {
   buildReceiptUploadFormData,
   pickReceiptImage,
 } from "@/lib/receipt-upload";
+import { parseBillId } from "@/utils/parse-bill-id";
 
 type ScanPhase = "idle" | "uploading" | "processing" | "failed";
-
-function parseBillId(raw: string | string[] | undefined): number {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function mutationErrorMessage(error: unknown, fallback: string): string {
-  return isApiError(error) ? error.message : fallback;
-}
 
 export default function ScanScreen() {
   const router = useRouter();
@@ -124,6 +115,7 @@ export default function ScanScreen() {
           const created = await createBill();
           targetBillId = created.bill.id;
           setBillId(targetBillId);
+          await invalidateBillQueries(queryClient, targetBillId);
         }
 
         const response = await uploadMutation.mutateAsync({
@@ -141,7 +133,7 @@ export default function ScanScreen() {
         );
       }
     },
-    [billId, uploadMutation],
+    [billId, queryClient, uploadMutation],
   );
 
   const handlePick = useCallback(

@@ -5,6 +5,7 @@ import {
   clearReceiptItemAssignments,
   replaceReceiptItemAssignments,
 } from "@/api/billApi";
+import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import type { BillShowResponse } from "@/types/api";
 import { applyOptimisticItemAssignments } from "@/utils/bill-to-assign";
 
@@ -71,12 +72,7 @@ export function useReplaceItemAssignments(billId: number) {
       );
     },
     onSettled: () => {
-      void queryClient.invalidateQueries({
-        queryKey: billQueryKeys.detail(billId),
-      });
-      void queryClient.invalidateQueries({
-        queryKey: billQueryKeys.summary(billId),
-      });
+      void invalidateBillQueries(queryClient, billId);
     },
   });
 }

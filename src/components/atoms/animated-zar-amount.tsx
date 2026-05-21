@@ -7,6 +7,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import { formatMoneyFromCents } from "@/utils/money";
+
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 export type AnimatedZarAmountProps = {
@@ -17,9 +19,7 @@ export type AnimatedZarAmountProps = {
   testID?: string;
 };
 
-/**
- * Smoothly interpolates the displayed ZAR string when `cents` changes (matches `formatZAR` in @/lib/helper).
- */
+/** Smoothly interpolates the displayed amount when `cents` changes. */
 export function AnimatedZarAmount({
   cents,
   duration = 350,
@@ -37,7 +37,7 @@ export function AnimatedZarAmount({
 
   const animatedProps = useAnimatedProps(() => {
     const roundedCents = Math.round(progress.value);
-    const text = `R ${(roundedCents / 100).toFixed(2)}`;
+    const text = formatMoneyFromCents(roundedCents);
     return { text, defaultValue: text } as unknown as Record<string, string>;
   });
 

@@ -48,6 +48,7 @@ import {
 import type { DraftBill, ReceiptLine } from "@/mocks/review-draft.mock";
 import { type AssignLine, billShowToAssignData } from "@/utils/bill-to-assign";
 import { formatMoneyFromCents } from "@/utils/money";
+import { parseBillId } from "@/utils/parse-bill-id";
 import { participantInitials } from "@/utils/participant";
 import { buildParticipantInput } from "@/utils/participant-input";
 
@@ -101,12 +102,6 @@ function isBillSplitEquallyAmongAll(
     }
   }
   return true;
-}
-
-function parseBillId(raw: string | string[] | undefined): number {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 export default function AssignBillScreen() {
@@ -214,19 +209,6 @@ export default function AssignBillScreen() {
     [isApiMode, apiLines, mockLines],
   );
 
-  const billGrandTotalCents = useMemo(() => {
-    if (isApiMode) {
-      return summaryData?.totals.bill_total_cents ?? 0;
-    }
-    if (!draft) return 0;
-    return linesSubtotalCents + draft.vatCents + draft.serviceFeeCents;
-  }, [
-    draft,
-    isApiMode,
-    linesSubtotalCents,
-    summaryData?.totals.bill_total_cents,
-  ]);
-
   const assignedItemsTotalCents = useMemo(() => {
     if (isApiMode) {
       return summaryData?.totals.assigned_total_cents ?? 0;
@@ -265,19 +247,6 @@ export default function AssignBillScreen() {
   const assignmentLineTotal = isApiMode
     ? (summaryData?.bill.items_count ?? lines.length)
     : (draft?.lines.length ?? 0);
-
-  const assignmentProgressPct = useMemo(() => {
-    if (assignmentLineTotal === 0) return 0;
-    return Math.round((assignedLineCount / assignmentLineTotal) * 100);
-  }, [assignedLineCount, assignmentLineTotal]);
-
-  const unassignedLineCount = useMemo(() => {
-    if (isApiMode) {
-      return Math.max(0, lines.length - assignedLineCount);
-    }
-    if (!draft) return 0;
-    return draft.lines.length - assignedLineCount;
-  }, [assignedLineCount, draft, isApiMode, lines.length]);
 
   const allLinesAssigned = useMemo(() => {
     if (assignmentLineTotal === 0) return false;
@@ -864,54 +833,6 @@ export default function AssignBillScreen() {
               />
             ) : null}
             <View className="gap-3">
-              {/*
-              <View
-                accessibilityLabel={`Assignment progress: ${assignedLineCount} of ${draft.lines.length} items assigned, ${assignmentProgressPct} percent`}
-                className="rounded-2xl border border-violet-200/70 bg-violet-50 px-4 py-4 dark:border-violet-800/35 dark:bg-violet-950/30"
-              >
-                <View className="flex-row items-start gap-2">
-                  <View className="min-w-0 flex-1 pr-1">
-                    <AppText className="text-[13px] font-semibold text-muted">
-                      Assignment progress
-                    </AppText>
-                    <AppText className="mt-1 text-[17px] font-bold leading-snug text-foreground">
-                      {unassignedLineCount === 0
-                        ? "All items assigned"
-                        : `${unassignedLineCount} ${unassignedLineCount === 1 ? "item needs" : "items need"} assignment`}
-                    </AppText>
-                    <AppText className="mt-1 text-[13px] leading-snug text-muted">
-                      Pick people above, then tap items.
-                    </AppText>
-                    <AppText className="mt-2 text-[12px] leading-snug text-muted">
-                      {assignedLineCount}/{draft.lines.length} assigned •{" "}
-                      {formatZAR(assignedItemsTotalCents)} assigned of{" "}
-                      {formatZAR(billGrandTotalCents)}
-                    </AppText>
-                  </View>
-                  <Image
-                    accessibilityElementsHidden
-                    className="h-24 w-24 shrink-0"
-                    resizeMode="contain"
-                    source={require("../../../assets/images/assignment-progress-illustration.png")}
-                  />
-                </View>
-
-                <View className="mt-4 flex-row items-center gap-3">
-                  <View className="h-2 flex-1 overflow-hidden rounded-full bg-stone-200 dark:bg-neutral-700">
-                    <View
-                      className="h-full rounded-l-full bg-violet-600 dark:bg-violet-500"
-                      style={{
-                        width: `${assignmentProgressPct}%`,
-                      }}
-                    />
-                  </View>
-                  <AppText className="w-9 shrink-0 text-right text-[13px] font-bold tabular-nums text-violet-700 dark:text-violet-300">
-                    {assignmentProgressPct}%
-                  </AppText>
-                </View>
-              </View>
-              */}
-
               <View className="flex-row items-start gap-3">
                 <View className="size-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 dark:bg-violet-500/20">
                   <Ionicons
@@ -1067,6 +988,7 @@ export default function AssignBillScreen() {
       <AssignItemSheet
         key={sheetLineId ?? "_"}
         bottomInset={insets.bottom}
+        formatAmount={formatAmount}
         initialSelectedIds={
           sheetLineId ? [...(displayAssignments[sheetLineId] ?? [])] : []
         }
