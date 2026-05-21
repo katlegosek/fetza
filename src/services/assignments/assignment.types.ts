@@ -1,6 +1,8 @@
-import type { BillSummary } from "@/services/bills/bill.schema";
+import type { BulkAssignmentMutationResponse } from "@/services/assignments/assignment.schema";
 
+export type { ItemAssignmentMutationResponse } from "@/services/assignments/assignment.mutation.schema";
 export type {
+  BulkAssignmentMutationResponse,
   ItemAssignment,
   SplitMethod,
 } from "@/services/assignments/assignment.schema";
@@ -10,6 +12,5 @@ export interface ReplaceAssignmentsInput {
   split_method: "equal";
 }
 
-export interface BillSummaryMutationResponse {
-  bill_summary: BillSummary;
-}
+/** @deprecated Use BulkAssignmentMutationResponse */
+export type BillSummaryMutationResponse = BulkAssignmentMutationResponse;

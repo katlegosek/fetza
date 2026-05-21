@@ -1,10 +1,10 @@
 import { apiRequest } from "@/api/client";
 import { parseApiResponse } from "@/api/parse-api-response";
+import { BillSummaryResponseSchema } from "@/services/bills/bill-summary.schema";
 import { billEndpoints } from "@/services/bills/bill.endpoints";
 import {
   BillListResponseSchema,
   BillShowResponseSchema,
-  BillSummaryResponseSchema,
 } from "@/services/bills/bill.schema";
 import type {
   BillCreateResponse,

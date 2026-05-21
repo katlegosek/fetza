@@ -1,36 +1,25 @@
-import type { BillSummary } from "@/services/bills/bill.schema";
 import type {
-  Receipt,
-  ReceiptAdjustment,
   ReceiptAdjustmentKind,
-  ReceiptImage,
-  ReceiptItem,
-  ReceiptProcessingRun,
   ReceiptStatus,
-} from "@/services/receipts/receipt.schema";
+} from "@/services/receipts/receipt.enums.schema";
 
 export type {
   ProcessingRunStatus,
   Receipt,
   ReceiptAdjustment,
+  ReceiptAdjustmentDeleteResponse,
   ReceiptAdjustmentKind,
+  ReceiptAdjustmentMutationResponse,
   ReceiptImage,
   ReceiptItem,
+  ReceiptItemDeleteResponse,
+  ReceiptItemMutationResponse,
   ReceiptProcessingRun,
   ReceiptShowResponse,
   ReceiptStatus,
+  ReceiptStatusPayload,
+  ReceiptUploadResponse,
 } from "@/services/receipts/receipt.schema";
-
-export interface ReceiptStatusPayload {
-  id: number;
-  status: ReceiptStatus;
-}
-
-export interface ReceiptUploadResponse {
-  receipt: ReceiptStatusPayload;
-  receipt_image: ReceiptImage;
-  processing_run: ReceiptProcessingRun;
-}
 
 export interface ReceiptItemInput {
   name: string;
@@ -43,30 +32,10 @@ export interface ReceiptItemInput {
   confidence?: number | null;
 }
 
-export interface ReceiptItemMutationResponse {
-  receipt_item: ReceiptItem;
-  bill_summary: BillSummary;
-}
-
-export interface ReceiptItemDeleteResponse {
-  receipt_item: ReceiptItem;
-  bill_summary: BillSummary;
-}
-
 export interface ReceiptAdjustmentInput {
   label: string;
   kind: ReceiptAdjustmentKind;
   amount_cents: number;
   affects_total?: boolean;
   position?: number;
-}
-
-export interface ReceiptAdjustmentMutationResponse {
-  receipt_adjustment: ReceiptAdjustment;
-  bill_summary: BillSummary;
-}
-
-export interface ReceiptAdjustmentDeleteResponse {
-  receipt_adjustment: ReceiptAdjustment;
-  bill_summary: BillSummary;
 }

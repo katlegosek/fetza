@@ -1,32 +1,26 @@
 import { z } from "zod";
 
-import { IsoDateTimeSchema } from "@/services/assignments/assignment.schema";
+import { IsoDateTimeSchema } from "@/services/api-common.schema";
+import { BillSummaryResponseSchema } from "@/services/bills/bill-summary.schema";
+import { ReceiptItemSchema } from "@/services/receipts/receipt-item.schema";
+import {
+  ProcessingRunStatusSchema,
+  ReceiptAdjustmentKindSchema,
+  ReceiptStatusSchema,
+} from "@/services/receipts/receipt.enums.schema";
 
-export const ReceiptStatusSchema = z.enum([
-  "draft",
-  "processing",
-  "ready",
-  "failed",
-  "confirmed",
-]);
-
-export const ReceiptAdjustmentKindSchema = z.enum([
-  "subtotal",
-  "tax",
-  "service_fee",
-  "tip",
-  "discount",
-  "rounding",
-  "delivery_fee",
-  "other",
-]);
-
-export const ProcessingRunStatusSchema = z.enum([
-  "pending",
-  "processing",
-  "completed",
-  "failed",
-]);
+export {
+  ProcessingRunStatusSchema,
+  ReceiptAdjustmentKindSchema,
+  ReceiptStatusSchema,
+} from "@/services/receipts/receipt.enums.schema";
+export type {
+  ProcessingRunStatus,
+  ReceiptAdjustmentKind,
+  ReceiptStatus,
+} from "@/services/receipts/receipt.enums.schema";
+export { ReceiptItemSchema } from "@/services/receipts/receipt-item.schema";
+export type { ReceiptItem } from "@/services/receipts/receipt-item.schema";
 
 export const ReceiptProcessingRunSchema = z.object({
   id: z.number().int(),
@@ -67,22 +61,6 @@ export const ReceiptSchema = z.object({
   updated_at: IsoDateTimeSchema,
 });
 
-export const ReceiptItemSchema = z.object({
-  id: z.number().int(),
-  bill_id: z.number().int(),
-  receipt_id: z.number().int().nullable(),
-  name: z.string(),
-  quantity: z.number(),
-  unit_price_cents: z.number().int(),
-  total_cents: z.number().int(),
-  category: z.string().nullable(),
-  icon_key: z.string().nullable(),
-  position: z.number().int(),
-  confidence: z.number().nullable(),
-  created_at: IsoDateTimeSchema,
-  updated_at: IsoDateTimeSchema,
-});
-
 export const ReceiptAdjustmentSchema = z.object({
   id: z.number().int(),
   receipt_id: z.number().int(),
@@ -102,12 +80,51 @@ export const ReceiptShowResponseSchema = z.object({
   receipt_adjustments: z.array(ReceiptAdjustmentSchema).optional(),
 });
 
-export type ReceiptStatus = z.infer<typeof ReceiptStatusSchema>;
-export type ReceiptAdjustmentKind = z.infer<typeof ReceiptAdjustmentKindSchema>;
-export type ProcessingRunStatus = z.infer<typeof ProcessingRunStatusSchema>;
+export const ReceiptStatusPayloadSchema = z.object({
+  id: z.number().int(),
+  status: ReceiptStatusSchema,
+});
+
+export const ReceiptItemMutationResponseSchema = z.object({
+  receipt_item: ReceiptItemSchema,
+  bill_summary: BillSummaryResponseSchema,
+});
+
+export const ReceiptItemDeleteResponseSchema =
+  ReceiptItemMutationResponseSchema;
+
+export const ReceiptAdjustmentMutationResponseSchema = z.object({
+  receipt_adjustment: ReceiptAdjustmentSchema,
+  bill_summary: BillSummaryResponseSchema,
+});
+
+export const ReceiptAdjustmentDeleteResponseSchema =
+  ReceiptAdjustmentMutationResponseSchema;
+
+export const ReceiptImageUploadResponseSchema = z.object({
+  receipt: ReceiptStatusPayloadSchema,
+  receipt_image: ReceiptImageSchema,
+  processing_run: ReceiptProcessingRunSchema,
+});
+
 export type ReceiptProcessingRun = z.infer<typeof ReceiptProcessingRunSchema>;
 export type ReceiptImage = z.infer<typeof ReceiptImageSchema>;
 export type Receipt = z.infer<typeof ReceiptSchema>;
-export type ReceiptItem = z.infer<typeof ReceiptItemSchema>;
 export type ReceiptAdjustment = z.infer<typeof ReceiptAdjustmentSchema>;
 export type ReceiptShowResponse = z.infer<typeof ReceiptShowResponseSchema>;
+export type ReceiptStatusPayload = z.infer<typeof ReceiptStatusPayloadSchema>;
+export type ReceiptItemMutationResponse = z.infer<
+  typeof ReceiptItemMutationResponseSchema
+>;
+export type ReceiptItemDeleteResponse = z.infer<
+  typeof ReceiptItemDeleteResponseSchema
+>;
+export type ReceiptAdjustmentMutationResponse = z.infer<
+  typeof ReceiptAdjustmentMutationResponseSchema
+>;
+export type ReceiptAdjustmentDeleteResponse = z.infer<
+  typeof ReceiptAdjustmentDeleteResponseSchema
+>;
+export type ReceiptUploadResponse = z.infer<
+  typeof ReceiptImageUploadResponseSchema
+>;
