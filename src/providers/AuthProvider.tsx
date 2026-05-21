@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { isApiError } from "@/api/errors";
 import { isAuthEnabled } from "@/lib/auth-config";
 import { authKeys } from "@/services/auth/auth.keys";
 import {
@@ -42,10 +43,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function loadToken() {
-      const token = await getAccessToken();
-      if (!cancelled) {
-        setHasToken(Boolean(token));
-        setTokenChecked(true);
+      try {
+        const token = await getAccessToken();
+        if (!cancelled) {
+          setHasToken(Boolean(token));
+        }
+      } finally {
+        if (!cancelled) {
+          setTokenChecked(true);
+        }
       }
     }
 
@@ -60,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     data: user,
     error: userError,
     isPending: isUserPending,
+    isFetching: isUserFetching,
     refetch: refetchUser,
   } = useQuery({
     queryKey: authKeys.currentUser(),
@@ -73,19 +80,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    async function handleInvalidSession() {
+    if (!isApiError(userError) || userError.status !== 401) {
+      return;
+    }
+
+    async function handleUnauthorized() {
       await clearAuthTokens();
       setHasToken(false);
       queryClient.removeQueries({ queryKey: authKeys.all });
     }
 
-    void handleInvalidSession();
+    void handleUnauthorized();
   }, [authEnabled, queryClient, userError]);
 
   const isLoadingAuth =
-    !tokenChecked || (authEnabled && hasToken && isUserPending);
+    !tokenChecked ||
+    (authEnabled && hasToken && (isUserPending || isUserFetching) && !user);
 
-  const isAuthenticated = authEnabled ? hasToken && user !== undefined : true;
+  const isAuthenticated = authEnabled ? hasToken : true;
 
   const login = useCallback(
     async (payload: LoginPayload) => {

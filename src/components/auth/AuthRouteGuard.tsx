@@ -38,5 +38,13 @@ export function AuthRouteGuard({ children }: { children: ReactNode }) {
     );
   }
 
+  if (isAuthEnabled && !isAuthenticated && !inAuthGroup) {
+    return (
+      <View className="flex-1 items-center justify-center gap-3 bg-background px-6">
+        <ActivityIndicator accessibilityLabel="Redirecting to sign in" />
+      </View>
+    );
+  }
+
   return children;
 }

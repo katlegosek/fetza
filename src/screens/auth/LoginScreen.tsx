@@ -4,7 +4,6 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   TextInput,
   View,
 } from "react-native";
@@ -18,13 +17,16 @@ import { useThemeColors } from "@/hooks";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginFormSchema } from "@/screens/auth/auth-screen.schema";
 
+const DEV_EMAIL = "dev@fetza.local";
+const DEV_PASSWORD = "password123";
+
 export function LoginScreen() {
   const router = useRouter();
   const colors = useThemeColors();
-  const { login, isAuthEnabled } = useAuth();
+  const { login } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(__DEV__ ? DEV_EMAIL : "");
+  const [password, setPassword] = useState(__DEV__ ? DEV_PASSWORD : "");
   const [fieldErrors, setFieldErrors] = useState<{
     email?: string;
     password?: string;
@@ -47,13 +49,6 @@ export function LoginScreen() {
         }
       }
       setFieldErrors(nextErrors);
-      return;
-    }
-
-    if (!isAuthEnabled) {
-      setSubmitError(
-        "Auth is disabled. Set EXPO_PUBLIC_AUTH_ENABLED=true when Rails auth is ready.",
-      );
       return;
     }
 
@@ -81,6 +76,12 @@ export function LoginScreen() {
           Sign in
         </AppText>
 
+        {__DEV__ ? (
+          <AppText className="mb-4 text-sm text-muted">
+            Dev: {DEV_EMAIL} / {DEV_PASSWORD}
+          </AppText>
+        ) : null}
+
         <View className="gap-4">
           <View className="gap-1">
             <AppText className="text-sm text-muted">Email</AppText>
@@ -88,7 +89,7 @@ export function LoginScreen() {
               autoCapitalize="none"
               autoComplete="email"
               keyboardType="email-address"
-              placeholder="you@example.com"
+              placeholder={DEV_EMAIL}
               placeholderTextColor={colors.muted}
               value={email}
               onChangeText={setEmail}
@@ -139,18 +140,6 @@ export function LoginScreen() {
 
           {isSubmitting ? (
             <ActivityIndicator accessibilityLabel="Signing in" />
-          ) : null}
-
-          {!isAuthEnabled ? (
-            <Pressable
-              onPress={() => {
-                router.replace("/");
-              }}
-            >
-              <AppText className="text-center text-sm text-muted">
-                Continue to Home (auth disabled)
-              </AppText>
-            </Pressable>
           ) : null}
         </View>
       </KeyboardAvoidingView>
