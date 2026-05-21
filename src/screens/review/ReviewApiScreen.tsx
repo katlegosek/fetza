@@ -28,7 +28,10 @@ import {
   ReviewOverflowMenu,
   ReviewTotalsSheet,
   ScreenContainer,
+  ScreenEmptyState,
+  ScreenErrorState,
   ScreenHeader,
+  ScreenLoadingState,
   ThermalReceipt,
   defaultAffectsTotalForKind,
 } from "@/components";
@@ -46,8 +49,6 @@ import {
 import { formatMoneyFromCents } from "@/utils/money";
 
 import { ReviewBottomBar } from "@/screens/review/ReviewBottomBar";
-import { ReviewErrorState } from "@/screens/review/ReviewErrorState";
-import { ReviewLoadingState } from "@/screens/review/ReviewLoadingState";
 import {
   NEW_RECEIPT_ADJUSTMENT_ID,
   NEW_RECEIPT_ITEM_ID,
@@ -347,7 +348,13 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
 
   if (isLoading) {
     return (
-      <ReviewLoadingState title={headerTitle} onBack={() => router.back()} />
+      <ScreenLoadingState
+        title={headerTitle}
+        message="Loading receipt…"
+        onBack={() => router.back()}
+        containerClassName="bg-background"
+        loadingAccessibilityLabel="Loading receipt"
+      />
     );
   }
 
@@ -357,28 +364,26 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
       : "Something went wrong loading this receipt.";
 
     return (
-      <ReviewErrorState
-        message={message}
+      <ScreenErrorState
         title={headerTitle}
+        message={message}
         onBack={() => router.back()}
-        onRetry={() => void refetch()}
+        actionLabel="Try again"
+        onAction={() => void refetch()}
+        containerClassName="bg-background"
       />
     );
   }
 
   if (!data || !draft) {
     return (
-      <ScreenContainer className="flex-1 bg-background">
-        <ScreenHeader title={headerTitle} onBack={() => router.back()} />
-        <View className="flex-1 items-center justify-center px-6">
-          <AppText className="text-center text-sm text-muted">
-            No receipt data for this bill.
-          </AppText>
-          <Button className="mt-6 w-full" onPress={() => router.back()}>
-            Go back
-          </Button>
-        </View>
-      </ScreenContainer>
+      <ScreenEmptyState
+        title={headerTitle}
+        message="No receipt data for this bill."
+        onBack={() => router.back()}
+        onAction={() => router.back()}
+        containerClassName="bg-background"
+      />
     );
   }
 

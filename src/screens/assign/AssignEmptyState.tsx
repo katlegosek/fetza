@@ -1,6 +1,5 @@
-import { View } from "react-native";
-
-import { AppText, Button, ScreenContainer, ScreenHeader } from "@/components";
+import { AppText, ScreenContainer } from "@/components";
+import { ScreenEmptyState } from "@/components/feedback";
 
 export type AssignEmptyStateVariant =
   | "invalid-bill"
@@ -30,6 +29,13 @@ const MESSAGES: Record<AssignEmptyStateVariant, string> = {
   "no-participants": "No participants on this bill yet.",
 };
 
+const CENTERED_VARIANTS: AssignEmptyStateVariant[] = [
+  "invalid-bill",
+  "no-assignment-data",
+  "no-draft-param",
+  "draft-load-failed",
+];
+
 export const AssignEmptyState = ({
   variant,
   merchantTopHint,
@@ -37,10 +43,8 @@ export const AssignEmptyState = ({
   onReviewReceipt,
 }: AssignEmptyStateProps) => {
   const message = MESSAGES[variant];
-  const showHeader = variant === "no-lines" || variant === "no-participants";
-  const isDraftLoading = variant === "draft-loading";
 
-  if (isDraftLoading) {
+  if (variant === "draft-loading") {
     return (
       <ScreenContainer className="items-center justify-center">
         <AppText className="text-muted-foreground">{message}</AppText>
@@ -48,48 +52,35 @@ export const AssignEmptyState = ({
     );
   }
 
+  const showHeader = variant === "no-lines" || variant === "no-participants";
+  const centered = CENTERED_VARIANTS.includes(variant);
+
+  if (centered) {
+    return (
+      <ScreenEmptyState
+        message={message}
+        showHeader={false}
+        containerClassName="items-center justify-center px-6"
+        messageClassName="text-center text-base text-muted-foreground"
+        actionLabel="Go Back"
+        onAction={onBack}
+      />
+    );
+  }
+
   return (
-    <ScreenContainer
-      className={showHeader ? "flex-1" : "items-center justify-center px-6"}
-    >
-      {showHeader ? (
-        <ScreenHeader
-          title="Assign Items"
-          topHint={merchantTopHint}
-          onBack={onBack}
-        />
-      ) : null}
-      <View
-        className={
-          showHeader
-            ? "flex-1 items-center justify-center px-6"
-            : "items-center"
-        }
-      >
-        <AppText
-          className={
-            showHeader
-              ? "text-center text-sm text-muted"
-              : "text-center text-base text-muted-foreground"
-          }
-        >
-          {message}
-        </AppText>
-        {variant === "no-lines" && onReviewReceipt ? (
-          <Button className="mt-6 w-full" onPress={onReviewReceipt}>
-            Review receipt
-          </Button>
-        ) : (
-          <Button className="mt-6 w-full" onPress={onBack}>
-            {variant === "invalid-bill" ||
-            variant === "no-assignment-data" ||
-            variant === "no-draft-param" ||
-            variant === "draft-load-failed"
-              ? "Go Back"
-              : "Go back"}
-          </Button>
-        )}
-      </View>
-    </ScreenContainer>
+    <ScreenEmptyState
+      title="Assign Items"
+      topHint={showHeader ? merchantTopHint : undefined}
+      message={message}
+      showHeader={showHeader}
+      onBack={onBack}
+      actionLabel={
+        variant === "no-lines" && onReviewReceipt ? "Review receipt" : "Go back"
+      }
+      onAction={
+        variant === "no-lines" && onReviewReceipt ? onReviewReceipt : onBack
+      }
+    />
   );
 };

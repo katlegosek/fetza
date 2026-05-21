@@ -2,12 +2,16 @@ import { useRouter } from "expo-router";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { NoticeBanner, ScreenContainer, ScreenHeader } from "@/components";
+import {
+  NoticeBanner,
+  ScreenContainer,
+  ScreenErrorState,
+  ScreenHeader,
+  ScreenLoadingState,
+} from "@/components";
 import { BillDetailActions } from "@/screens/bill-detail/BillDetailActions";
 import { BillDetailAdjustmentsSection } from "@/screens/bill-detail/BillDetailAdjustmentsSection";
 import { BillDetailEmptyState } from "@/screens/bill-detail/BillDetailEmptyState";
-import { BillDetailErrorState } from "@/screens/bill-detail/BillDetailErrorState";
-import { BillDetailLoadingState } from "@/screens/bill-detail/BillDetailLoadingState";
 import { BillDetailParticipantList } from "@/screens/bill-detail/BillDetailParticipantList";
 import { BillDetailTotalsCard } from "@/screens/bill-detail/BillDetailTotalsCard";
 import { billDetailLoadErrorMessage } from "@/screens/bill-detail/bill-detail.helpers";
@@ -41,16 +45,24 @@ export const BillDetailScreen = ({ billId }: BillDetailScreenProps) => {
   }
 
   if (isLoading) {
-    return <BillDetailLoadingState title={headerTitle} onBack={handleBack} />;
+    return (
+      <ScreenLoadingState
+        title={headerTitle}
+        message="Loading bill summary…"
+        onBack={handleBack}
+        loadingAccessibilityLabel="Loading bill summary"
+      />
+    );
   }
 
   if (isError) {
     return (
-      <BillDetailErrorState
+      <ScreenErrorState
         title={headerTitle}
         message={billDetailLoadErrorMessage(error)}
         onBack={handleBack}
-        onRetry={() => void refetch()}
+        actionLabel="Try again"
+        onAction={() => void refetch()}
       />
     );
   }

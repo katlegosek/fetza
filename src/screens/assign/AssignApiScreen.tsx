@@ -9,15 +9,15 @@ import {
   AssignItemSheet,
   AssignOverflowMenu,
   ScreenContainer,
+  ScreenErrorState,
   ScreenHeader,
+  ScreenLoadingState,
 } from "@/components";
 import { useThemeColors } from "@/hooks";
 import type { ReceiptLine } from "@/mocks/review-draft.mock";
 import { AssignBottomBar } from "@/screens/assign/AssignBottomBar";
 import { AssignEmptyState } from "@/screens/assign/AssignEmptyState";
-import { AssignErrorState } from "@/screens/assign/AssignErrorState";
 import { AssignItemsList } from "@/screens/assign/AssignItemsList";
-import { AssignLoadingState } from "@/screens/assign/AssignLoadingState";
 import { AssignPeopleRow } from "@/screens/assign/AssignPeopleRow";
 import type { AssignMember } from "@/screens/assign/assign.constants";
 import { assignOverflowMenuTop } from "@/screens/assign/assign.helpers";
@@ -133,7 +133,14 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
   }
 
   if (isLoading) {
-    return <AssignLoadingState onBack={() => router.back()} />;
+    return (
+      <ScreenLoadingState
+        title="Assign Items"
+        message="Loading bill…"
+        onBack={() => router.back()}
+        loadingAccessibilityLabel="Loading bill assignments"
+      />
+    );
   }
 
   if (isError) {
@@ -142,10 +149,12 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
       : "Something went wrong loading this bill.";
 
     return (
-      <AssignErrorState
+      <ScreenErrorState
+        title="Assign Items"
         message={message}
         onBack={() => router.back()}
-        onRetry={() => {
+        actionLabel="Try again"
+        onAction={() => {
           void refetchBill();
           void refetchSummary();
         }}
