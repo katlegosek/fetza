@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { isApiError } from "@/api/errors";
+import { assignSaveErrorMessage } from "@/screens/assign/assign.schema";
 
 export function useAssignAssignmentError() {
   const [assignmentError, setAssignmentError] = useState<string | null>(null);
@@ -15,10 +15,12 @@ export function useAssignAssignmentError() {
   }, [assignmentError]);
 
   const showAssignmentError = useCallback((error: unknown) => {
-    const message = isApiError(error)
-      ? error.message
-      : "Could not save assignment. Please try again.";
-    setAssignmentError(message);
+    setAssignmentError(
+      assignSaveErrorMessage(
+        error,
+        "Could not save assignment. Please try again.",
+      ),
+    );
   }, []);
 
   return {

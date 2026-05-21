@@ -7,7 +7,10 @@ import {
   memberChipBorderToneForIndex,
 } from "@/lib/member-avatar-tones";
 import type { AssignMember } from "@/screens/assign/assign.constants";
-import { buildParticipantInput } from "@/utils/participant-input";
+import {
+  participantInputFromAssignSave,
+  validateAssignParticipantSave,
+} from "@/screens/assign/assign.schema";
 
 export type UseAssignParticipantsOptions = {
   billId: number;
@@ -16,6 +19,7 @@ export type UseAssignParticipantsOptions = {
   setMembers?: Dispatch<SetStateAction<AssignMember[]>>;
   setActiveMember: (memberId: string | null) => void;
   showAssignmentError: (error: unknown) => void;
+  setAssignmentError?: (message: string | null) => void;
 };
 
 export function useAssignParticipants({
@@ -25,6 +29,7 @@ export function useAssignParticipants({
   setMembers,
   setActiveMember,
   showAssignmentError,
+  setAssignmentError,
 }: UseAssignParticipantsOptions) {
   const billParticipants = useBillParticipants(billId);
 
@@ -36,9 +41,20 @@ export function useAssignParticipants({
       }
 
       if (isApiMode) {
+        const validation = validateAssignParticipantSave({ name: trimmed });
+        if (!validation.ok) {
+          setAssignmentError?.(validation.message);
+          return;
+        }
+
         const seatIndex = members.length;
         billParticipants.createParticipant.mutate(
-          { participant: buildParticipantInput(trimmed, seatIndex) },
+          {
+            participant: participantInputFromAssignSave(
+              validation.data,
+              seatIndex,
+            ),
+          },
           {
             onError: showAssignmentError,
             onSuccess: (response) => {
@@ -70,6 +86,7 @@ export function useAssignParticipants({
       members.length,
       setActiveMember,
       setMembers,
+      setAssignmentError,
       showAssignmentError,
     ],
   );

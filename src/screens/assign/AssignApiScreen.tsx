@@ -103,6 +103,7 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
     isApiMode: true,
     members,
     setActiveMember,
+    setAssignmentError,
     showAssignmentError,
   });
 

@@ -1,19 +1,18 @@
-import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
+import {
+  participantInputFromAssignSave,
+  validateAssignParticipantSave,
+} from "@/screens/assign/assign.schema";
 import type { ParticipantInput } from "@/services/participants/participant.types";
-import { participantInitials } from "@/utils/participant";
 
+/** @deprecated Prefer validateAssignParticipantSave + participantInputFromAssignSave */
 export function buildParticipantInput(
   name: string,
   seatIndex: number,
 ): ParticipantInput {
-  const trimmed = name.trim();
-  const tones = avatarTonesForPaletteIndex(seatIndex);
+  const validation = validateAssignParticipantSave({ name });
+  if (!validation.ok) {
+    throw new Error(validation.message);
+  }
 
-  return {
-    name: trimmed,
-    initials: participantInitials(trimmed),
-    avatar_background_color: tones.avatarBackgroundColor,
-    avatar_text_color: tones.avatarTextColor,
-    seat_index: seatIndex,
-  };
+  return participantInputFromAssignSave(validation.data, seatIndex);
 }
