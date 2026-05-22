@@ -2,8 +2,9 @@ import { useRouter, useSegments } from "expo-router";
 import { type ReactNode, useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 
-import { AppText } from "@/components";
-import { useAuth } from "@/hooks/use-auth";
+import { AppText } from "@/components/atoms";
+
+import { useAuth } from "./AuthProvider";
 
 export function AuthRouteGuard({ children }: { children: ReactNode }) {
   const router = useRouter();

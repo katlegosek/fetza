@@ -1,8 +1,8 @@
-import { ScreenEmptyState } from "@/components/feedback";
+import { ScreenEmptyState } from "@/components/molecules";
 import {
   FEEDBACK_MESSAGES,
   REVIEW_FEEDBACK_CONTAINER_CLASS,
-} from "@/components/feedback/screen-feedback-copy";
+} from "@/lib/screen-feedback-copy";
 
 export type ReviewEmptyStateProps = {
   title: string;

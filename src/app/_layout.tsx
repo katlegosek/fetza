@@ -6,10 +6,9 @@ import { Stack } from "expo-router";
 import { View } from "react-native";
 
 import { queryClient } from "@/api/queryClient";
-import { AuthRouteGuard } from "@/components/auth/AuthRouteGuard";
 import { useRootLayoutAppearance } from "@/hooks";
 import { NAV_THEME } from "@/lib/constants";
-import { AuthProvider } from "@/providers/AuthProvider";
+import { AuthProvider, AuthRouteGuard } from "@/providers/auth";
 
 export default function RootLayout() {
   const { scheme, rootClassName } = useRootLayoutAppearance();

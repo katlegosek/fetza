@@ -10,7 +10,6 @@ import {
 } from "react";
 
 import { isApiError } from "@/api/errors";
-import { isAuthEnabled } from "@/lib/auth-config";
 import { isAuthSessionError } from "@/services/auth/auth.errors";
 import { authKeys } from "@/services/auth/auth.keys";
 import {
@@ -21,6 +20,8 @@ import {
 import { getAccessToken } from "@/services/auth/auth.storage";
 import type { AuthUser, LoginPayload } from "@/services/auth/types";
 import { billQueryKeys } from "@/services/bills/bill.keys";
+
+import { isAuthEnabled } from "./auth-config";
 
 type AuthContextValue = {
   user: AuthUser | null;

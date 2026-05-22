@@ -1,12 +1,13 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, ScrollView, View } from "react-native";
 
-import { AppText, AssignMemberChipFace } from "@/components";
+import { AppText } from "@/components";
 import {
   assignMemberChipBorderStyle,
   assignMemberChipShellClassName,
-} from "@/lib/assign-member-chip";
+} from "@/screens/assign/assign-member-chip";
 import type { AssignMember } from "@/screens/assign/assign.constants";
+import { AssignMemberChipFace } from "@/screens/assign/components";
 import { participantInitials } from "@/utils/participant";
 
 export type AssignPeopleRowProps = {

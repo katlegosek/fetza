@@ -1,10 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { View } from "react-native";
 
-import { AppText, Button } from "@/components";
-import { ScreenFeedbackLayout } from "@/components/feedback/screen-feedback-layout";
+import { AppText } from "@/components/atoms";
 import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
+
+import { Button } from "./button";
+import { ScreenFeedbackLayout } from "./screen-feedback-layout";
 
 export type ScreenEmptyStateProps = {
   title?: string;

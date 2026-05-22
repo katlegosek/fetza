@@ -4,14 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {
-  AppText,
-  AssignItemSheet,
-  AssignLineRow,
-  Button,
-  ScreenContainer,
-  ScreenHeader,
-} from "@/components";
+import { AppText, Button, ScreenContainer, ScreenHeader } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
 import { formatZAR } from "@/lib/helper";
@@ -29,6 +22,7 @@ import {
   memberLineShares,
   owedCentsByMember,
 } from "@/reference/mock-flow/summary/summary.helpers";
+import { AssignItemSheet, AssignLineRow } from "@/screens/assign/components";
 import type { DraftBill } from "@/types/draft-bill";
 
 type ShareMember = { id: string; name: string };

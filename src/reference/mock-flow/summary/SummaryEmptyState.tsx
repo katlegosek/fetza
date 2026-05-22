@@ -1,4 +1,4 @@
-import { ScreenEmptyState } from "@/components/feedback";
+import { ScreenEmptyState } from "@/components/molecules";
 
 export type SummaryEmptyStateProps = {
   onBack: () => void;

@@ -1,8 +1,8 @@
 import { View } from "react-native";
 
-import { AssignLineRow } from "@/components";
 import { cn } from "@/lib/cn";
 import type { AssignMember } from "@/screens/assign/assign.constants";
+import { AssignLineRow } from "@/screens/assign/components";
 import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 import type { ReceiptLine } from "@/types/draft-bill";
 

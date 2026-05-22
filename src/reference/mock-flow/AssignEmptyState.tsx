@@ -1,5 +1,4 @@
-import { AppText, ScreenContainer } from "@/components";
-import { ScreenEmptyState } from "@/components/feedback";
+import { AppText, ScreenContainer, ScreenEmptyState } from "@/components";
 
 export type AssignEmptyStateVariant =
   | "invalid-bill"

@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 
-import { MissingBillState } from "@/components/feedback";
+import { MissingBillState } from "@/components/molecules";
 import { AssignApiScreen } from "@/screens/assign/AssignApiScreen";
 import { parseBillId } from "@/utils/parse-bill-id";
 

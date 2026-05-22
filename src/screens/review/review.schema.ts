@@ -1,8 +1,10 @@
 import type { ZodError } from "zod";
 import { z } from "zod";
 
-import type { ReviewAdjustmentSavePayload } from "@/components/review-adjustment-sheet";
-import type { ReviewItemSavePayload } from "@/components/review-item-sheet";
+import type {
+  ReviewAdjustmentSavePayload,
+  ReviewItemSavePayload,
+} from "@/screens/review/components";
 import { ReceiptAdjustmentKindSchema } from "@/services/receipts/receipt.schema";
 
 export const ReviewItemSaveSchema = z.object({

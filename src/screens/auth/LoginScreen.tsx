@@ -14,7 +14,7 @@ import {
 } from "@/api/api-error-message";
 import { AppText, Button, ScreenContainer } from "@/components";
 import { useThemeColors } from "@/hooks";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/providers/auth";
 import { LoginFormSchema } from "@/screens/auth/auth-screen.schema";
 
 const DEV_EMAIL = "dev@fetza.local";

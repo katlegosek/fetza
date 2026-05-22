@@ -1,10 +1,10 @@
-import { ScreenEmptyState } from "@/components/feedback";
+import { ScreenEmptyState } from "@/components/molecules";
 import {
   CENTERED_EMPTY_CONTAINER_CLASS,
   CENTERED_EMPTY_MESSAGE_CLASS,
   FEEDBACK_MESSAGES,
   SCREEN_TITLES,
-} from "@/components/feedback/screen-feedback-copy";
+} from "@/lib/screen-feedback-copy";
 
 export type AssignEmptyStateVariant =
   | "invalid-bill"

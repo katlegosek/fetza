@@ -1,9 +1,10 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable } from "react-native";
 
-import { AppText } from "@/components";
-import { ScreenFeedbackLayout } from "@/components/feedback/screen-feedback-layout";
+import { AppText } from "@/components/atoms";
 import { useThemeColors } from "@/hooks";
+
+import { ScreenFeedbackLayout } from "./screen-feedback-layout";
 
 export type ScreenErrorStateProps = {
   title?: string;

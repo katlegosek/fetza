@@ -10,8 +10,8 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { AppText } from "@/components/atoms";
-import { Button } from "@/components/molecules/button";
-import { SheetCloseButton } from "@/components/organisms/bottom-sheet/sheet-close-button";
+import { Button } from "@/components/molecules";
+import { SheetCloseButton } from "@/components/organisms";
 import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
 import { formatZAR } from "@/lib/helper";

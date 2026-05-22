@@ -1,4 +1,4 @@
-import { MissingBillState } from "@/components/feedback";
+import { MissingBillState } from "@/components/molecules";
 
 /** Legacy mock share route — API flow uses bill detail instead. */
 export default function ShareBillScreen() {

@@ -10,7 +10,7 @@ import {
   ScreenHeader,
   ScreenLoadingState,
 } from "@/components";
-import { FEEDBACK_MESSAGES } from "@/components/feedback/screen-feedback-copy";
+import { FEEDBACK_MESSAGES } from "@/lib/screen-feedback-copy";
 import { BillDetailActions } from "@/screens/bill-detail/BillDetailActions";
 import { BillDetailAdjustmentsSection } from "@/screens/bill-detail/BillDetailAdjustmentsSection";
 import { BillDetailEmptyState } from "@/screens/bill-detail/BillDetailEmptyState";

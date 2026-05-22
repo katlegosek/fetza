@@ -1,7 +1,8 @@
 import { ActivityIndicator } from "react-native";
 
-import { AppText } from "@/components";
-import { ScreenFeedbackLayout } from "@/components/feedback/screen-feedback-layout";
+import { AppText } from "@/components/atoms";
+
+import { ScreenFeedbackLayout } from "./screen-feedback-layout";
 
 export type ScreenLoadingStateProps = {
   title?: string;

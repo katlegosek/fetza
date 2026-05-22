@@ -3,8 +3,8 @@ import { ScrollView, View } from "react-native";
 
 import { AppText, NoticeBanner } from "@/components";
 import { useAppColorScheme } from "@/hooks";
-import { memberAssignHighlightFromTones } from "@/lib/member-assign-highlight";
 import { AssignItemCard } from "@/screens/assign/AssignItemCard";
+import { memberAssignHighlightFromTones } from "@/screens/assign/assign-highlight";
 import type { AssignMember } from "@/screens/assign/assign.constants";
 import type { AssignLine } from "@/screens/assign/mappers/bill-to-assign";
 import type { ReceiptLine } from "@/types/draft-bill";

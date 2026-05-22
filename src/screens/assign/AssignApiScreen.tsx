@@ -6,24 +6,23 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { getApiErrorMessage } from "@/api/api-error-message";
 import {
-  AssignItemSheet,
-  AssignOverflowMenu,
   ScreenContainer,
   ScreenErrorState,
   ScreenHeader,
   ScreenLoadingState,
 } from "@/components";
-import {
-  FEEDBACK_MESSAGES,
-  SCREEN_TITLES,
-} from "@/components/feedback/screen-feedback-copy";
 import { useThemeColors } from "@/hooks";
+import { FEEDBACK_MESSAGES, SCREEN_TITLES } from "@/lib/screen-feedback-copy";
 import { AssignBottomBar } from "@/screens/assign/AssignBottomBar";
 import { AssignEmptyState } from "@/screens/assign/AssignEmptyState";
 import { AssignItemsList } from "@/screens/assign/AssignItemsList";
 import { AssignPeopleRow } from "@/screens/assign/AssignPeopleRow";
 import type { AssignMember } from "@/screens/assign/assign.constants";
 import { assignOverflowMenuTop } from "@/screens/assign/assign.helpers";
+import {
+  AssignItemSheet,
+  AssignOverflowMenu,
+} from "@/screens/assign/components";
 import { useAssignActiveMember } from "@/screens/assign/hooks/useAssignActiveMember";
 import { useAssignApiBulkActions } from "@/screens/assign/hooks/useAssignApiBulkActions";
 import { useAssignApiData } from "@/screens/assign/hooks/useAssignApiData";

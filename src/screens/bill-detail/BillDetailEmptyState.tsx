@@ -1,8 +1,5 @@
-import { ScreenEmptyState } from "@/components/feedback";
-import {
-  FEEDBACK_MESSAGES,
-  SCREEN_TITLES,
-} from "@/components/feedback/screen-feedback-copy";
+import { ScreenEmptyState } from "@/components/molecules";
+import { FEEDBACK_MESSAGES, SCREEN_TITLES } from "@/lib/screen-feedback-copy";
 import type { BillDetailEmptyStateVariant } from "@/screens/bill-detail/bill-detail.types";
 
 export type BillDetailEmptyStateProps = {

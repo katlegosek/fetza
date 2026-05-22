@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { AppText, Button, ScreenContainer } from "@/components";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/providers/auth";
 
 export default function SettingsScreen() {
   const router = useRouter();

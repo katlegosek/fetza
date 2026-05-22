@@ -1,4 +1,4 @@
-import type { NoticeBannerChrome } from "@/components/molecules/notice-banner";
+import type { NoticeBannerChrome } from "@/components/molecules";
 import type { MemberAvatarTones } from "@/lib/member-avatar-tones";
 
 /** Surface + text + icon for a member “assigning to…” banner (matches `Member.tone`). */

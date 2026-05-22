@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import { View } from "react-native";
 
-import { ScreenContainer, ScreenHeader } from "@/components";
+import { ScreenContainer } from "@/components/primitives";
 import { cn } from "@/lib/cn";
+
+import { ScreenHeader } from "./screen-header";
 
 export type ScreenFeedbackLayoutProps = {
   title?: string;

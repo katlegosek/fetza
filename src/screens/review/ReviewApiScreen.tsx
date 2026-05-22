@@ -20,9 +20,22 @@ import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
   Button,
-  ClearReceiptSheet,
   NoticeBanner,
   RECEIPT_ZIGZAG_DEPTH,
+  ScreenContainer,
+  ScreenErrorState,
+  ScreenHeader,
+  ScreenLoadingState,
+  ThermalReceipt,
+} from "@/components";
+import { usePullToRefresh, useThemeColors } from "@/hooks";
+import {
+  FEEDBACK_MESSAGES,
+  REVIEW_FEEDBACK_CONTAINER_CLASS,
+  SCREEN_TITLES,
+} from "@/lib/screen-feedback-copy";
+import {
+  ClearReceiptSheet,
   type ReviewAdjustmentSavePayload,
   ReviewAdjustmentSheet,
   type ReviewItemSavePayload,
@@ -30,19 +43,8 @@ import {
   ReviewMerchantSheet,
   ReviewOverflowMenu,
   ReviewTotalsSheet,
-  ScreenContainer,
-  ScreenErrorState,
-  ScreenHeader,
-  ScreenLoadingState,
-  ThermalReceipt,
   defaultAffectsTotalForKind,
-} from "@/components";
-import {
-  FEEDBACK_MESSAGES,
-  REVIEW_FEEDBACK_CONTAINER_CLASS,
-  SCREEN_TITLES,
-} from "@/components/feedback/screen-feedback-copy";
-import { usePullToRefresh, useThemeColors } from "@/hooks";
+} from "@/screens/review/components";
 import { billShowToReceiptView } from "@/screens/review/mappers/bill-to-receipt-view";
 import { useBill } from "@/services/bills/bill.hooks";
 import {

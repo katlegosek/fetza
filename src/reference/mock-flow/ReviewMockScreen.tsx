@@ -12,14 +12,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   AppText,
-  ClearReceiptSheet,
   NoticeBanner,
   RECEIPT_ZIGZAG_DEPTH,
-  ReviewItemSheet,
-  ReviewMerchantSheet,
-  ReviewOverflowMenu,
-  ReviewTotalsSheet,
-  type SaveBillFees,
   ScreenContainer,
   ScreenHeader,
   ThermalReceipt,
@@ -34,6 +28,14 @@ import { MOCK_DRAFT_BILL } from "@/reference/mock-flow/review-draft.mock";
 import type { DraftBill, ReceiptLine } from "@/types/draft-bill";
 
 import { ReviewBottomBar } from "@/screens/review/ReviewBottomBar";
+import {
+  ClearReceiptSheet,
+  ReviewItemSheet,
+  ReviewMerchantSheet,
+  ReviewOverflowMenu,
+  ReviewTotalsSheet,
+  type SaveBillFees,
+} from "@/screens/review/components";
 import type { SheetState } from "@/screens/review/review.constants";
 import {
   reviewFloatingActionScrollClearance,
