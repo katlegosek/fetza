@@ -14,32 +14,30 @@ export type LabeledFieldProps = {
   error?: string | null;
 };
 
-export function LabeledField({
+export const LabeledField = ({
   label,
   labelColor,
   cardBackgroundColor,
   cardBorderColor,
   children,
   error,
-}: LabeledFieldProps) {
-  return (
-    <>
-      <AppText
-        className={bottomSheetFormClasses.fieldLabel}
-        style={{ color: labelColor }}
-      >
-        {label}
-      </AppText>
-      <View
-        className={bottomSheetFormClasses.fieldCard}
-        style={{
-          backgroundColor: cardBackgroundColor,
-          borderColor: cardBorderColor,
-        }}
-      >
-        {children}
-      </View>
-      {error ? <AppText isError>{error}</AppText> : null}
-    </>
-  );
-}
+}: LabeledFieldProps) => (
+  <>
+    <AppText
+      className={bottomSheetFormClasses.fieldLabel}
+      style={{ color: labelColor }}
+    >
+      {label}
+    </AppText>
+    <View
+      className={bottomSheetFormClasses.fieldCard}
+      style={{
+        backgroundColor: cardBackgroundColor,
+        borderColor: cardBorderColor,
+      }}
+    >
+      {children}
+    </View>
+    {error ? <AppText isError>{error}</AppText> : null}
+  </>
+);

@@ -54,7 +54,7 @@ export type ThermalReceiptProps = {
   onAddAdjustment?: () => void;
 };
 
-export function ThermalReceipt({
+export const ThermalReceipt = ({
   width,
   draft,
   readOnly = false,
@@ -68,7 +68,7 @@ export function ThermalReceipt({
   onAddLine,
   onFeeRowPress,
   onAddAdjustment,
-}: ThermalReceiptProps) {
+}: ThermalReceiptProps) => {
   const formatAmount = formatAmountProp ?? formatZAR;
   const useFeeRows = feeRows !== undefined;
   const editableFeeRows = useFeeRows && !readOnly;
@@ -566,4 +566,4 @@ export function ThermalReceipt({
       </View>
     </View>
   );
-}
+};

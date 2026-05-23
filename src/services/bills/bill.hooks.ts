@@ -1,31 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { billQueryKeys } from "@/services/bills/bill.keys";
-import {
-  getBill,
-  getBillSummary,
-  getBills,
-} from "@/services/bills/bill.service";
+import billService from "@/services/bills/bill.service";
 
-export function useBills() {
-  return useQuery({
+export const useBills = () =>
+  useQuery({
     queryKey: billQueryKeys.list(),
-    queryFn: getBills,
+    queryFn: billService.getBills,
   });
-}
 
-export function useBill(billId: number) {
-  return useQuery({
+export const useBill = (billId: number) =>
+  useQuery({
     queryKey: billQueryKeys.detail(billId),
-    queryFn: () => getBill(billId),
+    queryFn: () => billService.getBill(billId),
     enabled: billId > 0,
   });
-}
 
-export function useBillSummary(billId: number) {
-  return useQuery({
+export const useBillSummary = (billId: number) =>
+  useQuery({
     queryKey: billQueryKeys.summary(billId),
-    queryFn: () => getBillSummary(billId),
+    queryFn: () => billService.getBillSummary(billId),
     enabled: billId > 0,
   });
-}

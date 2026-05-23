@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { billShowToAssignData } from "@/screens/assign/mappers/bill-to-assign";
 import { useBill, useBillSummary } from "@/services/bills/bill.hooks";
 
-export function useAssignApiData(billId: number) {
+export const useAssignApiData = (billId: number) => {
   const billQuery = useBill(billId);
   const summaryQuery = useBillSummary(billId);
 
@@ -26,4 +26,4 @@ export function useAssignApiData(billId: number) {
     refetchBill: billQuery.refetch,
     refetchSummary: summaryQuery.refetch,
   };
-}
+};

@@ -6,7 +6,7 @@ import type { BottomSheetAppearance } from "./types";
  * Theme-driven colors for `BottomSheet` chrome and fields that use `bottomSheetFormClasses`.
  * This is **not** open/close state — use `useBottomSheetVisibility` from `@/hooks` for that.
  */
-export function useBottomSheetAppearance(): BottomSheetAppearance {
+export const useBottomSheetAppearance = (): BottomSheetAppearance => {
   const colors = useThemeColors();
   const scheme = useAppColorScheme();
   const fieldBg =
@@ -20,4 +20,4 @@ export function useBottomSheetAppearance(): BottomSheetAppearance {
     handle: colors.borderSubtle,
     onPrimary: colors.background,
   };
-}
+};

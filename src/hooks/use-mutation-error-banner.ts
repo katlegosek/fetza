@@ -8,10 +8,10 @@ const DEFAULT_DISMISS_MS = 4000;
  * Inline mutation error banner: maps failures via {@link getApiErrorMessage} and
  * auto-clears after a short delay.
  */
-export function useMutationErrorBanner(
+export const useMutationErrorBanner = (
   fallbackMessage: string,
   dismissMs = DEFAULT_DISMISS_MS,
-) {
+) => {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,4 +35,4 @@ export function useMutationErrorBanner(
     setMessage,
     showError,
   };
-}
+};

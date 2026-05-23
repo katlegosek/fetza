@@ -10,7 +10,7 @@ type BarSpec = {
   isTallStripe: boolean;
 };
 
-export function FauxBarcode({ seed, foregroundColor }: FauxBarcodeProps) {
+export const FauxBarcode = ({ seed, foregroundColor }: FauxBarcodeProps) => {
   const barSpecs = (): BarSpec[] =>
     seed.split("").map((character, index) => {
       const codeUnit = character.charCodeAt(0);
@@ -33,4 +33,4 @@ export function FauxBarcode({ seed, foregroundColor }: FauxBarcodeProps) {
       ))}
     </View>
   );
-}
+};

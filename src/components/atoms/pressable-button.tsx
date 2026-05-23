@@ -14,27 +14,25 @@ export type PressableButtonProps = Omit<PressableProps, "children"> & {
   className?: string;
 };
 
-export function PressableButton({
+export const PressableButton = ({
   children,
   className,
   accessibilityRole = "button",
   accessibilityState,
   disabled,
   ...props
-}: PressableButtonProps) {
-  return (
-    <Pressable
-      accessibilityRole={accessibilityRole}
-      accessibilityState={{ ...accessibilityState, disabled: !!disabled }}
-      className={cn(
-        pressableChrome,
-        disabled ? disabledChrome : undefined,
-        className,
-      )}
-      disabled={disabled}
-      {...props}
-    >
-      {children}
-    </Pressable>
-  );
-}
+}: PressableButtonProps) => (
+  <Pressable
+    accessibilityRole={accessibilityRole}
+    accessibilityState={{ ...accessibilityState, disabled: !!disabled }}
+    className={cn(
+      pressableChrome,
+      disabled ? disabledChrome : undefined,
+      className,
+    )}
+    disabled={disabled}
+    {...props}
+  >
+    {children}
+  </Pressable>
+);

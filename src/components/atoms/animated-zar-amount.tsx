@@ -20,12 +20,12 @@ export type AnimatedZarAmountProps = {
 };
 
 /** Smoothly interpolates the displayed amount when `cents` changes. */
-export function AnimatedZarAmount({
+export const AnimatedZarAmount = ({
   cents,
   duration = 350,
   style,
   testID,
-}: AnimatedZarAmountProps) {
+}: AnimatedZarAmountProps) => {
   const progress = useSharedValue(cents);
 
   useEffect(() => {
@@ -53,4 +53,4 @@ export function AnimatedZarAmount({
       style={[{ padding: 0, margin: 0, borderWidth: 0, minWidth: 0 }, style]}
     />
   );
-}
+};

@@ -25,12 +25,12 @@ export type ClearReceiptSheetProps = {
 /**
  * Destructive confirm sheet for clearing all receipt lines — single primary action only.
  */
-export function ClearReceiptSheet({
+export const ClearReceiptSheet = ({
   visible,
   bottomInset = 0,
   onClose,
   onConfirmClear,
-}: ClearReceiptSheetProps) {
+}: ClearReceiptSheetProps) => {
   const a = useBottomSheetAppearance();
   const colors = useThemeColors();
 
@@ -121,4 +121,4 @@ export function ClearReceiptSheet({
       </View>
     </Modal>
   );
-}
+};

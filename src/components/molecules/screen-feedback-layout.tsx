@@ -25,7 +25,7 @@ export function shouldShowScreenFeedbackHeader(
   return title !== undefined || onBack !== undefined;
 }
 
-export function ScreenFeedbackLayout({
+export const ScreenFeedbackLayout = ({
   title,
   topHint,
   onBack,
@@ -33,7 +33,7 @@ export function ScreenFeedbackLayout({
   bodyClassName,
   showHeader,
   children,
-}: ScreenFeedbackLayoutProps) {
+}: ScreenFeedbackLayoutProps) => {
   const headerVisible = shouldShowScreenFeedbackHeader(
     title,
     onBack,
@@ -59,4 +59,4 @@ export function ScreenFeedbackLayout({
       </View>
     </ScreenContainer>
   );
-}
+};

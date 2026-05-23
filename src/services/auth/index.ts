@@ -10,13 +10,7 @@ export {
   AuthSessionError,
   isAuthSessionError,
 } from "@/services/auth/auth.errors";
-export {
-  getCurrentUser,
-  login,
-  logout,
-  refreshSession,
-  restoreSession,
-} from "@/services/auth/auth.service";
+export { default as authService } from "@/services/auth/auth.service";
 export {
   clearAuthTokens,
   getAccessToken,

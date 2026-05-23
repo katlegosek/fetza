@@ -70,7 +70,7 @@ function lineListIcon(
   return pool[index % pool.length];
 }
 
-export function AssignLineRow(props: AssignLineRowProps) {
+export const AssignLineRow = (props: AssignLineRowProps) => {
   const colors = useThemeColors();
   const { line, lineHint, onPress, index } = props;
   const formatAmount = props.formatAmount ?? formatZAR;
@@ -206,4 +206,4 @@ export function AssignLineRow(props: AssignLineRowProps) {
       </View>
     </Pressable>
   );
-}
+};

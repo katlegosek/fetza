@@ -10,11 +10,11 @@ export type UseAssignDataOptions = {
   summaryData?: BillSummary;
 };
 
-export function useAssignData({
+export const useAssignData = ({
   lines,
   displayAssignments,
   summaryData,
-}: UseAssignDataOptions) {
+}: UseAssignDataOptions) => {
   const assignedItemsTotalCents = summaryData?.totals.assigned_total_cents ?? 0;
 
   const assignedLineCount = useMemo(() => {
@@ -36,4 +36,4 @@ export function useAssignData({
     assignmentLineTotal,
     allLinesAssigned,
   };
-}
+};

@@ -17,13 +17,13 @@ export type ReviewMerchantSheetProps = {
   onClose: () => void;
 };
 
-export function ReviewMerchantSheet({
+export const ReviewMerchantSheet = ({
   visible,
   merchant,
   bottomInset = 0,
   onSave,
   onClose,
-}: ReviewMerchantSheetProps) {
+}: ReviewMerchantSheetProps) => {
   const a = useBottomSheetAppearance();
   const [value, setValue] = useState(merchant);
   const [error, setError] = useState<string | null>(null);
@@ -104,4 +104,4 @@ export function ReviewMerchantSheet({
       </View>
     </BottomSheet>
   );
-}
+};

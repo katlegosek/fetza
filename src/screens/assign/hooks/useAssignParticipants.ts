@@ -22,7 +22,7 @@ export type UseAssignParticipantsOptions = {
   setAssignmentError?: (message: string | null) => void;
 };
 
-export function useAssignParticipants({
+export const useAssignParticipants = ({
   billId,
   isApiMode,
   members,
@@ -30,7 +30,7 @@ export function useAssignParticipants({
   setActiveMember,
   showAssignmentError,
   setAssignmentError,
-}: UseAssignParticipantsOptions) {
+}: UseAssignParticipantsOptions) => {
   const billParticipants = useBillParticipants(billId);
 
   const addMemberWithName = useCallback(
@@ -133,4 +133,4 @@ export function useAssignParticipants({
     handleManagePeople,
     addMemberWithName,
   };
-}
+};

@@ -14,7 +14,7 @@ export type ScreenLoadingStateProps = {
   loadingAccessibilityLabel?: string;
 };
 
-export function ScreenLoadingState({
+export const ScreenLoadingState = ({
   title,
   topHint,
   message,
@@ -22,20 +22,18 @@ export function ScreenLoadingState({
   containerClassName,
   showHeader,
   loadingAccessibilityLabel,
-}: ScreenLoadingStateProps) {
-  return (
-    <ScreenFeedbackLayout
-      title={title}
-      topHint={topHint}
-      onBack={onBack}
-      containerClassName={containerClassName}
-      showHeader={showHeader}
-      bodyClassName="gap-3"
-    >
-      <ActivityIndicator
-        accessibilityLabel={loadingAccessibilityLabel ?? message}
-      />
-      <AppText className="text-sm text-muted">{message}</AppText>
-    </ScreenFeedbackLayout>
-  );
-}
+}: ScreenLoadingStateProps) => (
+  <ScreenFeedbackLayout
+    title={title}
+    topHint={topHint}
+    onBack={onBack}
+    containerClassName={containerClassName}
+    showHeader={showHeader}
+    bodyClassName="gap-3"
+  >
+    <ActivityIndicator
+      accessibilityLabel={loadingAccessibilityLabel ?? message}
+    />
+    <AppText className="text-sm text-muted">{message}</AppText>
+  </ScreenFeedbackLayout>
+);

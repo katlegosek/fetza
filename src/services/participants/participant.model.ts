@@ -8,14 +8,12 @@ import type {
   ParticipantMutationResponse,
 } from "@/services/participants/types";
 
-export function parseParticipantMutationResponse(
+export const parseParticipantMutationResponse = (
   data: unknown,
-): ParticipantMutationResponse {
-  return parseApiResponse(ParticipantMutationResponseSchema, data);
-}
+): ParticipantMutationResponse =>
+  parseApiResponse(ParticipantMutationResponseSchema, data);
 
-export function parseParticipantDeleteResponse(
+export const parseParticipantDeleteResponse = (
   data: unknown,
-): ParticipantDeleteResponse {
-  return parseApiResponse(ParticipantDeleteResponseSchema, data);
-}
+): ParticipantDeleteResponse =>
+  parseApiResponse(ParticipantDeleteResponseSchema, data);

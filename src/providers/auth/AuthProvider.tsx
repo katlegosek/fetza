@@ -12,11 +12,7 @@ import {
 import { isApiError } from "@/api/errors";
 import { isAuthSessionError } from "@/services/auth/auth.errors";
 import { authKeys } from "@/services/auth/auth.keys";
-import {
-  login as loginService,
-  logout as logoutService,
-  restoreSession,
-} from "@/services/auth/auth.service";
+import authService from "@/services/auth/auth.service";
 import { getAccessToken } from "@/services/auth/auth.storage";
 import type { AuthUser, LoginPayload } from "@/services/auth/types";
 import { billQueryKeys } from "@/services/bills/bill.keys";
@@ -35,14 +31,14 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-async function syncHasToken(
+const syncHasToken = async (
   setHasToken: (value: boolean) => void,
-): Promise<void> {
+): Promise<void> => {
   const token = await getAccessToken();
   setHasToken(Boolean(token));
-}
+};
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
   const authEnabled = isAuthEnabled();
   const [tokenChecked, setTokenChecked] = useState(false);
@@ -51,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
 
-    async function loadToken() {
+    const loadToken = async () => {
       try {
         const token = await getAccessToken();
         if (!cancelled) {
@@ -62,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setTokenChecked(true);
         }
       }
-    }
+    };
 
     void loadToken();
 
@@ -79,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refetch: refetchSession,
   } = useQuery({
     queryKey: authKeys.currentUser(),
-    queryFn: restoreSession,
+    queryFn: authService.restoreSession,
     enabled: authEnabled && hasToken && tokenChecked,
     retry: false,
   });
@@ -106,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (payload: LoginPayload) => {
-      const session = await loginService(payload);
+      const session = await authService.login(payload);
       setHasToken(true);
       queryClient.setQueryData(authKeys.currentUser(), session.user);
       queryClient.setQueryData(authKeys.session(), session);
@@ -115,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await logoutService();
+    await authService.logout();
     setHasToken(false);
     queryClient.removeQueries({ queryKey: authKeys.all });
     queryClient.removeQueries({ queryKey: billQueryKeys.all });
@@ -158,9 +154,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
-export function useAuth(): AuthContextValue {
+export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
 
   if (!context) {
@@ -168,4 +164,4 @@ export function useAuth(): AuthContextValue {
   }
 
   return context;
-}
+};

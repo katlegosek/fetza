@@ -1,10 +1,17 @@
-export const receiptUrls = {
-  receipt: (receiptId: number) => `/receipts/${receiptId}`,
-  billReceiptImages: (billId: number) => `/bills/${billId}/receipt_images`,
-  billReceiptItems: (billId: number) => `/bills/${billId}/receipt_items`,
-  receiptItem: (receiptItemId: number) => `/receipt_items/${receiptItemId}`,
+const billsBase = "/bills";
+const receiptsBase = "/receipts";
+const receiptItemsBase = "/receipt_items";
+const receiptAdjustmentsBase = "/receipt_adjustments";
+
+export default {
+  receipt: (receiptId: number) => `${receiptsBase}/${receiptId}`,
+  billReceiptImages: (billId: number) =>
+    `${billsBase}/${billId}/receipt_images`,
+  billReceiptItems: (billId: number) => `${billsBase}/${billId}/receipt_items`,
+  receiptItem: (receiptItemId: number) =>
+    `${receiptItemsBase}/${receiptItemId}`,
   receiptAdjustments: (receiptId: number) =>
-    `/receipts/${receiptId}/adjustments`,
+    `${receiptsBase}/${receiptId}/adjustments`,
   receiptAdjustment: (adjustmentId: number) =>
-    `/receipt_adjustments/${adjustmentId}`,
-} as const;
+    `${receiptAdjustmentsBase}/${adjustmentId}`,
+};

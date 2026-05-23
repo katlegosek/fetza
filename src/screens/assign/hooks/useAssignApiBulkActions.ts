@@ -9,11 +9,11 @@ export type UseAssignApiBulkActionsOptions = {
   showAssignmentError: (error: unknown) => void;
 };
 
-export function useAssignApiBulkActions({
+export const useAssignApiBulkActions = ({
   billId,
   setActiveMember,
   showAssignmentError,
-}: UseAssignApiBulkActionsOptions) {
+}: UseAssignApiBulkActionsOptions) => {
   const bulkAssignments = useBillBulkAssignments(billId);
 
   const handleSplitEqually = useCallback(() => {
@@ -57,4 +57,4 @@ export function useAssignApiBulkActions({
     handleSplitEqually,
     handleSplitUnassignedItems,
   };
-}
+};

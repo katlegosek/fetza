@@ -16,36 +16,30 @@ import type {
   ReceiptUploadResponse,
 } from "@/services/receipts/types";
 
-export function parseReceiptShowResponse(data: unknown): ReceiptShowResponse {
-  return parseApiResponse(ReceiptShowResponseSchema, data);
-}
+export const parseReceiptShowResponse = (data: unknown): ReceiptShowResponse =>
+  parseApiResponse(ReceiptShowResponseSchema, data);
 
-export function parseReceiptUploadResponse(
+export const parseReceiptUploadResponse = (
   data: unknown,
-): ReceiptUploadResponse {
-  return parseApiResponse(ReceiptImageUploadResponseSchema, data);
-}
+): ReceiptUploadResponse =>
+  parseApiResponse(ReceiptImageUploadResponseSchema, data);
 
-export function parseReceiptItemMutationResponse(
+export const parseReceiptItemMutationResponse = (
   data: unknown,
-): ReceiptItemMutationResponse {
-  return parseApiResponse(ReceiptItemMutationResponseSchema, data);
-}
+): ReceiptItemMutationResponse =>
+  parseApiResponse(ReceiptItemMutationResponseSchema, data);
 
-export function parseReceiptItemDeleteResponse(
+export const parseReceiptItemDeleteResponse = (
   data: unknown,
-): ReceiptItemDeleteResponse {
-  return parseApiResponse(ReceiptItemDeleteResponseSchema, data);
-}
+): ReceiptItemDeleteResponse =>
+  parseApiResponse(ReceiptItemDeleteResponseSchema, data);
 
-export function parseReceiptAdjustmentMutationResponse(
+export const parseReceiptAdjustmentMutationResponse = (
   data: unknown,
-): ReceiptAdjustmentMutationResponse {
-  return parseApiResponse(ReceiptAdjustmentMutationResponseSchema, data);
-}
+): ReceiptAdjustmentMutationResponse =>
+  parseApiResponse(ReceiptAdjustmentMutationResponseSchema, data);
 
-export function parseReceiptAdjustmentDeleteResponse(
+export const parseReceiptAdjustmentDeleteResponse = (
   data: unknown,
-): ReceiptAdjustmentDeleteResponse {
-  return parseApiResponse(ReceiptAdjustmentDeleteResponseSchema, data);
-}
+): ReceiptAdjustmentDeleteResponse =>
+  parseApiResponse(ReceiptAdjustmentDeleteResponseSchema, data);

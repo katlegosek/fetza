@@ -10,14 +10,11 @@ import type {
   BillsIndexResponse,
 } from "@/services/bills/types";
 
-export function parseBillListResponse(data: unknown): BillsIndexResponse {
-  return parseApiResponse(BillListResponseSchema, data);
-}
+export const parseBillListResponse = (data: unknown): BillsIndexResponse =>
+  parseApiResponse(BillListResponseSchema, data);
 
-export function parseBillShowResponse(data: unknown): BillShowResponse {
-  return parseApiResponse(BillShowResponseSchema, data);
-}
+export const parseBillShowResponse = (data: unknown): BillShowResponse =>
+  parseApiResponse(BillShowResponseSchema, data);
 
-export function parseBillSummaryResponse(data: unknown): BillSummary {
-  return parseApiResponse(BillSummaryResponseSchema, data);
-}
+export const parseBillSummaryResponse = (data: unknown): BillSummary =>
+  parseApiResponse(BillSummaryResponseSchema, data);

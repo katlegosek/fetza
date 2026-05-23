@@ -13,12 +13,12 @@ export type UseBottomSheetVisibilityResult = {
  * UI-agnostic — pair with any component that takes `visible` and `onClose`.
  * For several mutually exclusive sheets, prefer one state machine instead of many hooks.
  */
-export function useBottomSheetVisibility(
+export const useBottomSheetVisibility = (
   initialVisible = false,
-): UseBottomSheetVisibilityResult {
+): UseBottomSheetVisibilityResult => {
   const [visible, setVisible] = useState(initialVisible);
   const open = useCallback(() => setVisible(true), []);
   const close = useCallback(() => setVisible(false), []);
   const toggle = useCallback(() => setVisible((v) => !v), []);
   return { visible, open, close, toggle, setVisible };
-}
+};

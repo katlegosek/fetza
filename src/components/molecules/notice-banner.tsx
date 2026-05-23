@@ -50,7 +50,7 @@ export type NoticeBannerProps = ViewProps & {
   dismissAccessibilityLabel?: string;
 };
 
-export function NoticeBanner({
+export const NoticeBanner = ({
   icon,
   message,
   iconSize = 20,
@@ -61,7 +61,7 @@ export function NoticeBanner({
   className,
   style,
   ...rest
-}: NoticeBannerProps) {
+}: NoticeBannerProps) => {
   const scheme = useAppColorScheme();
   const preset = PRESETS[variant] ?? PRESETS.sky;
   const iconColor =
@@ -100,4 +100,4 @@ export function NoticeBanner({
       ) : null}
     </View>
   );
-}
+};

@@ -54,7 +54,7 @@ export type ReviewAdjustmentSheetProps = {
   onClose: () => void;
 };
 
-export function ReviewAdjustmentSheet({
+export const ReviewAdjustmentSheet = ({
   visible,
   label,
   kind,
@@ -67,7 +67,7 @@ export function ReviewAdjustmentSheet({
   onSave,
   onDelete,
   onClose,
-}: ReviewAdjustmentSheetProps) {
+}: ReviewAdjustmentSheetProps) => {
   const a = useBottomSheetAppearance();
 
   const [labelValue, setLabelValue] = useState(label);
@@ -314,4 +314,4 @@ export function ReviewAdjustmentSheet({
       </View>
     </BottomSheet>
   );
-}
+};

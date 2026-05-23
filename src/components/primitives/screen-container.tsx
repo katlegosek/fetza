@@ -12,14 +12,12 @@ type ScreenContainerProps = ViewProps & {
  * Default full-screen route wrapper (flex + bg-background via NativeWind).
  * Narrow auth layouts can be a separate component when you add login.
  */
-export function ScreenContainer({
+export const ScreenContainer = ({
   children,
   className,
   ...props
-}: ScreenContainerProps) {
-  return (
-    <View className={cn("flex-1 bg-background", className)} {...props}>
-      {children}
-    </View>
-  );
-}
+}: ScreenContainerProps) => (
+  <View className={cn("flex-1 bg-background", className)} {...props}>
+    {children}
+  </View>
+);

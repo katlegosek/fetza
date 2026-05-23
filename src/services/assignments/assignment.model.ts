@@ -6,14 +6,12 @@ import type {
   ItemAssignmentMutationResponse,
 } from "@/services/assignments/types";
 
-export function parseItemAssignmentMutationResponse(
+export const parseItemAssignmentMutationResponse = (
   data: unknown,
-): ItemAssignmentMutationResponse {
-  return parseApiResponse(ItemAssignmentMutationResponseSchema, data);
-}
+): ItemAssignmentMutationResponse =>
+  parseApiResponse(ItemAssignmentMutationResponseSchema, data);
 
-export function parseBulkAssignmentMutationResponse(
+export const parseBulkAssignmentMutationResponse = (
   data: unknown,
-): BulkAssignmentMutationResponse {
-  return parseApiResponse(BulkAssignmentResponseSchema, data);
-}
+): BulkAssignmentMutationResponse =>
+  parseApiResponse(BulkAssignmentResponseSchema, data);

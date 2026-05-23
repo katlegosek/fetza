@@ -12,14 +12,14 @@ import { SheetCloseButton } from "./sheet-close-button";
 import type { BottomSheetProps } from "./types";
 import { useBottomSheetAppearance } from "./use-bottom-sheet-appearance";
 
-export function BottomSheet({
+export const BottomSheet = ({
   visible,
   onClose,
   bottomInset = 0,
   title,
   subtitle,
   children,
-}: BottomSheetProps) {
+}: BottomSheetProps) => {
   const a = useBottomSheetAppearance();
 
   const translateY = useSharedValue(visible ? 0 : 600);
@@ -95,4 +95,4 @@ export function BottomSheet({
       </View>
     </Modal>
   );
-}
+};

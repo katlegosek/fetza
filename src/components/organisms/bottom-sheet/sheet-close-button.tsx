@@ -10,10 +10,10 @@ export type SheetCloseButtonProps = {
 };
 
 /** Circular muted close control — shared by bottom sheets and modals. */
-export function SheetCloseButton({
+export const SheetCloseButton = ({
   onPress,
   accessibilityLabel = "Close",
-}: SheetCloseButtonProps) {
+}: SheetCloseButtonProps) => {
   const colors = useThemeColors();
 
   return (
@@ -28,4 +28,4 @@ export function SheetCloseButton({
       <Ionicons name="close" size={22} color={colors.foreground} />
     </Pressable>
   );
-}
+};

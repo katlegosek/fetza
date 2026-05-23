@@ -5,7 +5,7 @@ import { useMutationErrorBanner } from "@/hooks/use-mutation-error-banner";
 import type { BillSummaryParticipant } from "@/services/bills/types";
 import { useBillParticipants } from "@/services/participants/participant.hooks";
 
-export function useParticipantSettlement(billId: number) {
+export const useParticipantSettlement = (billId: number) => {
   const { toggleParticipantSettled } = useBillParticipants(billId);
   const {
     message: summaryError,
@@ -31,4 +31,4 @@ export function useParticipantSettlement(billId: number) {
     setSummaryError,
     handleToggleSettled,
   };
-}
+};

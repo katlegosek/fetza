@@ -9,11 +9,9 @@ export type AppTextProps = TextProps & {
   isError?: boolean;
 };
 
-export function AppText({ className, isError, ...props }: AppTextProps) {
-  return (
-    <Text
-      className={cn(isError && "mt-2 text-sm text-red-600", className)}
-      {...props}
-    />
-  );
-}
+export const AppText = ({ className, isError, ...props }: AppTextProps) => (
+  <Text
+    className={cn(isError && "mt-2 text-sm text-red-600", className)}
+    {...props}
+  />
+);

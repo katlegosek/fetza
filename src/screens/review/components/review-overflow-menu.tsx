@@ -16,7 +16,7 @@ export type ReviewOverflowMenuProps = {
   onClearReceipt: () => void;
 };
 
-function Row({
+const Row = ({
   icon,
   label,
   destructive,
@@ -26,7 +26,7 @@ function Row({
   label: string;
   destructive?: boolean;
   onPress: () => void;
-}) {
+}) => {
   const colors = useThemeColors();
   const fg = destructive ? "#dc2626" : colors.foreground;
 
@@ -51,9 +51,9 @@ function Row({
       </View>
     </Pressable>
   );
-}
+};
 
-export function ReviewOverflowMenu({
+export const ReviewOverflowMenu = ({
   visible,
   top,
   onClose,
@@ -61,7 +61,7 @@ export function ReviewOverflowMenu({
   onHelp,
   onRescan,
   onClearReceipt,
-}: ReviewOverflowMenuProps) {
+}: ReviewOverflowMenuProps) => {
   const colors = useThemeColors();
   const { width: windowWidth } = useWindowDimensions();
   /** Fits longest row without excess horizontal padding. */
@@ -118,4 +118,4 @@ export function ReviewOverflowMenu({
       </View>
     </Modal>
   );
-}
+};

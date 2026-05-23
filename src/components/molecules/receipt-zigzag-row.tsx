@@ -9,11 +9,11 @@ export type ReceiptZigzagRowProps = {
   pointUp?: boolean;
 };
 
-export function ReceiptZigzagRow({
+export const ReceiptZigzagRow = ({
   teethCount,
   color,
   pointUp = false,
-}: ReceiptZigzagRowProps) {
+}: ReceiptZigzagRowProps) => {
   const halfTooth = RECEIPT_ZIGZAG_TOOTH / 2;
   const toothStyle = {
     borderLeftWidth: halfTooth,
@@ -35,4 +35,4 @@ export function ReceiptZigzagRow({
       ))}
     </View>
   );
-}
+};

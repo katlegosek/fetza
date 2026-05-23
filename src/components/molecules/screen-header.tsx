@@ -27,34 +27,32 @@ export type ScreenHeaderTextActionProps = {
 };
 
 /** Trailing header control; matches weight/tap opacity used for “Split equally”. */
-export function ScreenHeaderTextAction({
+export const ScreenHeaderTextAction = ({
   label,
   onPress,
   accessibilityLabel,
   leading,
-}: ScreenHeaderTextActionProps) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
-      className="max-w-[9rem] flex-row items-center gap-1 py-1 pl-2 active:opacity-70"
-      onPress={onPress}
+}: ScreenHeaderTextActionProps) => (
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={accessibilityLabel ?? label}
+    className="max-w-[9rem] flex-row items-center gap-1 py-1 pl-2 active:opacity-70"
+    onPress={onPress}
+  >
+    {leading}
+    <AppText
+      className="shrink text-right text-sm font-semibold leading-snug text-foreground"
+      numberOfLines={2}
     >
-      {leading}
-      <AppText
-        className="shrink text-right text-sm font-semibold leading-snug text-foreground"
-        numberOfLines={2}
-      >
-        {label}
-      </AppText>
-    </Pressable>
-  );
-}
+      {label}
+    </AppText>
+  </Pressable>
+);
 
 /**
  * Split-inspired chrome: circular back control, title stack (hints + title).
  */
-export function ScreenHeader({
+export const ScreenHeader = ({
   title,
   topHint,
   bottomHint,
@@ -63,7 +61,7 @@ export function ScreenHeader({
   rightSlot,
   className,
   ...props
-}: ScreenHeaderProps) {
+}: ScreenHeaderProps) => {
   const insets = useSafeAreaInsets();
   const end = titleAlign === "right";
   const compact = !topHint && !bottomHint;
@@ -149,4 +147,4 @@ export function ScreenHeader({
       ) : null}
     </View>
   );
-}
+};

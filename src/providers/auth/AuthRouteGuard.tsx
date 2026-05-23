@@ -6,7 +6,7 @@ import { AppText } from "@/components/atoms";
 
 import { useAuth } from "./AuthProvider";
 
-export function AuthRouteGuard({ children }: { children: ReactNode }) {
+export const AuthRouteGuard = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const segments = useSegments();
   const { isAuthenticated, isLoadingAuth, isAuthEnabled } = useAuth();
@@ -48,4 +48,4 @@ export function AuthRouteGuard({ children }: { children: ReactNode }) {
   }
 
   return children;
-}
+};

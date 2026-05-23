@@ -1,9 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-import {
-  getReceipt,
-  uploadReceiptImage,
-} from "@/services/receipts/receipt.service";
+import receiptService from "@/services/receipts/receipt.service";
 import type {
   ProcessingRunStatus,
   ReceiptStatus,
@@ -60,15 +57,15 @@ function shouldPollReceipt(
   return receiptStatus === "draft" || receiptStatus === "processing";
 }
 
-export function useReceipt(
+export const useReceipt = (
   receiptId: number,
   options?: { pollWhileProcessing?: boolean },
-) {
+) => {
   const pollWhileProcessing = options?.pollWhileProcessing ?? false;
 
   return useQuery({
     queryKey: receiptQueryKeys.detail(receiptId),
-    queryFn: () => getReceipt(receiptId),
+    queryFn: () => receiptService.getReceipt(receiptId),
     enabled: receiptId > 0,
     refetchIntervalInBackground: false,
     refetchInterval: (query) => {
@@ -86,16 +83,15 @@ export function useReceipt(
       return false;
     },
   });
-}
+};
 
 export type UploadReceiptImageVariables = {
   billId: number;
   formData: FormData;
 };
 
-export function useUploadReceiptImage() {
-  return useMutation({
+export const useUploadReceiptImage = () =>
+  useMutation({
     mutationFn: ({ billId, formData }: UploadReceiptImageVariables) =>
-      uploadReceiptImage(billId, formData),
+      receiptService.uploadReceiptImage(billId, formData),
   });
-}

@@ -19,11 +19,11 @@ export type ReceiptProcessingCardProps = {
   subtitle?: string;
 };
 
-export function ReceiptProcessingCard({
+export const ReceiptProcessingCard = ({
   activeStepIndex,
   allComplete = false,
   subtitle = "This usually takes a few seconds.",
-}: ReceiptProcessingCardProps) {
+}: ReceiptProcessingCardProps) => {
   const colors = useThemeColors();
 
   return (
@@ -82,4 +82,4 @@ export function ReceiptProcessingCard({
       </View>
     </View>
   );
-}
+};

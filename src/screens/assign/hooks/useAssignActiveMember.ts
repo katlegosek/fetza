@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 
-export function useAssignActiveMember() {
+export const useAssignActiveMember = () => {
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
   const activeMemberIdRef = useRef<string | null>(null);
 
@@ -14,4 +14,4 @@ export function useAssignActiveMember() {
     activeMemberIdRef,
     setActiveMember,
   };
-}
+};

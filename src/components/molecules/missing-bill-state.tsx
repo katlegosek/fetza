@@ -9,7 +9,7 @@ export type MissingBillStateProps = {
   message: string;
 };
 
-export function MissingBillState({ title, message }: MissingBillStateProps) {
+export const MissingBillState = ({ title, message }: MissingBillStateProps) => {
   const router = useRouter();
 
   return (
@@ -21,4 +21,4 @@ export function MissingBillState({ title, message }: MissingBillStateProps) {
       onAction={() => router.replace("/(tabs)")}
     />
   );
-}
+};

@@ -22,7 +22,7 @@ import {
   buildReceiptUploadFormData,
   pickReceiptImage,
 } from "@/lib/receipt-upload";
-import { createBill } from "@/services/bills/bill.service";
+import billService from "@/services/bills/bill.service";
 import {
   isReceiptProcessingComplete,
   useReceipt,
@@ -135,7 +135,7 @@ export default function ScanScreen() {
         let targetBillId = billId;
 
         if (targetBillId <= 0) {
-          const created = await createBill();
+          const created = await billService.createBill();
           targetBillId = created.bill.id;
           setBillId(targetBillId);
           await invalidateBillQueries(queryClient, targetBillId);

@@ -20,7 +20,7 @@ import { LoginFormSchema } from "@/screens/auth/auth-screen.schema";
 const DEV_EMAIL = "dev@fetza.local";
 const DEV_PASSWORD = "password123";
 
-export function LoginScreen() {
+export const LoginScreen = () => {
   const router = useRouter();
   const colors = useThemeColors();
   const { login } = useAuth();
@@ -34,7 +34,7 @@ export function LoginScreen() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleLogin() {
+  const handleLogin = async () => {
     setSubmitError(null);
     setFieldErrors({});
 
@@ -64,7 +64,7 @@ export function LoginScreen() {
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <ScreenContainer className="flex-1">
@@ -145,4 +145,4 @@ export function LoginScreen() {
       </KeyboardAvoidingView>
     </ScreenContainer>
   );
-}
+};

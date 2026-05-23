@@ -49,7 +49,7 @@ function initials(name: string): string {
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
-export function AssignItemSheet({
+export const AssignItemSheet = ({
   visible,
   line,
   members,
@@ -59,7 +59,7 @@ export function AssignItemSheet({
   onClose,
   onSave,
   readOnly = false,
-}: AssignItemSheetProps) {
+}: AssignItemSheetProps) => {
   const formatAmount = formatAmountProp ?? formatZAR;
   const colors = useThemeColors();
   const onCloseRef = useRef(onClose);
@@ -508,4 +508,4 @@ export function AssignItemSheet({
       </View>
     </Modal>
   );
-}
+};

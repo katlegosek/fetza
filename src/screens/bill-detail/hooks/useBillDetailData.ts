@@ -1,7 +1,7 @@
 import { usePullToRefresh } from "@/hooks";
 import { useBillSummary } from "@/services/bills/bill.hooks";
 
-export function useBillDetailData(billId: number) {
+export const useBillDetailData = (billId: number) => {
   const { data, isLoading, isError, error, refetch } = useBillSummary(billId);
   const { refreshing: pullRefreshing, onRefresh: onPullRefresh } =
     usePullToRefresh(refetch);
@@ -18,4 +18,4 @@ export function useBillDetailData(billId: number) {
     onPullRefresh,
     headerTitle,
   };
-}
+};

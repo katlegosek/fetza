@@ -3,11 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import { billQueryKeys } from "@/services/bills/bill.keys";
 import type { BillSummary } from "@/services/bills/types";
-import {
-  createParticipant,
-  deleteParticipant,
-  updateParticipant,
-} from "@/services/participants/participant.service";
+import participantService from "@/services/participants/participant.service";
 import type {
   ParticipantDeleteResponse,
   ParticipantInput,
@@ -19,10 +15,13 @@ type ParticipantMutationResponseLike = {
   bill_summary: BillSummary;
 };
 
-function useParticipantBillMutation<
+const useParticipantBillMutation = <
   TVariables,
   TData extends ParticipantMutationResponseLike,
->(billId: number, mutationFn: (variables: TVariables) => Promise<TData>) {
+>(
+  billId: number,
+  mutationFn: (variables: TVariables) => Promise<TData>,
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -37,7 +36,7 @@ function useParticipantBillMutation<
       void invalidateBillQueries(queryClient, billId);
     },
   });
-}
+};
 
 export type CreateBillParticipantVariables = {
   participant: ParticipantInput;
@@ -57,32 +56,36 @@ type ToggleSettledContext = {
   previousSummary: BillSummary | undefined;
 };
 
-export function useBillParticipants(billId: number) {
+export const useBillParticipants = (billId: number) => {
   const queryClient = useQueryClient();
 
   const createParticipantMutation = useParticipantBillMutation<
     CreateBillParticipantVariables,
     ParticipantMutationResponse
-  >(billId, ({ participant }) => createParticipant(billId, participant));
+  >(billId, ({ participant }) =>
+    participantService.createParticipant(billId, participant),
+  );
 
   const updateParticipantMutation = useParticipantBillMutation<
     UpdateBillParticipantVariables,
     ParticipantMutationResponse
   >(billId, ({ participantId, participant }) =>
-    updateParticipant(participantId, participant),
+    participantService.updateParticipant(participantId, participant),
   );
 
   const deleteParticipantMutation = useParticipantBillMutation<
     number,
     ParticipantDeleteResponse
-  >(billId, (participantId) => deleteParticipant(participantId));
+  >(billId, (participantId) =>
+    participantService.deleteParticipant(participantId),
+  );
 
   const toggleParticipantSettledMutation = useMutation({
     mutationFn: ({
       participantId,
       settled,
     }: ToggleParticipantSettledVariables) =>
-      updateParticipant(participantId, { settled }),
+      participantService.updateParticipant(participantId, { settled }),
     onMutate: async ({ participantId, settled }) => {
       await queryClient.cancelQueries({
         queryKey: billQueryKeys.summary(billId),
@@ -130,6 +133,6 @@ export function useBillParticipants(billId: number) {
     deleteParticipant: deleteParticipantMutation,
     toggleParticipantSettled: toggleParticipantSettledMutation,
   };
-}
+};
 
 export type { ParticipantMutationResponse };

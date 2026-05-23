@@ -47,14 +47,7 @@ import {
 } from "@/screens/review/components";
 import { billShowToReceiptView } from "@/screens/review/mappers/bill-to-receipt-view";
 import { useBill } from "@/services/bills/bill.hooks";
-import {
-  createReceiptAdjustment,
-  createReceiptItem,
-  deleteReceiptAdjustment,
-  deleteReceiptItem,
-  updateReceiptAdjustment,
-  updateReceiptItem,
-} from "@/services/receipts/receipt.service";
+import receiptService from "@/services/receipts/receipt.service";
 import { formatMoneyFromCents } from "@/utils/money";
 
 import { ReviewBottomBar } from "@/screens/review/ReviewBottomBar";
@@ -132,7 +125,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
         const { description, qty, amountCents } = validation.data;
 
         if (sheet.lineId === NEW_RECEIPT_ITEM_ID) {
-          await createReceiptItem(billId, {
+          await receiptService.createReceiptItem(billId, {
             name: description,
             quantity: qty,
             total_cents: amountCents,
@@ -143,7 +136,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
             throw new Error("Invalid receipt item.");
           }
 
-          await updateReceiptItem(receiptItemId, {
+          await receiptService.updateReceiptItem(receiptItemId, {
             name: description,
             quantity: qty,
             total_cents: amountCents,
@@ -178,7 +171,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
 
     setItemSaving(true);
     try {
-      await deleteReceiptItem(receiptItemId);
+      await receiptService.deleteReceiptItem(receiptItemId);
       await invalidateBillQueries(queryClient, billId);
     } catch (deleteError) {
       setReviewActionError(
@@ -225,7 +218,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
         };
 
         if (sheet.adjustmentId === NEW_RECEIPT_ADJUSTMENT_ID) {
-          await createReceiptAdjustment(receiptId, {
+          await receiptService.createReceiptAdjustment(receiptId, {
             ...payload,
             position: nextAdjustmentPosition,
           });
@@ -239,7 +232,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
             (row) => row.id === adjustmentId,
           );
 
-          await updateReceiptAdjustment(adjustmentId, {
+          await receiptService.updateReceiptAdjustment(adjustmentId, {
             ...payload,
             position: existing?.position,
           });
@@ -285,7 +278,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
     setReviewActionError(null);
 
     try {
-      await deleteReceiptAdjustment(adjustmentId);
+      await receiptService.deleteReceiptAdjustment(adjustmentId);
       await invalidateBillQueries(queryClient, billId);
     } catch (deleteError) {
       setReviewActionError(

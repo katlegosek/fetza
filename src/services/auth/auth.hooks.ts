@@ -1,20 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { authKeys } from "@/services/auth/auth.keys";
-import {
-  getCurrentUser,
-  login,
-  logout,
-  refreshSession,
-} from "@/services/auth/auth.service";
+import authService from "@/services/auth/auth.service";
 import type { LoginPayload } from "@/services/auth/types";
 import { billQueryKeys } from "@/services/bills/bill.keys";
 
-export function useLogin() {
+export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: LoginPayload) => login(payload),
+    mutationFn: (payload: LoginPayload) => authService.login(payload),
     onSuccess: (session) => {
       queryClient.setQueryData(authKeys.currentUser(), session.user);
       queryClient.setQueryData(authKeys.session(), session);
@@ -23,34 +18,33 @@ export function useLogin() {
       });
     },
   });
-}
+};
 
-export function useLogout() {
+export const useLogout = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: logout,
+    mutationFn: authService.logout,
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: authKeys.all });
       queryClient.removeQueries({ queryKey: billQueryKeys.all });
     },
   });
-}
+};
 
-export function useCurrentUser(options?: { enabled?: boolean }) {
-  return useQuery({
+export const useCurrentUser = (options?: { enabled?: boolean }) =>
+  useQuery({
     queryKey: authKeys.currentUser(),
-    queryFn: getCurrentUser,
+    queryFn: authService.getCurrentUser,
     enabled: options?.enabled ?? false,
     retry: false,
   });
-}
 
-export function useRefreshSession() {
+export const useRefreshSession = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: refreshSession,
+    mutationFn: authService.refreshSession,
     onSuccess: (session) => {
       queryClient.setQueryData(authKeys.currentUser(), session.user);
       queryClient.setQueryData(authKeys.session(), session);
@@ -59,4 +53,4 @@ export function useRefreshSession() {
       });
     },
   });
-}
+};

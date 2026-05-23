@@ -31,7 +31,7 @@ export type ReviewItemSheetProps = {
   onClose: () => void;
 };
 
-export function ReviewItemSheet({
+export const ReviewItemSheet = ({
   visible,
   itemDescription,
   amountCents,
@@ -43,7 +43,7 @@ export function ReviewItemSheet({
   onSave,
   onDelete,
   onClose,
-}: ReviewItemSheetProps) {
+}: ReviewItemSheetProps) => {
   const a = useBottomSheetAppearance();
 
   const [desc, setDesc] = useState(itemDescription);
@@ -215,4 +215,4 @@ export function ReviewItemSheet({
       </View>
     </BottomSheet>
   );
-}
+};

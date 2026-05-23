@@ -17,7 +17,7 @@ export type AssignOverflowMenuProps = {
   onClearAssignments: () => void;
 };
 
-function Row({
+const Row = ({
   icon,
   label,
   destructive,
@@ -27,7 +27,7 @@ function Row({
   label: string;
   destructive?: boolean;
   onPress: () => void;
-}) {
+}) => {
   const colors = useThemeColors();
   const fg = destructive ? "#dc2626" : colors.foreground;
 
@@ -52,9 +52,9 @@ function Row({
       </View>
     </Pressable>
   );
-}
+};
 
-export function AssignOverflowMenu({
+export const AssignOverflowMenu = ({
   visible,
   top,
   onClose,
@@ -64,7 +64,7 @@ export function AssignOverflowMenu({
   onSplitUnassignedItems,
   onManagePeople,
   onClearAssignments,
-}: AssignOverflowMenuProps) {
+}: AssignOverflowMenuProps) => {
   const colors = useThemeColors();
   const { width: windowWidth } = useWindowDimensions();
   const menuWidth = Math.min(268, windowWidth - 32);
@@ -132,4 +132,4 @@ export function AssignOverflowMenu({
       </View>
     </Modal>
   );
-}
+};

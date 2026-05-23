@@ -11,13 +11,13 @@ export type UseAssignItemMutationsOptions = {
   showAssignmentError: (error: unknown) => void;
 };
 
-export function useAssignItemMutations({
+export const useAssignItemMutations = ({
   billId,
   isApiMode,
   displayAssignments,
   setAssignments,
   showAssignmentError,
-}: UseAssignItemMutationsOptions) {
+}: UseAssignItemMutationsOptions) => {
   const replaceItemAssignments = useReplaceItemAssignments(billId);
 
   const persistLineAssignments = useCallback(
@@ -63,4 +63,4 @@ export function useAssignItemMutations({
     persistLineAssignments,
     toggleAssignment,
   };
-}
+};

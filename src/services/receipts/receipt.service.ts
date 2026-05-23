@@ -7,7 +7,7 @@ import {
   parseReceiptShowResponse,
   parseReceiptUploadResponse,
 } from "@/services/receipts/receipt.model";
-import { receiptUrls } from "@/services/receipts/receipt.urls";
+import receiptUrls from "@/services/receipts/receipt.urls";
 import type {
   ReceiptAdjustmentDeleteResponse,
   ReceiptAdjustmentInput,
@@ -19,39 +19,37 @@ import type {
   ReceiptUploadResponse,
 } from "@/services/receipts/types";
 
-export async function getReceipt(
-  receiptId: number,
-): Promise<ReceiptShowResponse> {
+const getReceipt = async (receiptId: number): Promise<ReceiptShowResponse> => {
   const data = await apiRequest<unknown>(receiptUrls.receipt(receiptId));
   return parseReceiptShowResponse(data);
-}
+};
 
-export async function uploadReceiptImage(
+const uploadReceiptImage = async (
   billId: number,
   formData: FormData,
-): Promise<ReceiptUploadResponse> {
+): Promise<ReceiptUploadResponse> => {
   const data = await apiMultipartRequest<unknown>(
     receiptUrls.billReceiptImages(billId),
     { formData },
   );
   return parseReceiptUploadResponse(data);
-}
+};
 
-export async function createReceiptItem(
+const createReceiptItem = async (
   billId: number,
   receiptItem: ReceiptItemInput,
-): Promise<ReceiptItemMutationResponse> {
+): Promise<ReceiptItemMutationResponse> => {
   const data = await apiRequest<unknown>(receiptUrls.billReceiptItems(billId), {
     method: "POST",
     body: { receipt_item: receiptItem },
   });
   return parseReceiptItemMutationResponse(data);
-}
+};
 
-export async function updateReceiptItem(
+const updateReceiptItem = async (
   receiptItemId: number,
   receiptItem: Partial<ReceiptItemInput>,
-): Promise<ReceiptItemMutationResponse> {
+): Promise<ReceiptItemMutationResponse> => {
   const data = await apiRequest<unknown>(
     receiptUrls.receiptItem(receiptItemId),
     {
@@ -60,11 +58,11 @@ export async function updateReceiptItem(
     },
   );
   return parseReceiptItemMutationResponse(data);
-}
+};
 
-export async function deleteReceiptItem(
+const deleteReceiptItem = async (
   receiptItemId: number,
-): Promise<ReceiptItemDeleteResponse> {
+): Promise<ReceiptItemDeleteResponse> => {
   const data = await apiRequest<unknown>(
     receiptUrls.receiptItem(receiptItemId),
     {
@@ -72,12 +70,12 @@ export async function deleteReceiptItem(
     },
   );
   return parseReceiptItemDeleteResponse(data);
-}
+};
 
-export async function createReceiptAdjustment(
+const createReceiptAdjustment = async (
   receiptId: number,
   receiptAdjustment: ReceiptAdjustmentInput,
-): Promise<ReceiptAdjustmentMutationResponse> {
+): Promise<ReceiptAdjustmentMutationResponse> => {
   const data = await apiRequest<unknown>(
     receiptUrls.receiptAdjustments(receiptId),
     {
@@ -86,12 +84,12 @@ export async function createReceiptAdjustment(
     },
   );
   return parseReceiptAdjustmentMutationResponse(data);
-}
+};
 
-export async function updateReceiptAdjustment(
+const updateReceiptAdjustment = async (
   adjustmentId: number,
   receiptAdjustment: Partial<ReceiptAdjustmentInput>,
-): Promise<ReceiptAdjustmentMutationResponse> {
+): Promise<ReceiptAdjustmentMutationResponse> => {
   const data = await apiRequest<unknown>(
     receiptUrls.receiptAdjustment(adjustmentId),
     {
@@ -100,11 +98,11 @@ export async function updateReceiptAdjustment(
     },
   );
   return parseReceiptAdjustmentMutationResponse(data);
-}
+};
 
-export async function deleteReceiptAdjustment(
+const deleteReceiptAdjustment = async (
   adjustmentId: number,
-): Promise<ReceiptAdjustmentDeleteResponse> {
+): Promise<ReceiptAdjustmentDeleteResponse> => {
   const data = await apiRequest<unknown>(
     receiptUrls.receiptAdjustment(adjustmentId),
     {
@@ -112,4 +110,15 @@ export async function deleteReceiptAdjustment(
     },
   );
   return parseReceiptAdjustmentDeleteResponse(data);
-}
+};
+
+export default {
+  getReceipt,
+  uploadReceiptImage,
+  createReceiptItem,
+  updateReceiptItem,
+  deleteReceiptItem,
+  createReceiptAdjustment,
+  updateReceiptAdjustment,
+  deleteReceiptAdjustment,
+};

@@ -1,8 +1,12 @@
-export const assignmentUrls = {
+const billsBase = "/bills";
+const receiptItemsBase = "/receipt_items";
+
+export default {
   receiptItemAssignments: (receiptItemId: number) =>
-    `/receipt_items/${receiptItemId}/assignments`,
-  splitAllEqually: (billId: number) => `/bills/${billId}/split_all_equally`,
+    `${receiptItemsBase}/${receiptItemId}/assignments`,
+  splitAllEqually: (billId: number) =>
+    `${billsBase}/${billId}/split_all_equally`,
   splitUnassignedEqually: (billId: number) =>
-    `/bills/${billId}/split_unassigned_equally`,
-  billAssignments: (billId: number) => `/bills/${billId}/assignments`,
-} as const;
+    `${billsBase}/${billId}/split_unassigned_equally`,
+  billAssignments: (billId: number) => `${billsBase}/${billId}/assignments`,
+};

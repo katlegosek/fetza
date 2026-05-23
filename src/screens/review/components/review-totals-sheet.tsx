@@ -30,7 +30,7 @@ export type ReviewTotalsSheetProps = {
  * Organism: sheet + fee fields (molecules) + summary + actions.
  * VAT and optional mandatory service fee — use 0 if a line is not on the slip.
  */
-export function ReviewTotalsSheet({
+export const ReviewTotalsSheet = ({
   visible,
   subtotalCents,
   vatCents,
@@ -38,7 +38,7 @@ export function ReviewTotalsSheet({
   bottomInset = 0,
   onSave,
   onClose,
-}: ReviewTotalsSheetProps) {
+}: ReviewTotalsSheetProps) => {
   const a = useBottomSheetAppearance();
   const [vatValue, setVatValue] = useState((vatCents / 100).toFixed(2));
   const [serviceValue, setServiceValue] = useState(
@@ -183,4 +183,4 @@ export function ReviewTotalsSheet({
       </View>
     </BottomSheet>
   );
-}
+};

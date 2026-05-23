@@ -12,7 +12,7 @@ export type ButtonProps = Omit<PressableButtonProps, "children"> & {
   textClassName?: string;
 };
 
-export function Button({ children, textClassName, ...props }: ButtonProps) {
+export const Button = ({ children, textClassName, ...props }: ButtonProps) => {
   const content =
     typeof children === "string" ? (
       <AppText
@@ -28,4 +28,4 @@ export function Button({ children, textClassName, ...props }: ButtonProps) {
     );
 
   return <PressableButton {...props}>{content}</PressableButton>;
-}
+};

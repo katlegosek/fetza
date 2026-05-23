@@ -22,7 +22,7 @@ export type ScreenEmptyStateProps = {
   showHeader?: boolean;
 };
 
-export function ScreenEmptyState({
+export const ScreenEmptyState = ({
   title,
   topHint,
   message,
@@ -34,7 +34,7 @@ export function ScreenEmptyState({
   bodyClassName,
   messageClassName,
   showHeader,
-}: ScreenEmptyStateProps) {
+}: ScreenEmptyStateProps) => {
   const colors = useThemeColors();
   const handleAction = onAction ?? onBack;
 
@@ -67,4 +67,4 @@ export function ScreenEmptyState({
       ) : null}
     </ScreenFeedbackLayout>
   );
-}
+};

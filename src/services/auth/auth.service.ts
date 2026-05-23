@@ -14,7 +14,7 @@ import type {
   LoginPayload,
 } from "@/services/auth/types";
 
-export async function login(payload: LoginPayload): Promise<AuthSession> {
+const login = async (payload: LoginPayload): Promise<AuthSession> => {
   const data = await apiRequest<unknown>(authUrls.login(), {
     method: "POST",
     body: payload,
@@ -25,9 +25,9 @@ export async function login(payload: LoginPayload): Promise<AuthSession> {
     refreshToken: session.refresh_token,
   });
   return session;
-}
+};
 
-export async function logout(): Promise<void> {
+const logout = async (): Promise<void> => {
   try {
     await apiRequest<unknown>(authUrls.logout(), { method: "POST" });
   } catch {
@@ -35,14 +35,14 @@ export async function logout(): Promise<void> {
   } finally {
     await clearAuthTokens();
   }
-}
+};
 
-export async function getCurrentUser(): Promise<AuthUser> {
+const getCurrentUser = async (): Promise<AuthUser> => {
   const data = await apiRequest<unknown>(authUrls.me());
   return meModel(data);
-}
+};
 
-export async function refreshSession(): Promise<AuthSession> {
+const refreshSession = async (): Promise<AuthSession> => {
   const refreshToken = await getRefreshToken();
 
   if (!refreshToken) {
@@ -61,10 +61,10 @@ export async function refreshSession(): Promise<AuthSession> {
     refreshToken: session.refresh_token,
   });
   return session;
-}
+};
 
 /** Load the current user, refreshing tokens once on 401. Clears tokens if session cannot be restored. */
-export async function restoreSession(): Promise<AuthUser> {
+const restoreSession = async (): Promise<AuthUser> => {
   try {
     return await getCurrentUser();
   } catch (error) {
@@ -87,4 +87,12 @@ export async function restoreSession(): Promise<AuthUser> {
       throw refreshError;
     }
   }
-}
+};
+
+export default {
+  login,
+  logout,
+  getCurrentUser,
+  refreshSession,
+  restoreSession,
+};

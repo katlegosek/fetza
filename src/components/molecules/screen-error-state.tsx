@@ -18,7 +18,7 @@ export type ScreenErrorStateProps = {
   showHeader?: boolean;
 };
 
-export function ScreenErrorState({
+export const ScreenErrorState = ({
   title,
   topHint,
   message,
@@ -28,7 +28,7 @@ export function ScreenErrorState({
   icon,
   containerClassName,
   showHeader,
-}: ScreenErrorStateProps) {
+}: ScreenErrorStateProps) => {
   const colors = useThemeColors();
 
   return (
@@ -60,4 +60,4 @@ export function ScreenErrorState({
       ) : null}
     </ScreenFeedbackLayout>
   );
-}
+};

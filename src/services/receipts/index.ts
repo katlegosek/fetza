@@ -5,17 +5,8 @@ export {
   useUploadReceiptImage,
 } from "@/services/receipts/receipt.hooks";
 export type { UploadReceiptImageVariables } from "@/services/receipts/receipt.hooks";
-export {
-  createReceiptAdjustment,
-  createReceiptItem,
-  deleteReceiptAdjustment,
-  deleteReceiptItem,
-  getReceipt,
-  updateReceiptAdjustment,
-  updateReceiptItem,
-  uploadReceiptImage,
-} from "@/services/receipts/receipt.service";
-export { receiptUrls } from "@/services/receipts/receipt.urls";
+export { default as receiptService } from "@/services/receipts/receipt.service";
+export { default as receiptUrls } from "@/services/receipts/receipt.urls";
 export type {
   ProcessingRunStatus,
   Receipt,

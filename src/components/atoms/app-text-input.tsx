@@ -6,6 +6,6 @@ export type AppTextInputProps = TextInputProps & {
   className?: string;
 };
 
-export function AppTextInput({ className, ...props }: AppTextInputProps) {
-  return <TextInput className={cn(className)} {...props} />;
-}
+export const AppTextInput = ({ className, ...props }: AppTextInputProps) => (
+  <TextInput className={cn(className)} {...props} />
+);

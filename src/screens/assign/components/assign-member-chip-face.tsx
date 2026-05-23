@@ -19,7 +19,7 @@ export type AssignMemberChipFaceProps = {
 /**
  * Avatar + name + optional You ribbon — must stay in sync with Assign person chips.
  */
-export function AssignMemberChipFace({
+export const AssignMemberChipFace = ({
   name,
   initialsText,
   avatarBgClassName,
@@ -27,7 +27,7 @@ export function AssignMemberChipFace({
   avatarTextColor,
   showYouRibbon,
   density = "default",
-}: AssignMemberChipFaceProps) {
+}: AssignMemberChipFaceProps) => {
   const compact = density === "compact";
   const useHex = avatarBackgroundColor != null;
 
@@ -94,4 +94,4 @@ export function AssignMemberChipFace({
       </View>
     </>
   );
-}
+};
