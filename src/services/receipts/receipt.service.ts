@@ -37,11 +37,15 @@ const uploadReceiptImage = async (
   return parseReceiptUploadResponse(data);
 };
 
+type ReceiptItemBody = {
+  receipt_item: ReceiptItemInput | Partial<ReceiptItemInput>;
+};
+
 const createReceiptItem = async (
   billId: number,
   receiptItem: ReceiptItemInput,
 ): Promise<ReceiptItemMutationResponse> => {
-  const data = await networkService.post<unknown>(
+  const data = await networkService.post<unknown, ReceiptItemBody>(
     receiptUrls.billReceiptItems(billId),
     { receipt_item: receiptItem },
   );
@@ -52,7 +56,7 @@ const updateReceiptItem = async (
   receiptItemId: number,
   receiptItem: Partial<ReceiptItemInput>,
 ): Promise<ReceiptItemMutationResponse> => {
-  const data = await networkService.patch<unknown>(
+  const data = await networkService.patch<unknown, ReceiptItemBody>(
     receiptUrls.receiptItem(receiptItemId),
     { receipt_item: receiptItem },
   );
@@ -68,11 +72,15 @@ const deleteReceiptItem = async (
   return parseReceiptItemDeleteResponse(data);
 };
 
+type ReceiptAdjustmentBody = {
+  receipt_adjustment: ReceiptAdjustmentInput | Partial<ReceiptAdjustmentInput>;
+};
+
 const createReceiptAdjustment = async (
   receiptId: number,
   receiptAdjustment: ReceiptAdjustmentInput,
 ): Promise<ReceiptAdjustmentMutationResponse> => {
-  const data = await networkService.post<unknown>(
+  const data = await networkService.post<unknown, ReceiptAdjustmentBody>(
     receiptUrls.receiptAdjustments(receiptId),
     { receipt_adjustment: receiptAdjustment },
   );
@@ -83,7 +91,7 @@ const updateReceiptAdjustment = async (
   adjustmentId: number,
   receiptAdjustment: Partial<ReceiptAdjustmentInput>,
 ): Promise<ReceiptAdjustmentMutationResponse> => {
-  const data = await networkService.patch<unknown>(
+  const data = await networkService.patch<unknown, ReceiptAdjustmentBody>(
     receiptUrls.receiptAdjustment(adjustmentId),
     { receipt_adjustment: receiptAdjustment },
   );

@@ -66,8 +66,13 @@ export const BillShowResponseSchema = z.object({
   item_assignments: z.array(ItemAssignmentSchema),
 });
 
+export const BillCreateResponseSchema = z.object({
+  bill: BillDetailSchema,
+});
+
 export type { IsoDateTime } from "@/services/api-common.schema";
 export type BillIndexItem = z.infer<typeof BillIndexItemSchema>;
 export type BillsIndexResponse = z.infer<typeof BillListResponseSchema>;
 export type BillDetail = z.infer<typeof BillDetailSchema>;
 export type BillShowResponse = z.infer<typeof BillShowResponseSchema>;
+export type BillCreateResponse = z.infer<typeof BillCreateResponseSchema>;

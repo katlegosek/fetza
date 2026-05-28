@@ -90,15 +90,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [authEnabled, sessionError]);
 
-  const isLoadingAuth =
-    !tokenChecked ||
-    (authEnabled &&
-      hasToken &&
-      (isSessionPending || isSessionFetching) &&
-      user === undefined &&
-      !sessionError);
+  // True while we still need to wait for SecureStore + /me before we know
+  // whether the user is actually signed in. We deliberately keep loading
+  // alive across the whole token-then-user check so AuthRouteGuard does
+  // not bounce a returning user to /auth/login while restoreSession is
+  // still in flight (or while a transparent 401 → refresh → /me retry
+  // inside authService.restoreSession is still running).
+  const isVerifyingSession =
+    authEnabled &&
+    hasToken &&
+    user === undefined &&
+    !sessionError &&
+    (isSessionPending || isSessionFetching);
 
-  const isAuthenticated = authEnabled ? hasToken : true;
+  const isLoadingAuth = !tokenChecked || isVerifyingSession;
+
+  // Auth-disabled (dev) mode short-circuits to "authenticated" so the
+  // app stays usable without a backend session. With auth enabled, a
+  // SecureStore token alone is not enough — a stale/expired token must
+  // not look authenticated until /me (with a transparent refresh inside
+  // authService.restoreSession) actually returns a user. If that whole
+  // dance fails, restoreSession clears the tokens and the syncHasToken
+  // effect above flips hasToken to false, so this condition stays false.
+  const isAuthenticated = authEnabled ? hasToken && user != null : true;
 
   const login = useCallback(
     async (payload: LoginPayload) => {

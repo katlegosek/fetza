@@ -1,4 +1,4 @@
-import { apiRequest } from "@/api/client";
+import networkService from "@/api/network-service";
 import {
   parseBulkAssignmentMutationResponse,
   parseItemAssignmentMutationResponse,
@@ -14,12 +14,9 @@ const replaceReceiptItemAssignments = async (
   receiptItemId: number,
   input: ReplaceAssignmentsInput,
 ): Promise<ItemAssignmentMutationResponse> => {
-  const data = await apiRequest<unknown>(
+  const data = await networkService.put<unknown, ReplaceAssignmentsInput>(
     assignmentUrls.receiptItemAssignments(receiptItemId),
-    {
-      method: "PUT",
-      body: input,
-    },
+    input,
   );
   return parseItemAssignmentMutationResponse(data);
 };
@@ -27,11 +24,8 @@ const replaceReceiptItemAssignments = async (
 const clearReceiptItemAssignments = async (
   receiptItemId: number,
 ): Promise<ItemAssignmentMutationResponse> => {
-  const data = await apiRequest<unknown>(
+  const data = await networkService.delete<unknown>(
     assignmentUrls.receiptItemAssignments(receiptItemId),
-    {
-      method: "DELETE",
-    },
   );
   return parseItemAssignmentMutationResponse(data);
 };
@@ -39,11 +33,8 @@ const clearReceiptItemAssignments = async (
 const splitAllEqually = async (
   billId: number,
 ): Promise<BulkAssignmentMutationResponse> => {
-  const data = await apiRequest<unknown>(
+  const data = await networkService.post<unknown>(
     assignmentUrls.splitAllEqually(billId),
-    {
-      method: "POST",
-    },
   );
   return parseBulkAssignmentMutationResponse(data);
 };
@@ -51,11 +42,8 @@ const splitAllEqually = async (
 const splitUnassignedEqually = async (
   billId: number,
 ): Promise<BulkAssignmentMutationResponse> => {
-  const data = await apiRequest<unknown>(
+  const data = await networkService.post<unknown>(
     assignmentUrls.splitUnassignedEqually(billId),
-    {
-      method: "POST",
-    },
   );
   return parseBulkAssignmentMutationResponse(data);
 };
@@ -63,11 +51,8 @@ const splitUnassignedEqually = async (
 const clearBillAssignments = async (
   billId: number,
 ): Promise<BulkAssignmentMutationResponse> => {
-  const data = await apiRequest<unknown>(
+  const data = await networkService.delete<unknown>(
     assignmentUrls.billAssignments(billId),
-    {
-      method: "DELETE",
-    },
   );
   return parseBulkAssignmentMutationResponse(data);
 };

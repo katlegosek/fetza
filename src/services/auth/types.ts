@@ -16,3 +16,7 @@ export type LoginPayload = {
   email: string;
   password: string;
 };
+
+export type RefreshPayload = {
+  refresh_token: string;
+};

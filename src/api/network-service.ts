@@ -5,35 +5,52 @@ import {
 } from "@/api/client";
 
 // Thin, Axios-like wrapper over the existing fetch-based apiRequest /
-// apiMultipartRequest. Auth headers, base URL resolution, JSON parsing, and
-// error handling all stay in `@/api/client` — this module only swaps the
-// `{ method, body }` shape for method-specific helpers so service files can
-// read more like the v2 convention without taking on Axios.
+// apiMultipartRequest. Auth headers, base URL resolution, JSON parsing,
+// and error handling all stay in `@/api/client` — this module only
+// swaps the `{ method, body }` shape for method-specific helpers so
+// service files can read more like the v2 convention without taking on
+// Axios.
+//
+// Each method takes two generics:
+//   TResponse — the *raw* response type before Zod parsing. Most
+//               services pass `unknown` here and hand the result to a
+//               model parser; that is intentional because we don't
+//               trust the wire shape until Zod has validated it.
+//   TBody     — the request body type. Defaults to `unknown` so legacy
+//               callers keep working, but services should specify it so
+//               unknown does not leak into call sites.
 
 type MultipartMethod = NonNullable<ApiMultipartRequestOptions["method"]>;
 
-const get = <T>(url: string): Promise<T> => apiRequest<T>(url);
+const get = <TResponse>(url: string): Promise<TResponse> =>
+  apiRequest<TResponse>(url);
 
-const post = <T>(url: string, body?: unknown): Promise<T> =>
-  apiRequest<T>(url, { method: "POST", body });
+const post = <TResponse, TBody = unknown>(
+  url: string,
+  body?: TBody,
+): Promise<TResponse> => apiRequest<TResponse>(url, { method: "POST", body });
 
-const put = <T>(url: string, body?: unknown): Promise<T> =>
-  apiRequest<T>(url, { method: "PUT", body });
+const put = <TResponse, TBody = unknown>(
+  url: string,
+  body?: TBody,
+): Promise<TResponse> => apiRequest<TResponse>(url, { method: "PUT", body });
 
-const patch = <T>(url: string, body?: unknown): Promise<T> =>
-  apiRequest<T>(url, { method: "PATCH", body });
+const patch = <TResponse, TBody = unknown>(
+  url: string,
+  body?: TBody,
+): Promise<TResponse> => apiRequest<TResponse>(url, { method: "PATCH", body });
 
-// `delete` is a reserved word, so keep the export key as `delete` while the
-// underlying function is named `del` for safety.
-const del = <T>(url: string): Promise<T> =>
-  apiRequest<T>(url, { method: "DELETE" });
+// `delete` is a reserved word, so keep the export key as `delete` while
+// the underlying function is named `del` for safety.
+const del = <TResponse>(url: string): Promise<TResponse> =>
+  apiRequest<TResponse>(url, { method: "DELETE" });
 
-const upload = <T>(
+const upload = <TResponse>(
   url: string,
   formData: FormData,
   options: { method?: MultipartMethod } = {},
-): Promise<T> =>
-  apiMultipartRequest<T>(url, {
+): Promise<TResponse> =>
+  apiMultipartRequest<TResponse>(url, {
     formData,
     method: options.method ?? "POST",
   });

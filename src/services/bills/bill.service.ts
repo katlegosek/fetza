@@ -1,5 +1,6 @@
 import networkService from "@/api/network-service";
 import {
+  parseBillCreateResponse,
   parseBillListResponse,
   parseBillShowResponse,
   parseBillSummaryResponse,
@@ -12,16 +13,20 @@ import type {
   BillsIndexResponse,
 } from "@/services/bills/types";
 
+type CreateBillBody = { bill?: { title?: string } };
+
 const getBills = async (): Promise<BillsIndexResponse> => {
   const data = await networkService.get<unknown>(billUrls.bills());
   return parseBillListResponse(data);
 };
 
-const createBill = async (title?: string): Promise<BillCreateResponse> =>
-  networkService.post<BillCreateResponse>(
+const createBill = async (title?: string): Promise<BillCreateResponse> => {
+  const data = await networkService.post<unknown, CreateBillBody>(
     billUrls.bills(),
     title ? { bill: { title } } : {},
   );
+  return parseBillCreateResponse(data);
+};
 
 const getBill = async (billId: number): Promise<BillShowResponse> => {
   const data = await networkService.get<unknown>(billUrls.bill(billId));

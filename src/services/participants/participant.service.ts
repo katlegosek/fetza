@@ -1,4 +1,4 @@
-import { apiRequest } from "@/api/client";
+import networkService from "@/api/network-service";
 import {
   parseParticipantDeleteResponse,
   parseParticipantMutationResponse,
@@ -10,16 +10,17 @@ import type {
   ParticipantMutationResponse,
 } from "@/services/participants/types";
 
+type ParticipantRequestBody = {
+  participant: ParticipantInput | Partial<ParticipantInput>;
+};
+
 const createParticipant = async (
   billId: number,
   participant: ParticipantInput,
 ): Promise<ParticipantMutationResponse> => {
-  const data = await apiRequest<unknown>(
+  const data = await networkService.post<unknown, ParticipantRequestBody>(
     participantUrls.billParticipants(billId),
-    {
-      method: "POST",
-      body: { participant },
-    },
+    { participant },
   );
   return parseParticipantMutationResponse(data);
 };
@@ -28,12 +29,9 @@ const updateParticipant = async (
   participantId: number,
   participant: Partial<ParticipantInput>,
 ): Promise<ParticipantMutationResponse> => {
-  const data = await apiRequest<unknown>(
+  const data = await networkService.patch<unknown, ParticipantRequestBody>(
     participantUrls.participant(participantId),
-    {
-      method: "PATCH",
-      body: { participant },
-    },
+    { participant },
   );
   return parseParticipantMutationResponse(data);
 };
@@ -41,11 +39,8 @@ const updateParticipant = async (
 const deleteParticipant = async (
   participantId: number,
 ): Promise<ParticipantDeleteResponse> => {
-  const data = await apiRequest<unknown>(
+  const data = await networkService.delete<unknown>(
     participantUrls.participant(participantId),
-    {
-      method: "DELETE",
-    },
   );
   return parseParticipantDeleteResponse(data);
 };

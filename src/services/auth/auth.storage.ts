@@ -69,6 +69,14 @@ export async function clearAuthTokens(): Promise<void> {
   ]);
 }
 
+/**
+ * Persists a fresh token pair, always overwriting whatever was previously
+ * stored. If `refreshToken` is missing/null/undefined we explicitly
+ * delete the stored refresh token rather than silently leaving the old
+ * one behind — otherwise an unrelated session's refresh token could
+ * shadow the new access token and let an expired/revoked refresh slip
+ * back into use on the next /auth/refresh attempt.
+ */
 export async function setAuthTokens(tokens: {
   accessToken: string;
   refreshToken?: string | null;
@@ -77,5 +85,7 @@ export async function setAuthTokens(tokens: {
 
   if (tokens.refreshToken) {
     await setRefreshToken(tokens.refreshToken);
+  } else {
+    await deleteSecureItem(REFRESH_TOKEN_KEY);
   }
 }

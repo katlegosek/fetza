@@ -1,17 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
+import { receiptQueryKeys } from "@/services/receipts/receipt.keys";
 import receiptService from "@/services/receipts/receipt.service";
 import type {
   ProcessingRunStatus,
   ReceiptStatus,
 } from "@/services/receipts/types";
-
-export const receiptQueryKeys = {
-  all: ["receipts"] as const,
-  details: () => [...receiptQueryKeys.all, "detail"] as const,
-  detail: (receiptId: number) =>
-    [...receiptQueryKeys.details(), receiptId] as const,
-};
 
 const TERMINAL_RECEIPT_STATUSES: ReceiptStatus[] = [
   "ready",

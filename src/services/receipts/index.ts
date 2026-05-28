@@ -1,10 +1,10 @@
 export {
   isReceiptProcessingComplete,
-  receiptQueryKeys,
   useReceipt,
   useUploadReceiptImage,
 } from "@/services/receipts/receipt.hooks";
 export type { UploadReceiptImageVariables } from "@/services/receipts/receipt.hooks";
+export { receiptQueryKeys } from "@/services/receipts/receipt.keys";
 export { default as receiptService } from "@/services/receipts/receipt.service";
 export { default as receiptUrls } from "@/services/receipts/receipt.urls";
 export type {

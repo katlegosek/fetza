@@ -1,5 +1,5 @@
-import { apiRequest } from "@/api/client";
 import { isApiError } from "@/api/errors";
+import networkService from "@/api/network-service";
 import { AuthSessionError } from "@/services/auth/auth.errors";
 import { loginModel, meModel } from "@/services/auth/auth.model";
 import {
@@ -12,13 +12,14 @@ import type {
   AuthSession,
   AuthUser,
   LoginPayload,
+  RefreshPayload,
 } from "@/services/auth/types";
 
 const login = async (payload: LoginPayload): Promise<AuthSession> => {
-  const data = await apiRequest<unknown>(authUrls.login(), {
-    method: "POST",
-    body: payload,
-  });
+  const data = await networkService.post<unknown, LoginPayload>(
+    authUrls.login(),
+    payload,
+  );
   const session = loginModel(data);
   await setAuthTokens({
     accessToken: session.access_token,
@@ -29,7 +30,7 @@ const login = async (payload: LoginPayload): Promise<AuthSession> => {
 
 const logout = async (): Promise<void> => {
   try {
-    await apiRequest<unknown>(authUrls.logout(), { method: "POST" });
+    await networkService.post<unknown>(authUrls.logout());
   } catch {
     // Always clear local session even when the backend logout call fails.
   } finally {
@@ -38,7 +39,7 @@ const logout = async (): Promise<void> => {
 };
 
 const getCurrentUser = async (): Promise<AuthUser> => {
-  const data = await apiRequest<unknown>(authUrls.me());
+  const data = await networkService.get<unknown>(authUrls.me());
   return meModel(data);
 };
 
@@ -51,10 +52,10 @@ const refreshSession = async (): Promise<AuthSession> => {
     );
   }
 
-  const data = await apiRequest<unknown>(authUrls.refresh(), {
-    method: "POST",
-    body: { refresh_token: refreshToken },
-  });
+  const data = await networkService.post<unknown, RefreshPayload>(
+    authUrls.refresh(),
+    { refresh_token: refreshToken },
+  );
   const session = loginModel(data);
   await setAuthTokens({
     accessToken: session.access_token,
@@ -63,7 +64,10 @@ const refreshSession = async (): Promise<AuthSession> => {
   return session;
 };
 
-/** Load the current user, refreshing tokens once on 401. Clears tokens if session cannot be restored. */
+/**
+ * Load the current user, refreshing tokens once on 401. Clears tokens
+ * if the session cannot be restored end-to-end.
+ */
 const restoreSession = async (): Promise<AuthUser> => {
   try {
     return await getCurrentUser();
