@@ -17,6 +17,7 @@ export type AssignEmptyStateProps = {
   merchantTopHint?: string;
   onBack: () => void;
   onReviewReceipt?: () => void;
+  onAddPerson?: () => void;
 };
 
 const MESSAGES: Record<AssignEmptyStateVariant, string> = {
@@ -31,6 +32,7 @@ export const AssignEmptyState = ({
   merchantTopHint,
   onBack,
   onReviewReceipt,
+  onAddPerson,
 }: AssignEmptyStateProps) => {
   const message = MESSAGES[variant];
   const showHeader = variant === "no-lines" || variant === "no-participants";
@@ -48,6 +50,13 @@ export const AssignEmptyState = ({
     );
   }
 
+  const { actionLabel, onAction } = resolveEmptyStateAction({
+    variant,
+    onBack,
+    onReviewReceipt,
+    onAddPerson,
+  });
+
   return (
     <ScreenEmptyState
       title={SCREEN_TITLES.assign}
@@ -55,12 +64,32 @@ export const AssignEmptyState = ({
       message={message}
       showHeader={showHeader}
       onBack={onBack}
-      actionLabel={
-        variant === "no-lines" && onReviewReceipt ? "Review receipt" : "Go back"
-      }
-      onAction={
-        variant === "no-lines" && onReviewReceipt ? onReviewReceipt : onBack
-      }
+      actionLabel={actionLabel}
+      onAction={onAction}
     />
   );
 };
+
+function resolveEmptyStateAction({
+  variant,
+  onBack,
+  onReviewReceipt,
+  onAddPerson,
+}: {
+  variant: AssignEmptyStateVariant;
+  onBack: () => void;
+  onReviewReceipt?: () => void;
+  onAddPerson?: () => void;
+}): { actionLabel: string; onAction: () => void } {
+  if (variant === "no-lines" && onReviewReceipt) {
+    return { actionLabel: "Review receipt", onAction: onReviewReceipt };
+  }
+
+  // With no participants the header back arrow covers "go back", so the primary
+  // action adds the first person without leaving the assign step.
+  if (variant === "no-participants" && onAddPerson) {
+    return { actionLabel: "Add person", onAction: onAddPerson };
+  }
+
+  return { actionLabel: "Go back", onAction: onBack };
+}

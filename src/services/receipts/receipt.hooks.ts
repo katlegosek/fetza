@@ -89,3 +89,8 @@ export const useUploadReceiptImage = () =>
     mutationFn: ({ billId, formData }: UploadReceiptImageVariables) =>
       receiptService.uploadReceiptImage(billId, formData),
   });
+
+export const useConfirmReceipt = () =>
+  useMutation({
+    mutationFn: (receiptId: number) => receiptService.confirmReceipt(receiptId),
+  });

@@ -46,6 +46,7 @@ import {
   defaultAffectsTotalForKind,
 } from "@/screens/review/components";
 import { billShowToReceiptView } from "@/screens/review/mappers/bill-to-receipt-view";
+import { useConfirmBillRoom } from "@/services/bill-room";
 import { useBill } from "@/services/bills/bill.hooks";
 import receiptService from "@/services/receipts/receipt.service";
 import { formatMoneyFromCents } from "@/utils/money";
@@ -82,6 +83,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
   const receiptWidth = reviewReceiptWidth(width);
 
   const { data, isLoading, isError, error, refetch } = useBill(billId);
+  const confirmBillRoom = useConfirmBillRoom();
   const { refreshing: pullRefreshing, onRefresh: onPullRefresh } =
     usePullToRefresh(refetch);
 
@@ -293,6 +295,33 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
     }
   }, [billId, queryClient, sheet]);
 
+  const handleConfirmAndCreateRoom = useCallback(async () => {
+    const goToRoom = () =>
+      router.push({
+        pathname: "/scan/room",
+        params: { billId: String(billId) },
+      });
+
+    if (!receiptId) {
+      setReviewActionError("This bill has no receipt to confirm yet.");
+      return;
+    }
+
+    setReviewActionError(null);
+    try {
+      await confirmBillRoom.mutateAsync(billId);
+      await invalidateBillQueries(queryClient, billId);
+      goToRoom();
+    } catch (confirmError) {
+      setReviewActionError(
+        getApiErrorMessage(
+          confirmError,
+          MUTATION_ERROR_FALLBACKS.reviewConfirmReceipt,
+        ),
+      );
+    }
+  }, [billId, confirmBillRoom, queryClient, receiptId, router]);
+
   const receiptView = useMemo(
     () => (data ? billShowToReceiptView(data) : null),
     [data],
@@ -389,8 +418,8 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
   return (
     <ScreenContainer className="flex-1 bg-background">
       <ScreenHeader
-        title={data.bill.title}
-        topHint={data.bill.status}
+        title="Confirm receipt"
+        topHint={data.bill.title}
         rightSlot={
           <Pressable
             accessibilityLabel="More options"
@@ -480,14 +509,10 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
 
         <ReviewBottomBar
           bottomInset={insets.bottom}
+          isConfirming={confirmBillRoom.isPending}
           itemCountLabel={`${itemCount} ${itemCount === 1 ? "item" : "items"}`}
           totalDisplay={formatMoneyFromCents(totalCents)}
-          onAssignPress={() =>
-            router.push({
-              pathname: "/scan/assign",
-              params: { billId: String(billId) },
-            })
-          }
+          onConfirmPress={handleConfirmAndCreateRoom}
         />
       </View>
 

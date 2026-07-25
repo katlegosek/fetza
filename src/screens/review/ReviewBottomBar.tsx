@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 import { AppText, Button } from "@/components";
 import { useThemeColors } from "@/hooks";
@@ -8,14 +8,19 @@ export type ReviewBottomBarProps = {
   bottomInset: number;
   totalDisplay: string;
   itemCountLabel: string;
-  onAssignPress: () => void;
+  onConfirmPress?: () => void;
+  /** Kept for the isolated reference flow; active routes use onConfirmPress. */
+  onAssignPress?: () => void;
+  isConfirming?: boolean;
 };
 
 export const ReviewBottomBar = ({
   bottomInset,
   totalDisplay,
   itemCountLabel,
+  onConfirmPress,
   onAssignPress,
+  isConfirming = false,
 }: ReviewBottomBarProps) => {
   const colors = useThemeColors();
 
@@ -55,18 +60,25 @@ export const ReviewBottomBar = ({
 
         <View className="min-w-0 flex-1 basis-0 self-stretch pl-1.5">
           <Button
-            accessibilityLabel="Assign items"
+            accessibilityLabel="Confirm and create room"
             className="h-full w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0"
-            onPress={onAssignPress}
+            disabled={isConfirming}
+            onPress={onConfirmPress ?? onAssignPress}
           >
-            <AppText className="text-base font-semibold text-background">
-              Assign items
-            </AppText>
-            <Ionicons
-              name="chevron-forward"
-              size={18}
-              color={colors.background}
-            />
+            {isConfirming ? (
+              <ActivityIndicator size="small" color={colors.background} />
+            ) : (
+              <>
+                <AppText className="text-base font-semibold text-background">
+                  Confirm & create room
+                </AppText>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={colors.background}
+                />
+              </>
+            )}
           </Button>
         </View>
       </View>

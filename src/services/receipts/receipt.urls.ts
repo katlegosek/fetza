@@ -5,6 +5,7 @@ const receiptAdjustmentsBase = "/receipt_adjustments";
 
 export default {
   receipt: (receiptId: number) => `${receiptsBase}/${receiptId}`,
+  confirmReceipt: (receiptId: number) => `${receiptsBase}/${receiptId}/confirm`,
   billReceiptImages: (billId: number) =>
     `${billsBase}/${billId}/receipt_images`,
   billReceiptItems: (billId: number) => `${billsBase}/${billId}/receipt_items`,

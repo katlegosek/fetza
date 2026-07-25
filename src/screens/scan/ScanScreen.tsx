@@ -96,7 +96,7 @@ export const ScanScreen = () => {
       setReceiptId(0);
 
       router.replace({
-        pathname: "/scan/review",
+        pathname: "/scan/confirm",
         params: { billId: String(targetBillId) },
       });
       void invalidateBillQueries(queryClient, targetBillId);

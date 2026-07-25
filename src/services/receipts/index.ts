@@ -1,5 +1,6 @@
 export {
   isReceiptProcessingComplete,
+  useConfirmReceipt,
   useReceipt,
   useUploadReceiptImage,
 } from "@/services/receipts/receipt.hooks";

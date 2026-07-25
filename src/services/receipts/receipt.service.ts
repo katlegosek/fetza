@@ -26,6 +26,15 @@ const getReceipt = async (receiptId: number): Promise<ReceiptShowResponse> => {
   return parseReceiptShowResponse(data);
 };
 
+const confirmReceipt = async (
+  receiptId: number,
+): Promise<ReceiptShowResponse> => {
+  const data = await networkService.post<unknown>(
+    receiptUrls.confirmReceipt(receiptId),
+  );
+  return parseReceiptShowResponse(data);
+};
+
 const uploadReceiptImage = async (
   billId: number,
   formData: FormData,
@@ -109,6 +118,7 @@ const deleteReceiptAdjustment = async (
 
 export default {
   getReceipt,
+  confirmReceipt,
   uploadReceiptImage,
   createReceiptItem,
   updateReceiptItem,

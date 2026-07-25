@@ -8,6 +8,7 @@ export const MUTATION_ERROR_FALLBACKS = {
   reviewDeleteItem: "Couldn't remove item. Please try again.",
   reviewSaveAdjustment: "Couldn't save fee or tax.",
   reviewDeleteAdjustment: "Couldn't remove fee or tax.",
+  reviewConfirmReceipt: "Couldn't confirm the receipt. Please try again.",
   scanUploadReceipt: "Couldn't upload receipt. Try again.",
   authLogin: "Could not sign in. Please try again.",
 } as const;

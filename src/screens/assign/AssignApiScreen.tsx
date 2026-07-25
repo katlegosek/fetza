@@ -187,6 +187,7 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
         variant="no-participants"
         merchantTopHint={merchantTopHint}
         onBack={handleBack}
+        onAddPerson={handleAddMember}
       />
     );
   }
