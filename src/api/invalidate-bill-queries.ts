@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 
+import { billRoomQueryKeys } from "@/services/bill-room/bill-room.keys";
 import { billQueryKeys } from "@/services/bills/bill.keys";
 
 /**
@@ -17,5 +18,8 @@ export async function invalidateBillQueries(
     queryClient.invalidateQueries({ queryKey: billQueryKeys.detail(billId) }),
     queryClient.invalidateQueries({ queryKey: billQueryKeys.summary(billId) }),
     queryClient.invalidateQueries({ queryKey: billQueryKeys.list() }),
+    queryClient.invalidateQueries({
+      queryKey: billRoomQueryKeys.detail(billId),
+    }),
   ]);
 }
