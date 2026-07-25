@@ -13,13 +13,14 @@ export const AuthRouteGuard = ({ children }: { children: ReactNode }) => {
 
   const rootSegment = segments[0] as string | undefined;
   const inAuthGroup = rootSegment === "auth";
+  const inPublicGuestRoom = rootSegment === "b";
 
   useEffect(() => {
     if (!isAuthEnabled || isLoadingAuth) {
       return;
     }
 
-    if (!isAuthenticated && !inAuthGroup) {
+    if (!isAuthenticated && !inAuthGroup && !inPublicGuestRoom) {
       // Route exists at app/auth/login.tsx; typed routes update after Metro picks up the new file.
       router.replace("/auth/login" as never);
       return;
@@ -28,7 +29,14 @@ export const AuthRouteGuard = ({ children }: { children: ReactNode }) => {
     if (isAuthenticated && inAuthGroup) {
       router.replace("/" as never);
     }
-  }, [inAuthGroup, isAuthenticated, isAuthEnabled, isLoadingAuth, router]);
+  }, [
+    inAuthGroup,
+    inPublicGuestRoom,
+    isAuthenticated,
+    isAuthEnabled,
+    isLoadingAuth,
+    router,
+  ]);
 
   if (isAuthEnabled && isLoadingAuth) {
     return (
@@ -39,7 +47,7 @@ export const AuthRouteGuard = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  if (isAuthEnabled && !isAuthenticated && !inAuthGroup) {
+  if (isAuthEnabled && !isAuthenticated && !inAuthGroup && !inPublicGuestRoom) {
     return (
       <View className="flex-1 items-center justify-center gap-3 bg-background px-6">
         <ActivityIndicator accessibilityLabel="Redirecting to sign in" />

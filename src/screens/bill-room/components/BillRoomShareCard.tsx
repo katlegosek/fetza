@@ -12,7 +12,19 @@ export const BillRoomShareCard = ({
   shareToken: string | null;
 }) => {
   const colors = useThemeColors();
-  const shareValue = shareUrl ?? shareToken ?? "Room link is being prepared";
+  const configuredWebUrl = process.env.EXPO_PUBLIC_WEB_APP_URL?.replace(
+    /\/$/,
+    "",
+  );
+  const generatedShareUrl =
+    configuredWebUrl && shareToken
+      ? `${configuredWebUrl}/b/${shareToken}`
+      : null;
+  const shareValue =
+    shareUrl ??
+    generatedShareUrl ??
+    shareToken ??
+    "Room link is being prepared";
 
   const handleShare = async () => {
     if (!shareUrl && !shareToken) return;

@@ -8,6 +8,8 @@ export const useBillRoom = (billId: number) =>
     queryKey: billRoomQueryKeys.detail(billId),
     queryFn: () => billRoomService.getBillRoom(billId),
     enabled: billId > 0,
+    refetchInterval: (query) =>
+      query.state.data?.bill.session_status === "open" ? 5_000 : false,
   });
 
 export const useConfirmBillRoom = () =>

@@ -4,6 +4,7 @@ import { ApiError } from "@/api/errors";
 import { getAccessToken } from "@/services/auth/auth.storage";
 
 const MOBILE_API_PREFIX = "/api/mobile/v1";
+const PUBLIC_API_PREFIX = "/api/public/v1";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -41,6 +42,14 @@ function resolveMobileApiUrl(path: string): string {
   const apiPath = normalized.startsWith(MOBILE_API_PREFIX)
     ? normalized
     : mobileApiPath(normalized);
+  return `${getApiBaseUrl()}${apiPath}`;
+}
+
+function resolvePublicApiUrl(path: string): string {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  const apiPath = normalized.startsWith(PUBLIC_API_PREFIX)
+    ? normalized
+    : `${PUBLIC_API_PREFIX}${normalized}`;
   return `${getApiBaseUrl()}${apiPath}`;
 }
 
@@ -109,6 +118,34 @@ export async function apiRequest<T>(
 
   const data = await parseJson(response);
 
+  if (!response.ok) {
+    throw ApiError.fromResponse(response.status, data);
+  }
+
+  return data as T;
+}
+
+export async function publicApiRequest<T>(
+  path: string,
+  options: ApiRequestOptions & { guestToken?: string | null } = {},
+): Promise<T> {
+  const { method = "GET", body, guestToken } = options;
+
+  let response: Response;
+  try {
+    response = await fetch(resolvePublicApiUrl(path), {
+      method,
+      headers: apiFetchHeaders({
+        ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+        ...(guestToken ? { Authorization: `Bearer ${guestToken}` } : {}),
+      }),
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw ApiError.network();
+  }
+
+  const data = await parseJson(response);
   if (!response.ok) {
     throw ApiError.fromResponse(response.status, data);
   }

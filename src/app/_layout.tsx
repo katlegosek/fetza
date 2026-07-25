@@ -29,6 +29,7 @@ export default function RootLayout() {
                 <Stack.Screen name="bill" />
                 <Stack.Screen name="scan" />
                 <Stack.Screen name="auth" />
+                <Stack.Screen name="b" />
               </Stack>
             </AuthRouteGuard>
           </View>
