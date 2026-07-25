@@ -23,6 +23,23 @@ export const useJoinGuestBillRoom = () =>
     }) => guestBillRoomService.joinRoom(shareToken, name),
   });
 
+export const useRenameGuestBillRoomGuest = () =>
+  useMutation({
+    mutationFn: ({
+      shareToken,
+      name,
+    }: {
+      shareToken: string;
+      name: string;
+    }) => guestBillRoomService.renameGuest(shareToken, name),
+  });
+
+export const useLeaveGuestBillRoom = () =>
+  useMutation({
+    mutationFn: (shareToken: string) =>
+      guestBillRoomService.leaveRoom(shareToken),
+  });
+
 export const useClaimGuestBillRoomItem = () =>
   useMutation({
     mutationFn: ({

@@ -30,14 +30,47 @@ const joinRoom = async (
   const data = await publicNetworkService.post<
     unknown,
     { guest: { name: string } }
-  >(guestBillRoomUrls.join(shareToken), { guest: { name } });
+  >(
+    guestBillRoomUrls.join(shareToken),
+    { guest: { name } },
+    getGuestToken(shareToken),
+  );
   const room = parseGuestBillRoomResponse(data);
+  const existingGuestToken = getGuestToken(shareToken);
 
-  if (!room.guest_token) {
+  if (room.guest_token) {
+    setGuestToken(shareToken, room.guest_token);
+  } else if (!existingGuestToken || !room.current_participant_id) {
     throw new Error("The bill room did not return a guest token.");
   }
 
-  setGuestToken(shareToken, room.guest_token);
+  return room;
+};
+
+const renameGuest = async (
+  shareToken: string,
+  name: string,
+): Promise<GuestBillRoomResponse> => {
+  const data = await publicNetworkService.patch<
+    unknown,
+    { guest: { name: string } }
+  >(
+    guestBillRoomUrls.guest(shareToken),
+    { guest: { name } },
+    getGuestToken(shareToken),
+  );
+  return parseGuestBillRoomResponse(data);
+};
+
+const leaveRoom = async (
+  shareToken: string,
+): Promise<GuestBillRoomResponse> => {
+  const data = await publicNetworkService.delete<unknown>(
+    guestBillRoomUrls.guest(shareToken),
+    getGuestToken(shareToken),
+  );
+  const room = parseGuestBillRoomResponse(data);
+  clearGuestToken(shareToken);
   return room;
 };
 
@@ -67,6 +100,8 @@ const unclaimItem = async (
 export default {
   getRoom,
   joinRoom,
+  renameGuest,
+  leaveRoom,
   claimItem,
   unclaimItem,
 };

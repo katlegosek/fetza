@@ -12,6 +12,7 @@ import {
   ScreenLoadingState,
 } from "@/components";
 import {
+  GuestIdentityCard,
   GuestItemsList,
   GuestJoinCard,
 } from "@/screens/guest-bill-room/components";
@@ -20,6 +21,8 @@ import {
   useClaimGuestBillRoomItem,
   useGuestBillRoom,
   useJoinGuestBillRoom,
+  useLeaveGuestBillRoom,
+  useRenameGuestBillRoomGuest,
 } from "@/services/guest-bill-room";
 import { formatMoneyFromCents } from "@/utils/money";
 
@@ -33,9 +36,12 @@ export const GuestBillRoomScreen = ({
   const roomQuery = useGuestBillRoom(shareToken);
   const joinRoom = useJoinGuestBillRoom();
   const claimItem = useClaimGuestBillRoomItem();
+  const renameGuest = useRenameGuestBillRoomGuest();
+  const leaveRoom = useLeaveGuestBillRoom();
   const [name, setName] = useState("");
   const [joinError, setJoinError] = useState<string | null>(null);
   const [claimError, setClaimError] = useState<string | null>(null);
+  const [sessionError, setSessionError] = useState<string | null>(null);
   const [pendingItemId, setPendingItemId] = useState<number | null>(null);
 
   const replaceRoomData = useCallback(
@@ -87,6 +93,37 @@ export const GuestBillRoomScreen = ({
     },
     [claimItem, replaceRoomData, shareToken],
   );
+
+  const handleRename = useCallback(
+    async (nextName: string) => {
+      setSessionError(null);
+      try {
+        const room = await renameGuest.mutateAsync({
+          shareToken,
+          name: nextName,
+        });
+        replaceRoomData(room);
+      } catch (error) {
+        setSessionError(
+          getApiErrorMessage(error, "Couldn't update your name. Try again."),
+        );
+      }
+    },
+    [renameGuest, replaceRoomData, shareToken],
+  );
+
+  const handleLeave = useCallback(async () => {
+    setSessionError(null);
+    try {
+      const room = await leaveRoom.mutateAsync(shareToken);
+      setName("");
+      replaceRoomData(room);
+    } catch (error) {
+      setSessionError(
+        getApiErrorMessage(error, "Couldn't leave this bill room. Try again."),
+      );
+    }
+  }, [leaveRoom, replaceRoomData, shareToken]);
 
   if (roomQuery.isLoading) {
     return (
@@ -183,12 +220,24 @@ export const GuestBillRoomScreen = ({
           ) : null}
 
           {currentParticipant ? (
-            <View className="mb-5 rounded-2xl border border-borderSubtle bg-background px-5 py-4">
-              <AppText className="text-sm text-muted">Claiming as</AppText>
-              <AppText className="mt-1 text-lg font-bold text-foreground">
-                {currentParticipant.name}
-              </AppText>
-            </View>
+            <GuestIdentityCard
+              isLeaving={leaveRoom.isPending}
+              isRenaming={renameGuest.isPending}
+              name={currentParticipant.name}
+              readOnly={roomFinalized}
+              onLeave={() => void handleLeave()}
+              onRename={(nextName) => void handleRename(nextName)}
+            />
+          ) : null}
+
+          {sessionError ? (
+            <NoticeBanner
+              className="mb-5"
+              icon="alert-circle-outline"
+              message={sessionError}
+              variant="sky"
+              onDismiss={() => setSessionError(null)}
+            />
           ) : null}
 
           {claimError ? (
