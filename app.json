@@ -39,6 +39,12 @@
           "cameraPermission": "Allow Fetza to take photos of receipts."
         }
       ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Fetza to use the camera to scan receipts."
+        }
+      ],
       "expo-secure-store"
     ],
     "experiments": {

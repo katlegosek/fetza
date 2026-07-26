@@ -62,7 +62,7 @@ export const ReviewBottomBar = ({
 
         <View className="min-w-0 flex-1 basis-0 self-stretch pl-1.5">
           <Button
-            accessibilityLabel="Confirm and create table"
+            accessibilityLabel="Continue"
             className="h-full w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0"
             disabled={isConfirming || disabled}
             onPress={onConfirmPress ?? onAssignPress}
@@ -72,7 +72,7 @@ export const ReviewBottomBar = ({
             ) : (
               <>
                 <AppText className="text-base font-semibold text-background">
-                  Confirm & create table
+                  Continue
                 </AppText>
                 <Ionicons
                   name="chevron-forward"
