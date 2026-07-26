@@ -154,7 +154,7 @@ export const ReviewMockScreen = () => {
   );
 
   return (
-    <ScreenContainer className="flex-1 bg-background">
+    <ScreenContainer className="flex-1 bg-canvas">
       <ScreenHeader
         title="Review"
         rightSlot={

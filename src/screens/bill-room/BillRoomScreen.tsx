@@ -176,7 +176,7 @@ export const BillRoomScreen = ({ billId }: { billId: number }) => {
   const roomEditable = room.bill.session_status === "open";
 
   return (
-    <ScreenContainer className="flex-1 bg-background">
+    <ScreenContainer className="flex-1 bg-canvas">
       <ScreenHeader
         title="Breakdown"
         topHint={room.bill.receipt_name}

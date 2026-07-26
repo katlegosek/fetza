@@ -47,7 +47,7 @@ export const ScanPermissionState = ({
   const showFallback = variant === "denied" || variant === "unavailable";
 
   return (
-    <ScreenContainer className="flex-1 bg-background">
+    <ScreenContainer className="flex-1 bg-canvas">
       <ScreenHeader title="Scan receipt" onBack={onBack} />
 
       <View className="flex-1 items-center justify-center gap-5 px-8">

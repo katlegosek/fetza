@@ -9,6 +9,7 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
+    --canvas: 240 24% 96%;
     --foreground: 0 0% 4%;
     --muted: 0 0% 45%;
     --border-subtle: 0 0% 90%;
@@ -16,6 +17,7 @@
 
   .dark {
     --background: 0 0% 0%;
+    --canvas: 0 0% 0%;
     --foreground: 0 0% 100%;
     --muted: 0 0% 64%;
     --border-subtle: 0 0% 15%;

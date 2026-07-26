@@ -1,7 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, ScrollView, View, useWindowDimensions } from "react-native";
+import {
+  Animated,
+  Pressable,
+  ScrollView,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 import {
   MUTATION_ERROR_FALLBACKS,
@@ -42,6 +48,7 @@ export const ProcessingReceiptScreen = ({
   const receiptWidth = reviewReceiptWidth(width);
   const demo = useReceiptProcessingDemo();
   const uploadReceiptImage = useUploadReceiptImage();
+  const headingPulse = useRef(new Animated.Value(1)).current;
   const uploadStartedRef = useRef(false);
   const [resolvedBillId, setResolvedBillId] = useState(billId);
   const [resolvedReceiptId, setResolvedReceiptId] = useState(receiptId);
@@ -84,6 +91,26 @@ export const ProcessingReceiptScreen = ({
     void uploadSelectedImage();
   }, [imageUri, receiptId, uploadSelectedImage]);
 
+  // Gently flash the heading while processing (a "thinking" pulse).
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(headingPulse, {
+          toValue: 0.4,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headingPulse, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [headingPulse]);
+
   const receiptStatus = receiptQuery.data?.receipt.status;
   const processingRunStatus = receiptQuery.data?.processing_run?.status;
   const backendComplete = isReceiptProcessingComplete(
@@ -106,13 +133,15 @@ export const ProcessingReceiptScreen = ({
   }
 
   return (
-    <ScreenContainer className="flex-1 bg-background">
+    <ScreenContainer className="flex-1 bg-canvas">
       <ScreenHeader title="Receipt" onBack={() => router.back()} />
 
       <View className="px-5 pb-3 pt-1">
-        <AppText className="text-center text-2xl font-bold text-foreground">
-          {demo.currentStage.heading}
-        </AppText>
+        <Animated.View style={{ opacity: headingPulse }}>
+          <AppText className="text-center text-2xl font-bold text-foreground">
+            {demo.currentStage.heading}
+          </AppText>
+        </Animated.View>
         <AppText className="mt-1 text-center text-sm text-muted">
           Turning your receipt into a shared bill ✨
         </AppText>

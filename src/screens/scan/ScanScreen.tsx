@@ -1,12 +1,12 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Linking, Pressable, View } from "react-native";
+import { Animated, Linking, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AppText } from "@/components";
+import { AppText, GlassIconButton } from "@/components";
+import { usePressScale } from "@/hooks";
 import { pickReceiptImage } from "@/lib/receipt-upload";
 import { ReceiptCameraView } from "@/screens/scan/components/ReceiptCameraView";
 import { ScanControlButton } from "@/screens/scan/components/ScanControlButton";
@@ -26,6 +26,7 @@ export const ScanScreen = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
   const requestedRef = useRef(false);
+  const shutterPress = usePressScale({ pressedScale: 0.92 });
 
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraAvailable, setCameraAvailable] = useState(true);
@@ -182,29 +183,20 @@ export const ScanScreen = () => {
         className="absolute inset-x-0 top-0 z-20 flex-row items-center justify-between px-5"
         style={{ paddingTop: insets.top + 8 }}
       >
-        <Pressable
+        <GlassIconButton
           accessibilityLabel="Close scanner"
-          accessibilityRole="button"
-          className="size-11 items-center justify-center rounded-full bg-black/45 active:opacity-75"
-          hitSlop={8}
+          icon="close"
+          iconSize={24}
           onPress={handleBack}
-        >
-          <Ionicons name="close" size={24} color="#ffffff" />
-        </Pressable>
+        />
 
-        <Pressable
+        <GlassIconButton
           accessibilityLabel={`Flash ${flashEnabled ? "on" : "off"}`}
-          accessibilityRole="button"
-          className="size-11 items-center justify-center rounded-full bg-black/45 active:opacity-75"
-          hitSlop={8}
+          icon={flashEnabled ? "flash" : "flash-off"}
+          iconColor={flashEnabled ? "#facc15" : "#ffffff"}
+          iconSize={21}
           onPress={() => setFlashEnabled((enabled) => !enabled)}
-        >
-          <Ionicons
-            color={flashEnabled ? "#facc15" : "#ffffff"}
-            name={flashEnabled ? "flash" : "flash-off"}
-            size={21}
-          />
-        </Pressable>
+        />
       </View>
 
       <View
@@ -230,12 +222,18 @@ export const ScanScreen = () => {
           <Pressable
             accessibilityLabel="Take photo"
             accessibilityRole="button"
-            className="size-[78px] items-center justify-center rounded-full border-4 border-white/40 active:opacity-75"
             disabled={captureDisabled}
             style={{ opacity: captureDisabled ? 0.5 : 1 }}
             onPress={() => void handleCapture()}
+            onPressIn={shutterPress.onPressIn}
+            onPressOut={shutterPress.onPressOut}
           >
-            <View className="size-[62px] rounded-full bg-white" />
+            <Animated.View
+              className="size-[78px] items-center justify-center rounded-full border-4 border-white/40"
+              style={{ transform: [{ scale: shutterPress.scale }] }}
+            >
+              <View className="size-[62px] rounded-full bg-white" />
+            </Animated.View>
           </Pressable>
 
           <ScanControlButton

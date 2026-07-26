@@ -3,6 +3,8 @@ import { Pressable, View, type ViewProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppText } from "@/components/atoms";
+import { GlassIconButton } from "@/components/molecules/glass-icon-button";
+import { useAppColorScheme, useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
 
 export type ScreenHeaderProps = ViewProps & {
@@ -63,6 +65,8 @@ export const ScreenHeader = ({
   ...props
 }: ScreenHeaderProps) => {
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
+  const scheme = useAppColorScheme();
   const end = titleAlign === "right";
   const compact = !topHint && !bottomHint;
 
@@ -77,20 +81,19 @@ export const ScreenHeader = ({
       {...props}
     >
       {onBack ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          className={cn(
-            "h-10 w-10 shrink-0 items-center justify-center rounded-full border border-borderSubtle bg-white active:opacity-85 dark:bg-background",
-            !compact && "mt-0.5",
-          )}
-          hitSlop={10}
-          onPress={onBack}
-        >
-          <AppText className="-mt-px text-2xl font-medium leading-none text-foreground">
-            ‹
-          </AppText>
-        </Pressable>
+        <View className={cn("shrink-0", !compact && "mt-0.5")}>
+          <GlassIconButton
+            accessibilityLabel="Go back"
+            icon="chevron-back"
+            iconColor={colors.foreground}
+            iconSize={22}
+            intensity={scheme === "dark" ? 24 : 18}
+            onPress={onBack}
+            size={40}
+            surfaceClassName="border-borderSubtle"
+            tint={scheme === "dark" ? "dark" : "light"}
+          />
+        </View>
       ) : (
         <View className={cn("h-10 w-10 shrink-0", !compact && "mt-0.5")} />
       )}

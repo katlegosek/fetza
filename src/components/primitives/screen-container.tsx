@@ -17,7 +17,7 @@ export const ScreenContainer = ({
   className,
   ...props
 }: ScreenContainerProps) => (
-  <View className={cn("flex-1 bg-background", className)} {...props}>
+  <View className={cn("flex-1 bg-canvas", className)} {...props}>
     {children}
   </View>
 );

@@ -24,6 +24,6 @@ export type RootLayoutAppearance = Readonly<{
  */
 export const useRootLayoutAppearance = (): RootLayoutAppearance => {
   const scheme = useAppColorScheme();
-  const rootClassName = cn("flex-1 bg-background", scheme === "dark" && "dark");
+  const rootClassName = cn("flex-1 bg-canvas", scheme === "dark" && "dark");
   return { scheme, rootClassName };
 };

@@ -229,7 +229,7 @@ export const ManualReceiptScreen = () => {
   };
 
   return (
-    <ScreenContainer className="flex-1 bg-background">
+    <ScreenContainer className="flex-1 bg-canvas">
       <ScreenHeader
         title="Receipt"
         topHint="Manual entry"

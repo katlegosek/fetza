@@ -1,10 +1,8 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
   Alert,
-  Pressable,
   RefreshControl,
   ScrollView,
   View,
@@ -20,6 +18,7 @@ import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
   Button,
+  GlassIconButton,
   NoticeBanner,
   RECEIPT_ZIGZAG_DEPTH,
   ScreenContainer,
@@ -28,7 +27,7 @@ import {
   ScreenLoadingState,
   ThermalReceipt,
 } from "@/components";
-import { usePullToRefresh, useThemeColors } from "@/hooks";
+import { useAppColorScheme, usePullToRefresh, useThemeColors } from "@/hooks";
 import {
   FEEDBACK_MESSAGES,
   REVIEW_FEEDBACK_CONTAINER_CLASS,
@@ -79,6 +78,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
   const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
+  const scheme = useAppColorScheme();
   const { width } = useWindowDimensions();
   const receiptWidth = reviewReceiptWidth(width);
 
@@ -416,23 +416,22 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
   const showEmptyItemsHint = itemCount === 0;
 
   return (
-    <ScreenContainer className="flex-1 bg-background">
+    <ScreenContainer className="flex-1 bg-canvas">
       <ScreenHeader
         title="Confirm receipt"
         topHint={data.bill.title}
         rightSlot={
-          <Pressable
+          <GlassIconButton
             accessibilityLabel="More options"
-            className="h-10 w-10 items-center justify-center rounded-full border border-borderSubtle bg-white active:opacity-85 dark:bg-background"
-            hitSlop={10}
+            icon="ellipsis-horizontal"
+            iconColor={colors.foreground}
+            iconSize={22}
+            intensity={scheme === "dark" ? 24 : 18}
             onPress={() => setOverflowMenuOpen(true)}
-          >
-            <Ionicons
-              name="ellipsis-horizontal"
-              size={22}
-              color={colors.foreground}
-            />
-          </Pressable>
+            size={40}
+            surfaceClassName="border-borderSubtle"
+            tint={scheme === "dark" ? "dark" : "light"}
+          />
         }
         onBack={() => router.back()}
       />

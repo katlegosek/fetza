@@ -1,4 +1,8 @@
 export { Button, type ButtonProps } from "./button";
+export {
+  GlassIconButton,
+  type GlassIconButtonProps,
+} from "./glass-icon-button";
 export { LabeledField, type LabeledFieldProps } from "./labeled-field";
 export {
   MissingBillState,

@@ -1,12 +1,14 @@
 {
   "light": {
     "background": "#ffffff",
+    "canvas": "#f2f2f7",
     "foreground": "#0a0a0a",
     "muted": "#737373",
     "borderSubtle": "#e5e5e5"
   },
   "dark": {
     "background": "#000000",
+    "canvas": "#000000",
     "foreground": "#ffffff",
     "muted": "#a3a3a3",
     "borderSubtle": "#262626"

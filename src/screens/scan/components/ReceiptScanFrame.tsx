@@ -52,10 +52,10 @@ export const ReceiptScanFrame = ({ active = true }: ReceiptScanFrameProps) => {
 
   return (
     <View className="flex-1 self-stretch overflow-hidden" onLayout={onLayout}>
-      <View className="absolute left-0 top-0 h-12 w-12 rounded-tl-2xl border-l-[3px] border-t-[3px] border-emerald-300" />
-      <View className="absolute right-0 top-0 h-12 w-12 rounded-tr-2xl border-r-[3px] border-t-[3px] border-emerald-300" />
-      <View className="absolute bottom-0 left-0 h-12 w-12 rounded-bl-2xl border-b-[3px] border-l-[3px] border-emerald-300" />
-      <View className="absolute bottom-0 right-0 h-12 w-12 rounded-br-2xl border-b-[3px] border-r-[3px] border-emerald-300" />
+      <View className="absolute left-0 top-0 h-12 w-12 rounded-tl-2xl border-l-[3px] border-t-[3px] border-white" />
+      <View className="absolute right-0 top-0 h-12 w-12 rounded-tr-2xl border-r-[3px] border-t-[3px] border-white" />
+      <View className="absolute bottom-0 left-0 h-12 w-12 rounded-bl-2xl border-b-[3px] border-l-[3px] border-white" />
+      <View className="absolute bottom-0 right-0 h-12 w-12 rounded-br-2xl border-b-[3px] border-r-[3px] border-white" />
 
       {active && frameHeight > 0 ? (
         <Animated.View

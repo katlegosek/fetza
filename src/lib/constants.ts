@@ -4,13 +4,13 @@ import { type ColorSchemeName, colorSchemes } from "@/theme/colors";
 
 function navigationTheme(scheme: ColorSchemeName): Theme {
   const base = scheme === "light" ? DefaultTheme : DarkTheme;
-  const { background, foreground } = colorSchemes[scheme];
+  const { canvas, foreground } = colorSchemes[scheme];
 
   return {
     ...base,
     colors: {
       ...base.colors,
-      background,
+      background: canvas,
       text: foreground,
     },
   };

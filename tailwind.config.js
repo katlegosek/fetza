@@ -13,7 +13,7 @@ module.exports = {
         foreground: "hsl(var(--foreground) / <alpha-value>)",
         muted: "hsl(var(--muted) / <alpha-value>)",
         borderSubtle: "hsl(var(--border-subtle) / <alpha-value>)",
-        canvas: "hsl(var(--background) / <alpha-value>)",
+        canvas: "hsl(var(--canvas) / <alpha-value>)",
         ink: "hsl(var(--foreground) / <alpha-value>)",
         border: "hsl(var(--border-subtle) / <alpha-value>)",
         input: "hsl(var(--border-subtle) / <alpha-value>)",
