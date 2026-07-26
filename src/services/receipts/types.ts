@@ -39,3 +39,15 @@ export interface ReceiptAdjustmentInput {
   affects_total?: boolean;
   position?: number;
 }
+
+export interface ManualReceiptInput {
+  merchant_name: string;
+  receipt_date: string;
+  subtotal_cents: number;
+  total_cents: number;
+  currency?: string;
+  tax_cents?: number;
+  service_fee_cents?: number;
+  tip_cents?: number;
+  discount_cents?: number;
+}

@@ -103,7 +103,7 @@ export const BillRoomShareCard = ({
   return (
     <View className="rounded-3xl border border-borderSubtle bg-background p-5">
       <AppText className="text-lg font-bold text-foreground">
-        Share this bill room
+        Share this table
       </AppText>
       <AppText className="mt-1 text-sm leading-5 text-muted">
         Let friends join and claim their items. No account or app needed.
@@ -112,7 +112,7 @@ export const BillRoomShareCard = ({
       <View className="mt-5 items-center rounded-3xl bg-stone-50 p-5 dark:bg-neutral-900">
         {url ? (
           <View
-            accessibilityLabel="QR code for the guest bill-room link"
+            accessibilityLabel="QR code for the guest table link"
             className="rounded-2xl bg-white p-3"
           >
             <QRCode
@@ -151,21 +151,21 @@ export const BillRoomShareCard = ({
 
       <View className="mt-4 flex-row gap-2">
         <ShareAction
-          accessibilityLabel="Copy guest bill-room link"
+          accessibilityLabel="Copy guest table link"
           disabled={sharingDisabled}
           icon="copy-outline"
           label="Copy link"
           onPress={() => void handleCopy()}
         />
         <ShareAction
-          accessibilityLabel="Share guest bill-room link on WhatsApp"
+          accessibilityLabel="Share guest table link on WhatsApp"
           disabled={sharingDisabled}
           icon="logo-whatsapp"
           label="WhatsApp"
           onPress={() => void handleWhatsApp()}
         />
         <ShareAction
-          accessibilityLabel="Share guest bill-room link"
+          accessibilityLabel="Share guest table link"
           disabled={sharingDisabled}
           icon="share-outline"
           label="More"

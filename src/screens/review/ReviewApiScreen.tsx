@@ -295,8 +295,8 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
     }
   }, [billId, queryClient, sheet]);
 
-  const handleConfirmAndCreateRoom = useCallback(async () => {
-    const goToRoom = () =>
+  const handleConfirmAndCreateTable = useCallback(async () => {
+    const goToTable = () =>
       router.push({
         pathname: "/scan/room",
         params: { billId: String(billId) },
@@ -311,7 +311,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
     try {
       await confirmBillRoom.mutateAsync(billId);
       await invalidateBillQueries(queryClient, billId);
-      goToRoom();
+      goToTable();
     } catch (confirmError) {
       setReviewActionError(
         getApiErrorMessage(
@@ -512,7 +512,7 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
           isConfirming={confirmBillRoom.isPending}
           itemCountLabel={`${itemCount} ${itemCount === 1 ? "item" : "items"}`}
           totalDisplay={formatMoneyFromCents(totalCents)}
-          onConfirmPress={handleConfirmAndCreateRoom}
+          onConfirmPress={handleConfirmAndCreateTable}
         />
       </View>
 

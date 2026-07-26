@@ -58,7 +58,7 @@ export const BillRoomParticipantSheet = ({
       bottomInset={bottomInset}
       subtitle={
         participant
-          ? "Update this person or remove them from the room."
+          ? "Update this person or remove them from the table."
           : "Add someone manually when they cannot join through the link."
       }
       title={participant ? "Manage person" : "Add person"}

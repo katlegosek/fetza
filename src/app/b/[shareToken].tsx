@@ -14,8 +14,8 @@ export default function GuestBillRoomRoute() {
   if (!shareToken) {
     return (
       <ScreenErrorState
-        title="Bill room unavailable"
-        message="This bill-room link is incomplete."
+        title="Table unavailable"
+        message="This table link is incomplete."
       />
     );
   }

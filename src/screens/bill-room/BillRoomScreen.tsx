@@ -136,8 +136,8 @@ export const BillRoomScreen = ({ billId }: { billId: number }) => {
     return (
       <ScreenLoadingState
         title="Breakdown"
-        message="Opening your bill room…"
-        loadingAccessibilityLabel="Loading bill room"
+        message="Opening your table…"
+        loadingAccessibilityLabel="Loading table"
         onBack={handleBack}
       />
     );
@@ -149,7 +149,7 @@ export const BillRoomScreen = ({ billId }: { billId: number }) => {
         title="Breakdown"
         message={getApiErrorMessage(
           roomQuery.error,
-          "Couldn't load this bill room.",
+          "Couldn't load this table.",
         )}
         actionLabel="Try again"
         onAction={() => void roomQuery.refetch()}

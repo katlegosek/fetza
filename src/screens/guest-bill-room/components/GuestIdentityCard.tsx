@@ -48,7 +48,7 @@ export const GuestIdentityCard = ({
     return (
       <View className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 dark:border-red-900 dark:bg-red-950/30">
         <AppText className="text-base font-bold text-red-800 dark:text-red-200">
-          Leave this bill room?
+          Leave this table?
         </AppText>
         <AppText className="mt-1 text-sm leading-5 text-red-700 dark:text-red-300">
           Your claims will be removed and shared items will be recalculated.
@@ -71,7 +71,9 @@ export const GuestIdentityCard = ({
             {isLeaving ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <AppText className="font-semibold text-white">Leave room</AppText>
+              <AppText className="font-semibold text-white">
+                Leave table
+              </AppText>
             )}
           </Pressable>
         </View>

@@ -53,7 +53,7 @@ export const GuestJoinCard = ({
         {isJoining ? (
           <ActivityIndicator color={colors.background} />
         ) : (
-          "Join bill room"
+          "Join table"
         )}
       </Button>
     </View>

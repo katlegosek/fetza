@@ -41,7 +41,7 @@ const joinRoom = async (
   if (room.guest_token) {
     setGuestToken(shareToken, room.guest_token);
   } else if (!existingGuestToken || !room.current_participant_id) {
-    throw new Error("The bill room did not return a guest token.");
+    throw new Error("The table did not return a guest token.");
   }
 
   return room;

@@ -12,6 +12,7 @@ export type ReviewBottomBarProps = {
   /** Kept for the isolated reference flow; active routes use onConfirmPress. */
   onAssignPress?: () => void;
   isConfirming?: boolean;
+  disabled?: boolean;
 };
 
 export const ReviewBottomBar = ({
@@ -21,6 +22,7 @@ export const ReviewBottomBar = ({
   onConfirmPress,
   onAssignPress,
   isConfirming = false,
+  disabled = false,
 }: ReviewBottomBarProps) => {
   const colors = useThemeColors();
 
@@ -60,9 +62,9 @@ export const ReviewBottomBar = ({
 
         <View className="min-w-0 flex-1 basis-0 self-stretch pl-1.5">
           <Button
-            accessibilityLabel="Confirm and create room"
+            accessibilityLabel="Confirm and create table"
             className="h-full w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0"
-            disabled={isConfirming}
+            disabled={isConfirming || disabled}
             onPress={onConfirmPress ?? onAssignPress}
           >
             {isConfirming ? (
@@ -70,7 +72,7 @@ export const ReviewBottomBar = ({
             ) : (
               <>
                 <AppText className="text-base font-semibold text-background">
-                  Confirm & create room
+                  Confirm & create table
                 </AppText>
                 <Ionicons
                   name="chevron-forward"

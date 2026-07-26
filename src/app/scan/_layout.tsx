@@ -8,6 +8,8 @@ export default function ScanLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen name="confirm" />
+      <Stack.Screen name="room" />
       <Stack.Screen name="manual" />
       <Stack.Screen name="review" />
       <Stack.Screen name="assign" />

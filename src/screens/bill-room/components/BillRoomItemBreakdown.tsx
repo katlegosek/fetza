@@ -1,7 +1,9 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { View } from "react-native";
 
 import { AppText } from "@/components";
 import type { BillRoomResponse } from "@/services/bill-room";
+import { getReceiptItemIcon } from "@/utils/get-receipt-item-icon";
 import { formatMoneyFromCents } from "@/utils/money";
 
 export const BillRoomItemBreakdown = ({
@@ -48,10 +50,17 @@ export const BillRoomItemBreakdown = ({
           </AppText>
           {section.items.map((item) => (
             <View
-              className="mt-2 flex-row items-center justify-between border-b border-borderSubtle pb-2"
+              className="mt-2 flex-row items-center gap-3 border-b border-borderSubtle pb-2"
               key={item.id}
             >
-              <AppText className="mr-4 flex-1 text-foreground">
+              <View className="size-9 items-center justify-center rounded-xl bg-violet-500/15 dark:bg-violet-500/20">
+                <Ionicons
+                  color="#7c3aed"
+                  name={getReceiptItemIcon(item.name)}
+                  size={18}
+                />
+              </View>
+              <AppText className="min-w-0 flex-1 text-foreground">
                 {item.name}
               </AppText>
               <AppText className="font-semibold text-foreground">

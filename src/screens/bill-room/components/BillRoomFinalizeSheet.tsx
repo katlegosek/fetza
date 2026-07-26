@@ -54,7 +54,7 @@ export const BillRoomFinalizeSheet = ({
             style={{ color: appearance.muted }}
           >
             {hasUnclaimedItems
-              ? "You can return to the room and assign them, or finalise anyway."
+              ? "You can return to the table and assign them, or finalise anyway."
               : "The bill is ready to move to the final summary."}
           </AppText>
         </View>
@@ -71,7 +71,7 @@ export const BillRoomFinalizeSheet = ({
             className={bottomSheetFormClasses.btnSecondaryText}
             style={{ color: appearance.ink }}
           >
-            Back to room
+            Back to table
           </AppText>
         </Pressable>
         <Pressable

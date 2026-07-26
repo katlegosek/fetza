@@ -67,7 +67,7 @@ export const GuestBillRoomScreen = ({
       replaceRoomData(room);
     } catch (error) {
       setJoinError(
-        getApiErrorMessage(error, "Couldn't join this bill room. Try again."),
+        getApiErrorMessage(error, "Couldn't join this table. Try again."),
       );
     }
   }, [joinRoom, name, replaceRoomData, shareToken]);
@@ -120,7 +120,7 @@ export const GuestBillRoomScreen = ({
       replaceRoomData(room);
     } catch (error) {
       setSessionError(
-        getApiErrorMessage(error, "Couldn't leave this bill room. Try again."),
+        getApiErrorMessage(error, "Couldn't leave this table. Try again."),
       );
     }
   }, [leaveRoom, replaceRoomData, shareToken]);
@@ -129,8 +129,8 @@ export const GuestBillRoomScreen = ({
     return (
       <ScreenLoadingState
         title="Fetza"
-        message="Opening the bill room…"
-        loadingAccessibilityLabel="Loading shared bill room"
+        message="Opening the table…"
+        loadingAccessibilityLabel="Loading shared table"
       />
     );
   }
@@ -138,10 +138,10 @@ export const GuestBillRoomScreen = ({
   if (roomQuery.isError || !roomQuery.data) {
     return (
       <ScreenErrorState
-        title="Bill room unavailable"
+        title="Table unavailable"
         message={getApiErrorMessage(
           roomQuery.error,
-          "This link may be invalid or the room is no longer available.",
+          "This link may be invalid or the table is no longer available.",
         )}
         actionLabel="Try again"
         onAction={() => void roomQuery.refetch()}

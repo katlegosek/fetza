@@ -9,6 +9,7 @@ import {
 } from "@/services/receipts/receipt.model";
 import receiptUrls from "@/services/receipts/receipt.urls";
 import type {
+  ManualReceiptInput,
   ReceiptAdjustmentDeleteResponse,
   ReceiptAdjustmentInput,
   ReceiptAdjustmentMutationResponse,
@@ -32,6 +33,17 @@ const confirmReceipt = async (
   const data = await networkService.post<unknown>(
     receiptUrls.confirmReceipt(receiptId),
   );
+  return parseReceiptShowResponse(data);
+};
+
+const createManualReceipt = async (
+  billId: number,
+  receipt: ManualReceiptInput,
+): Promise<ReceiptShowResponse> => {
+  const data = await networkService.post<
+    unknown,
+    { receipt: ManualReceiptInput }
+  >(receiptUrls.billReceipts(billId), { receipt });
   return parseReceiptShowResponse(data);
 };
 
@@ -118,6 +130,7 @@ const deleteReceiptAdjustment = async (
 
 export default {
   getReceipt,
+  createManualReceipt,
   confirmReceipt,
   uploadReceiptImage,
   createReceiptItem,

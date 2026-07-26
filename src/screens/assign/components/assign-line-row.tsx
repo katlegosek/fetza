@@ -6,6 +6,7 @@ import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
 import { formatZAR } from "@/lib/helper";
 import type { ReceiptLine } from "@/types/draft-bill";
+import { getReceiptItemIcon } from "@/utils/get-receipt-item-icon";
 
 type AssignLineLike = Pick<ReceiptLine, "qty" | "description" | "amountCents">;
 
@@ -46,36 +47,12 @@ function initials(name: string): string {
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
-function lineListIcon(
-  line: AssignLineLike,
-  index: number,
-): keyof typeof Ionicons.glyphMap {
-  const d = line.description.toLowerCase();
-  if (/\b(wine|chenin|glass|drink|blanc)\b/.test(d)) return "wine-outline";
-  if (/\b(coffee|water|sparkling)\b/.test(d)) return "cafe-outline";
-  if (/\b(bread|sourdough|butter)\b/.test(d)) return "nutrition-outline";
-  if (
-    /\b(bao|pork|sticky|halloumi|broccolini|fondant|chocolate|charred)\b/.test(
-      d,
-    )
-  ) {
-    return "restaurant-outline";
-  }
-  const pool = [
-    "restaurant-outline",
-    "nutrition-outline",
-    "wine-outline",
-    "leaf-outline",
-  ] as const satisfies readonly (keyof typeof Ionicons.glyphMap)[];
-  return pool[index % pool.length];
-}
-
 export const AssignLineRow = (props: AssignLineRowProps) => {
   const colors = useThemeColors();
-  const { line, lineHint, onPress, index } = props;
+  const { line, lineHint, onPress } = props;
   const formatAmount = props.formatAmount ?? formatZAR;
   const qtyLabel = line.qty > 1 ? `${line.qty}x ` : "";
-  const listIcon = lineListIcon(line, index);
+  const listIcon = getReceiptItemIcon(line.description);
 
   if (props.variant === "share") {
     const { shareCents, assigneeCount } = props;

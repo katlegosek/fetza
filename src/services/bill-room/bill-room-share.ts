@@ -25,14 +25,14 @@ export function resolveGuestShareLink({
 
     return {
       url: null,
-      error: "The bill room returned an invalid guest link.",
+      error: "The table returned an invalid guest link.",
     };
   }
 
   if (!shareToken) {
     return {
       url: null,
-      error: "The guest link is still being prepared. Refresh the bill room.",
+      error: "The guest link is still being prepared. Refresh the table.",
     };
   }
 
@@ -60,5 +60,5 @@ export function resolveGuestShareLink({
 }
 
 export function guestShareMessage(url: string): string {
-  return `Join my Fetza bill room and claim your items: ${url}`;
+  return `Join my Fetza table and claim your items: ${url}`;
 }

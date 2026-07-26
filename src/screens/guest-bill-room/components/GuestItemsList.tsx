@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, View } from "react-native";
 import { AppText } from "@/components";
 import { useThemeColors } from "@/hooks";
 import type { GuestBillRoomResponse } from "@/services/guest-bill-room";
+import { getReceiptItemIcon } from "@/utils/get-receipt-item-icon";
 import { formatMoneyFromCents } from "@/utils/money";
 
 export const GuestItemsList = ({
@@ -52,6 +53,13 @@ export const GuestItemsList = ({
             key={item.id}
           >
             <View className="flex-row items-start justify-between gap-4">
+              <View className="size-10 items-center justify-center rounded-2xl bg-violet-500/15 dark:bg-violet-500/20">
+                <Ionicons
+                  color="#7c3aed"
+                  name={getReceiptItemIcon(item.name)}
+                  size={20}
+                />
+              </View>
               <View className="min-w-0 flex-1">
                 <AppText className="text-lg font-semibold text-foreground">
                   {item.name}
