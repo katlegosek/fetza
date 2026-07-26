@@ -1,10 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { BlurView } from "expo-blur";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { GlassView } from "expo-glass-effect";
 import { Animated, Pressable, StyleSheet, View } from "react-native";
 
 import { usePressScale } from "@/hooks";
 import { cn } from "@/lib/cn";
+import { canUseLiquidGlass } from "@/lib/liquid-glass";
 
 export type GlassIconButtonProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -32,13 +33,16 @@ export type GlassIconButtonProps = {
 };
 
 /** Resolved once per app run — the OS/material support doesn't change at runtime. */
-const LIQUID_GLASS_AVAILABLE = isLiquidGlassAvailable();
+const LIQUID_GLASS_AVAILABLE = canUseLiquidGlass();
 
 /**
  * Circular "liquid glass" control. Uses Apple's genuine Liquid Glass material
  * (`expo-glass-effect`) on iOS 26+, which handles the grow/brighten/spring
  * interaction natively, and falls back to a BlurView recreation everywhere else
  * (older iOS + Android) — the same native-first strategy WhatsApp uses.
+ *
+ * Availability checks both compile-time Liquid Glass support and the runtime
+ * Glass Effect API (some iOS 26 betas lack the API and would crash otherwise).
  */
 export const GlassIconButton = (props: GlassIconButtonProps) =>
   LIQUID_GLASS_AVAILABLE ? (

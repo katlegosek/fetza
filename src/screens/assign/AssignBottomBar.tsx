@@ -1,8 +1,13 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { View } from "react-native";
 
-import { AnimatedZarAmount, AppText, Button } from "@/components";
-import { cn } from "@/lib/cn";
+import {
+  AnimatedZarAmount,
+  AppText,
+  GlassSurface,
+  NativeGlassButton,
+} from "@/components";
+import { useAppColorScheme } from "@/hooks";
 
 export type AssignBottomBarProps = {
   bottomInset: number;
@@ -23,10 +28,14 @@ export const AssignBottomBar = ({
   allLinesAssigned,
   isApiMode,
   foregroundColor,
-  backgroundColor,
-  mutedColor,
+  // Kept for call-site compatibility (glass CTA no longer needs these colors).
+  backgroundColor: _backgroundColor,
+  mutedColor: _mutedColor,
   onSummaryPress,
 }: AssignBottomBarProps) => {
+  const scheme = useAppColorScheme();
+  const label = isApiMode ? "View summary" : "View Summary";
+
   return (
     <View
       pointerEvents="box-none"
@@ -36,7 +45,13 @@ export const AssignBottomBar = ({
         paddingBottom: bottomInset,
       }}
     >
-      <View className="flex-row items-stretch gap-2 rounded-2xl border border-borderSubtle bg-background px-3 py-3 shadow-lg shadow-black/20">
+      <GlassSurface
+        blurIntensity={scheme === "dark" ? 36 : 48}
+        blurTint={scheme === "dark" ? "dark" : "light"}
+        className="flex-row items-stretch gap-2 rounded-2xl px-3 py-3"
+        fallbackClassName="border border-borderSubtle bg-background/92 shadow-lg shadow-black/20"
+        glassEffectStyle="regular"
+      >
         <View className="min-w-0 flex-1 basis-0 flex-row items-center pr-1.5">
           <View className="size-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 dark:bg-violet-500/20">
             <Ionicons name="document-text-outline" size={22} color="#7c3aed" />
@@ -62,33 +77,17 @@ export const AssignBottomBar = ({
           </View>
         </View>
 
-        <View className="min-w-0 flex-1 basis-0 self-stretch pl-1.5">
-          <Button
-            accessibilityLabel={
-              isApiMode ? "View bill summary" : "View Summary"
-            }
-            className="h-full w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0"
+        <View className="min-w-0 flex-1 basis-0 self-stretch justify-center pl-1.5">
+          <NativeGlassButton
+            accessibilityLabel={label}
             disabled={!allLinesAssigned}
+            label={label}
+            systemImage="chevron.right"
+            variant="glassProminent"
             onPress={onSummaryPress}
-          >
-            <AppText
-              className={cn(
-                "text-base font-semibold",
-                allLinesAssigned
-                  ? "text-background"
-                  : "text-neutral-600 dark:text-neutral-300",
-              )}
-            >
-              {isApiMode ? "View summary" : "View Summary"}
-            </AppText>
-            <Ionicons
-              name="chevron-forward"
-              size={18}
-              color={allLinesAssigned ? backgroundColor : mutedColor}
-            />
-          </Button>
+          />
         </View>
-      </View>
+      </GlassSurface>
     </View>
   );
 };

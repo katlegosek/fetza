@@ -103,7 +103,7 @@ export const AssignItemsList = ({
         </View>
       </View>
 
-      <View className="mx-1.5 gap-0">
+      <View className="-mx-4">
         {lines.map((line, index) => {
           const ids = displayAssignments[line.id] ?? [];
           const assigned = ids
@@ -118,6 +118,7 @@ export const AssignItemsList = ({
               formatAmount={formatAmount}
               index={index}
               line={line}
+              showDivider={index < lines.length - 1}
               onPress={() => onLinePress(line)}
             />
           );

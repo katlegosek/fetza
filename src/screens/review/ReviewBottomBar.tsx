@@ -1,8 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ActivityIndicator, View } from "react-native";
 
-import { AppText, Button } from "@/components";
-import { useThemeColors } from "@/hooks";
+import { AppText, GlassSurface, NativeGlassButton } from "@/components";
+import { useAppColorScheme, useThemeColors } from "@/hooks";
 
 export type ReviewBottomBarProps = {
   bottomInset: number;
@@ -25,6 +25,7 @@ export const ReviewBottomBar = ({
   disabled = false,
 }: ReviewBottomBarProps) => {
   const colors = useThemeColors();
+  const scheme = useAppColorScheme();
 
   return (
     <View
@@ -35,7 +36,13 @@ export const ReviewBottomBar = ({
         paddingBottom: bottomInset,
       }}
     >
-      <View className="flex-row items-stretch gap-2 rounded-2xl border border-borderSubtle bg-background px-3 py-3 shadow-lg shadow-black/20">
+      <GlassSurface
+        blurIntensity={scheme === "dark" ? 36 : 48}
+        blurTint={scheme === "dark" ? "dark" : "light"}
+        className="flex-row items-stretch gap-2 rounded-2xl px-3 py-3"
+        fallbackClassName="border border-borderSubtle bg-background/92 shadow-lg shadow-black/20"
+        glassEffectStyle="regular"
+      >
         <View className="min-w-0 flex-1 basis-0 flex-row items-center pr-1.5">
           <View
             className="size-11 shrink-0 items-center justify-center rounded-full"
@@ -60,30 +67,23 @@ export const ReviewBottomBar = ({
           </View>
         </View>
 
-        <View className="min-w-0 flex-1 basis-0 self-stretch pl-1.5">
-          <Button
-            accessibilityLabel="Continue"
-            className="h-full w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0"
-            disabled={isConfirming || disabled}
-            onPress={onConfirmPress ?? onAssignPress}
-          >
-            {isConfirming ? (
-              <ActivityIndicator size="small" color={colors.background} />
-            ) : (
-              <>
-                <AppText className="text-base font-semibold text-background">
-                  Continue
-                </AppText>
-                <Ionicons
-                  name="chevron-forward"
-                  size={18}
-                  color={colors.background}
-                />
-              </>
-            )}
-          </Button>
+        <View className="min-w-0 flex-1 basis-0 self-stretch justify-center pl-1.5">
+          {isConfirming ? (
+            <View className="h-12 items-center justify-center">
+              <ActivityIndicator size="small" color={colors.foreground} />
+            </View>
+          ) : (
+            <NativeGlassButton
+              accessibilityLabel="Continue"
+              disabled={disabled}
+              label="Continue"
+              systemImage="chevron.right"
+              variant="glassProminent"
+              onPress={onConfirmPress ?? onAssignPress}
+            />
+          )}
         </View>
-      </View>
+      </GlassSurface>
     </View>
   );
 };

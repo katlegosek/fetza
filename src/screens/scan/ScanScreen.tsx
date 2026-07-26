@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Linking, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AppText, GlassIconButton } from "@/components";
+import { AppText, GlassIconButton, GlassSurface } from "@/components";
 import { usePressScale } from "@/hooks";
 import { pickReceiptImage } from "@/lib/receipt-upload";
 import { ReceiptCameraView } from "@/screens/scan/components/ReceiptCameraView";
@@ -204,11 +204,18 @@ export const ScanScreen = () => {
         style={{ paddingBottom: insets.bottom + 14 }}
       >
         {scanNote ? (
-          <View className="rounded-2xl bg-black/70 px-4 py-2.5">
+          <GlassSurface
+            blurIntensity={40}
+            blurTint="dark"
+            className="rounded-2xl px-4 py-2.5"
+            fallbackClassName="border border-white/15 bg-black/70"
+            glassEffectStyle="regular"
+            tintColor="rgba(0,0,0,0.45)"
+          >
             <AppText className="text-center text-sm text-white">
               {scanNote}
             </AppText>
-          </View>
+          </GlassSurface>
         ) : null}
 
         <View className="w-full flex-row items-center justify-between">

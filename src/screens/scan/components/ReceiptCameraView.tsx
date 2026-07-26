@@ -2,7 +2,7 @@ import { type CameraType, CameraView } from "expo-camera";
 import type { RefObject } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppText } from "@/components";
+import { AppText, GlassSurface } from "@/components";
 import { ReceiptScanFrame } from "@/screens/scan/components/ReceiptScanFrame";
 
 export type ReceiptCameraViewProps = {
@@ -56,11 +56,18 @@ export const ReceiptCameraView = ({
         pointerEvents="none"
         className="absolute inset-x-0 bottom-40 items-center"
       >
-        <View className="rounded-full bg-black/55 px-4 py-2">
+        <GlassSurface
+          blurIntensity={40}
+          blurTint="dark"
+          className="rounded-full px-4 py-2"
+          fallbackClassName="border border-white/20 bg-black/55"
+          glassEffectStyle="regular"
+          tintColor="rgba(0,0,0,0.35)"
+        >
           <AppText className="text-sm font-medium text-white">
             {statusLabel}
           </AppText>
-        </View>
+        </GlassSurface>
       </View>
     </View>
   );

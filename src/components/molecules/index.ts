@@ -1,8 +1,25 @@
 export { Button, type ButtonProps } from "./button";
 export {
+  ChatListAvatar,
+  ChatListIconAvatar,
+  ChatListRow,
+  type ChatListAvatarProps,
+  type ChatListIconAvatarProps,
+  type ChatListRowProps,
+  type ChatListRowSize,
+} from "./chat-list-row";
+export {
   GlassIconButton,
   type GlassIconButtonProps,
 } from "./glass-icon-button";
+export {
+  GlassSurface,
+  type GlassSurfaceProps,
+} from "./glass-surface";
+export {
+  NativeGlassButton,
+  type NativeGlassButtonProps,
+} from "./native-glass-button";
 export {
   NativeOverflowMenuButton,
   canUseNativeGlassMenu,

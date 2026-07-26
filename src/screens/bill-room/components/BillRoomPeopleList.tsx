@@ -1,10 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, View } from "react-native";
 
-import { AppText } from "@/components";
+import { AppText, ChatListAvatar, ChatListRow } from "@/components";
 import { useThemeColors } from "@/hooks";
+import { avatarTonesForPaletteIndex } from "@/lib/member-avatar-tones";
 import type { BillRoomResponse } from "@/services/bill-room";
 import { formatMoneyFromCents } from "@/utils/money";
+import { participantInitials } from "@/utils/participant";
 
 export const BillRoomPeopleList = ({
   room,
@@ -38,8 +40,8 @@ export const BillRoomPeopleList = ({
   }
 
   return (
-    <View className="rounded-3xl border border-borderSubtle bg-background p-5">
-      <View className="flex-row items-center justify-between">
+    <View className="overflow-hidden rounded-3xl border border-borderSubtle bg-background">
+      <View className="flex-row items-center justify-between px-4 pb-1 pt-4">
         <AppText className="text-lg font-bold text-foreground">People</AppText>
         <Pressable
           accessibilityLabel="Add person manually"
@@ -53,59 +55,60 @@ export const BillRoomPeopleList = ({
           </AppText>
         </Pressable>
       </View>
-      <View className="mt-3 gap-2">
-        {participants.map((participant) => {
+
+      <View>
+        {participants.map((participant, index) => {
           const totals = totalsByParticipant.get(participant.id);
           const itemCount = totals?.itemIds.size ?? 0;
+          const tones =
+            participant.avatar_background_color && participant.avatar_text_color
+              ? {
+                  avatarBackgroundColor: participant.avatar_background_color,
+                  avatarTextColor: participant.avatar_text_color,
+                }
+              : avatarTonesForPaletteIndex(index);
+          const canManage = !participant.is_host && editable;
 
           return (
-            <Pressable
+            <ChatListRow
+              key={participant.id}
               accessibilityLabel={
                 participant.is_host
                   ? `${participant.name}, host`
                   : `Manage ${participant.name}`
               }
-              className="flex-row items-center justify-between rounded-2xl bg-stone-50 px-4 py-3 active:opacity-70 dark:bg-neutral-900"
-              disabled={participant.is_host || !editable}
-              key={participant.id}
-              onPress={() => onManage(participant)}
-            >
-              <View className="min-w-0 flex-1">
-                <View className="flex-row items-center gap-2">
-                  <AppText className="font-semibold text-foreground">
-                    {participant.name}
-                  </AppText>
-                  {participant.is_host ? (
-                    <AppText className="text-[10px] font-bold uppercase tracking-wide text-muted">
-                      Host
-                    </AppText>
-                  ) : null}
-                </View>
-                <AppText className="mt-1 text-xs text-muted">
-                  {itemCount} {itemCount === 1 ? "item" : "items"}
-                </AppText>
-              </View>
-              <View className="items-end">
-                <AppText className="font-bold text-foreground">
-                  {formatMoneyFromCents(totals?.amountCents ?? 0)}
-                </AppText>
-                {!participant.is_host ? (
-                  <Ionicons
-                    color={colors.muted}
-                    name="chevron-forward"
-                    size={16}
-                  />
-                ) : null}
-              </View>
-            </Pressable>
+              chevron={canManage}
+              leading={
+                <ChatListAvatar
+                  backgroundColor={tones.avatarBackgroundColor}
+                  label={participantInitials(
+                    participant.name,
+                    participant.initials,
+                  )}
+                  size="md"
+                  textColor={tones.avatarTextColor}
+                />
+              }
+              preview={`${itemCount} ${itemCount === 1 ? "item" : "items"}${
+                participant.is_host ? " · Host" : ""
+              }`}
+              showDivider={index < participants.length - 1}
+              size="md"
+              title={participant.name}
+              trailingBottom={formatMoneyFromCents(totals?.amountCents ?? 0)}
+              onPress={canManage ? () => onManage(participant) : undefined}
+            />
           );
         })}
       </View>
+
       {guests.length === 0 ? (
-        <AppText className="mt-3 text-sm leading-5 text-muted">
+        <AppText className="px-4 pb-4 text-sm leading-5 text-muted">
           No one has joined yet. Share the link or add someone manually.
         </AppText>
-      ) : null}
+      ) : (
+        <View className="h-2" />
+      )}
     </View>
   );
 };

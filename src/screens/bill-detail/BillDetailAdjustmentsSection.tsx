@@ -1,6 +1,6 @@
 import { View } from "react-native";
 
-import { AppText } from "@/components";
+import { AppText, ChatListRow } from "@/components";
 import type { BillSummaryAdjustment } from "@/services/bills/types";
 import { formatMoneyFromCents } from "@/utils/money";
 
@@ -20,27 +20,25 @@ export const BillDetailAdjustmentsSection = ({
       <AppText className="mt-6 text-base font-semibold text-foreground">
         Receipt adjustments
       </AppText>
-      <View className="mt-3 overflow-hidden rounded-2xl border border-stone-200/30 bg-background dark:border-neutral-800/45">
+      <View className="-mx-4 mt-1">
         {adjustments.map((adjustment, index) => (
-          <View key={adjustment.id}>
-            {index > 0 ? (
-              <View className="mx-4 h-px bg-stone-200/30 dark:bg-neutral-700/35" />
-            ) : null}
-            <View className="flex-row items-center justify-between gap-3 px-4 py-3">
-              <View className="min-w-0 flex-1">
-                <AppText className="text-sm font-semibold text-foreground">
-                  {adjustment.label}
-                </AppText>
-                <AppText className="mt-0.5 text-[13px] capitalize text-muted">
-                  {adjustment.kind.replaceAll("_", " ")}
-                  {adjustment.affects_total ? "" : " · not in total"}
+          <ChatListRow
+            key={adjustment.id}
+            leading={
+              <View className="size-12 items-center justify-center rounded-full bg-stone-200/70 dark:bg-neutral-800">
+                <AppText className="text-[13px] font-semibold text-muted">
+                  ±
                 </AppText>
               </View>
-              <AppText className="shrink-0 text-sm font-semibold text-foreground">
-                {formatMoneyFromCents(adjustment.amount_cents)}
-              </AppText>
-            </View>
-          </View>
+            }
+            preview={`${adjustment.kind.replaceAll("_", " ")}${
+              adjustment.affects_total ? "" : " · not in total"
+            }`}
+            showDivider={index < adjustments.length - 1}
+            size="md"
+            title={adjustment.label}
+            trailingBottom={formatMoneyFromCents(adjustment.amount_cents)}
+          />
         ))}
       </View>
     </>
