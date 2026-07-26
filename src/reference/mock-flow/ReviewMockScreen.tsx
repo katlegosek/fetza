@@ -1,13 +1,6 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Alert, ScrollView, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
@@ -18,7 +11,7 @@ import {
   ScreenHeader,
   ThermalReceipt,
 } from "@/components";
-import { useThemeColors } from "@/hooks";
+import { useAppColorScheme, useThemeColors } from "@/hooks";
 import { formatZAR, sumLineAmountsCents } from "@/lib/helper";
 import {
   cloneBillDraft,
@@ -39,7 +32,6 @@ import {
 import type { SheetState } from "@/screens/review/review.constants";
 import {
   reviewFloatingActionScrollClearance,
-  reviewOverflowMenuTop,
   reviewReceiptWidth,
 } from "@/screens/review/review.helpers";
 
@@ -56,16 +48,14 @@ export const ReviewMockScreen = () => {
   const { width } = useWindowDimensions();
   const receiptWidth = reviewReceiptWidth(width);
 
+  const scheme = useAppColorScheme();
   const [draft, setDraft] = useState<DraftBill>(() =>
     cloneBillDraft(MOCK_DRAFT_BILL),
   );
   const [sheet, setSheet] = useState<SheetState>(null);
   const [showReviewTip, setShowReviewTip] = useState(true);
-  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const [clearReceiptOpen, setClearReceiptOpen] = useState(false);
   const [pendingNewLineId, setPendingNewLineId] = useState<string | null>(null);
-
-  const overflowMenuTop = reviewOverflowMenuTop(insets.top);
 
   const closeSheet = useCallback(() => {
     setSheet(null);
@@ -158,18 +148,25 @@ export const ReviewMockScreen = () => {
       <ScreenHeader
         title="Review"
         rightSlot={
-          <Pressable
-            accessibilityLabel="More options"
-            className="h-10 w-10 items-center justify-center rounded-full border border-borderSubtle bg-white active:opacity-85 dark:bg-background"
-            hitSlop={10}
-            onPress={() => setOverflowMenuOpen(true)}
-          >
-            <Ionicons
-              name="ellipsis-horizontal"
-              size={22}
-              color={colors.foreground}
-            />
-          </Pressable>
+          <ReviewOverflowMenu
+            iconColor={colors.foreground}
+            intensity={scheme === "dark" ? 24 : 18}
+            tint={scheme === "dark" ? "dark" : "light"}
+            onClearReceipt={() => setClearReceiptOpen(true)}
+            onHelp={() =>
+              Alert.alert(
+                "Help",
+                "Tap any line on the receipt to edit it. Totals and tax update as you go.",
+              )
+            }
+            onRescan={() => router.replace("/scan")}
+            onViewOriginal={() =>
+              Alert.alert(
+                "View original receipt",
+                "The camera image will appear here once receipt scanning is available.",
+              )
+            }
+          />
         }
         onBack={() => router.back()}
       />
@@ -237,26 +234,6 @@ export const ReviewMockScreen = () => {
         visible={sheet?.kind === "totals"}
         onClose={closeSheet}
         onSave={saveBillFees}
-      />
-
-      <ReviewOverflowMenu
-        top={overflowMenuTop}
-        visible={overflowMenuOpen}
-        onClearReceipt={() => setClearReceiptOpen(true)}
-        onClose={() => setOverflowMenuOpen(false)}
-        onHelp={() =>
-          Alert.alert(
-            "Help",
-            "Tap any line on the receipt to edit it. Totals and tax update as you go.",
-          )
-        }
-        onRescan={() => router.replace("/scan")}
-        onViewOriginal={() =>
-          Alert.alert(
-            "View original receipt",
-            "The camera image will appear here once receipt scanning is available.",
-          )
-        }
       />
 
       <ClearReceiptSheet

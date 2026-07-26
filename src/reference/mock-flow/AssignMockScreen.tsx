@@ -1,11 +1,10 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ScreenContainer, ScreenHeader } from "@/components";
-import { useThemeColors } from "@/hooks";
+import { useAppColorScheme, useThemeColors } from "@/hooks";
 import { AssignEmptyState } from "@/reference/mock-flow/AssignEmptyState";
 import {
   cloneAssignments,
@@ -23,7 +22,6 @@ import { AssignItemsList } from "@/screens/assign/AssignItemsList";
 import { AssignPeopleRow } from "@/screens/assign/AssignPeopleRow";
 import type { AssignSheetState } from "@/screens/assign/assign.constants";
 import type { AssignMember } from "@/screens/assign/assign.constants";
-import { assignOverflowMenuTop } from "@/screens/assign/assign.helpers";
 import {
   AssignItemSheet,
   AssignOverflowMenu,
@@ -55,6 +53,7 @@ export const AssignMockScreen = ({ draftParam }: AssignMockScreenProps) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
+  const scheme = useAppColorScheme();
 
   const { activeMemberId, activeMemberIdRef, setActiveMember } =
     useAssignActiveMember();
@@ -75,7 +74,6 @@ export const AssignMockScreen = ({ draftParam }: AssignMockScreenProps) => {
   } = useAssignMockState(draftParam);
 
   const [sheet, setSheet] = useState<AssignSheetState>(null);
-  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const [clearReceiptOpen, setClearReceiptOpen] = useState(false);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset when draft route param changes
@@ -249,18 +247,17 @@ export const AssignMockScreen = ({ draftParam }: AssignMockScreenProps) => {
         title="Assign Items"
         onBack={() => router.back()}
         rightSlot={
-          <Pressable
-            accessibilityLabel="More options"
-            className="h-10 w-10 items-center justify-center rounded-full border border-borderSubtle bg-white active:opacity-85 dark:bg-background"
-            hitSlop={10}
-            onPress={() => setOverflowMenuOpen(true)}
-          >
-            <Ionicons
-              name="ellipsis-horizontal"
-              size={22}
-              color={colors.foreground}
-            />
-          </Pressable>
+          <AssignOverflowMenu
+            iconColor={colors.foreground}
+            intensity={scheme === "dark" ? 24 : 18}
+            tint={scheme === "dark" ? "dark" : "light"}
+            onClearAssignments={() => setClearReceiptOpen(true)}
+            onManagePeople={handleManagePeople}
+            onSplitAllEqually={bulkActions.handleSplitEqually}
+            onSplitUnassignedItems={bulkActions.handleSplitUnassignedItems}
+            onUndoSplitEqually={bulkActions.handleUndoSplitEqually}
+            showUndoSplitEqually={bulkActions.canUndoSplitEqually}
+          />
         }
       />
 
@@ -321,18 +318,6 @@ export const AssignMockScreen = ({ draftParam }: AssignMockScreenProps) => {
         visible={sheet?.kind === "totals"}
         onClose={closeSheet}
         onSave={saveBillFees}
-      />
-
-      <AssignOverflowMenu
-        top={assignOverflowMenuTop(insets.top)}
-        visible={overflowMenuOpen}
-        onClearAssignments={() => setClearReceiptOpen(true)}
-        onClose={() => setOverflowMenuOpen(false)}
-        onManagePeople={handleManagePeople}
-        onSplitAllEqually={bulkActions.handleSplitEqually}
-        onSplitUnassignedItems={bulkActions.handleSplitUnassignedItems}
-        onUndoSplitEqually={bulkActions.handleUndoSplitEqually}
-        showUndoSplitEqually={bulkActions.canUndoSplitEqually}
       />
 
       <ClearReceiptSheet

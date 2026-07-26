@@ -18,7 +18,6 @@ import { invalidateBillQueries } from "@/api/invalidate-bill-queries";
 import {
   AppText,
   Button,
-  GlassIconButton,
   NoticeBanner,
   RECEIPT_ZIGZAG_DEPTH,
   ScreenContainer,
@@ -60,7 +59,6 @@ import {
 import {
   notConnectedYet,
   reviewFloatingActionScrollClearance,
-  reviewOverflowMenuTop,
   reviewReceiptWidth,
 } from "@/screens/review/review.helpers";
 import {
@@ -88,7 +86,6 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
     usePullToRefresh(refetch);
 
   const [showReviewTip, setShowReviewTip] = useState(true);
-  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
   const [clearReceiptOpen, setClearReceiptOpen] = useState(false);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [itemSaving, setItemSaving] = useState(false);
@@ -97,7 +94,6 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
     null,
   );
 
-  const overflowMenuTop = reviewOverflowMenuTop(insets.top);
   const closeSheet = useCallback(() => setSheet(null), []);
 
   const receiptId = data?.receipt?.id;
@@ -421,16 +417,29 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
         title="Confirm receipt"
         topHint={data.bill.title}
         rightSlot={
-          <GlassIconButton
-            accessibilityLabel="More options"
-            icon="ellipsis-horizontal"
+          <ReviewOverflowMenu
             iconColor={colors.foreground}
-            iconSize={22}
             intensity={scheme === "dark" ? 24 : 18}
-            onPress={() => setOverflowMenuOpen(true)}
-            size={40}
-            surfaceClassName="border-borderSubtle"
             tint={scheme === "dark" ? "dark" : "light"}
+            onClearReceipt={() => setClearReceiptOpen(true)}
+            onHelp={() =>
+              Alert.alert(
+                "Help",
+                "Tap any line or fee on the receipt to edit it. Use Add fee / tax for VAT, service charge, tip, or discount. Merchant and scanning will be available in a later update.",
+              )
+            }
+            onRescan={() =>
+              router.replace({
+                pathname: "/scan",
+                params: { billId: String(billId) },
+              })
+            }
+            onViewOriginal={() =>
+              Alert.alert(
+                "View original receipt",
+                "The camera image will appear here once receipt scanning is available.",
+              )
+            }
           />
         }
         onBack={() => router.back()}
@@ -531,31 +540,6 @@ export const ReviewApiScreen = ({ billId }: ReviewApiScreenProps) => {
         visible={sheet?.kind === "totals"}
         onClose={closeSheet}
         onSave={notConnectedYet}
-      />
-
-      <ReviewOverflowMenu
-        top={overflowMenuTop}
-        visible={overflowMenuOpen}
-        onClearReceipt={() => setClearReceiptOpen(true)}
-        onClose={() => setOverflowMenuOpen(false)}
-        onHelp={() =>
-          Alert.alert(
-            "Help",
-            "Tap any line or fee on the receipt to edit it. Use Add fee / tax for VAT, service charge, tip, or discount. Merchant and scanning will be available in a later update.",
-          )
-        }
-        onRescan={() =>
-          router.replace({
-            pathname: "/scan",
-            params: { billId: String(billId) },
-          })
-        }
-        onViewOriginal={() =>
-          Alert.alert(
-            "View original receipt",
-            "The camera image will appear here once receipt scanning is available.",
-          )
-        }
       />
 
       <ClearReceiptSheet

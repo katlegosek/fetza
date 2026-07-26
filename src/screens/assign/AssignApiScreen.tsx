@@ -1,7 +1,6 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { getApiErrorMessage } from "@/api/api-error-message";
@@ -11,14 +10,13 @@ import {
   ScreenHeader,
   ScreenLoadingState,
 } from "@/components";
-import { useThemeColors } from "@/hooks";
+import { useAppColorScheme, useThemeColors } from "@/hooks";
 import { FEEDBACK_MESSAGES, SCREEN_TITLES } from "@/lib/screen-feedback-copy";
 import { AssignBottomBar } from "@/screens/assign/AssignBottomBar";
 import { AssignEmptyState } from "@/screens/assign/AssignEmptyState";
 import { AssignItemsList } from "@/screens/assign/AssignItemsList";
 import { AssignPeopleRow } from "@/screens/assign/AssignPeopleRow";
 import type { AssignMember } from "@/screens/assign/assign.constants";
-import { assignOverflowMenuTop } from "@/screens/assign/assign.helpers";
 import {
   AssignItemSheet,
   AssignOverflowMenu,
@@ -43,6 +41,7 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
+  const scheme = useAppColorScheme();
 
   const {
     billData,
@@ -61,7 +60,6 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
     useAssignAssignmentError();
 
   const [sheetLineId, setSheetLineId] = useState<string | null>(null);
-  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
 
   const apiLines = apiAssignData?.lines ?? [];
   const apiMembers = apiAssignData?.members ?? [];
@@ -208,18 +206,16 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
         topHint={merchantTopHint}
         onBack={handleBack}
         rightSlot={
-          <Pressable
-            accessibilityLabel="More options"
-            className="h-10 w-10 items-center justify-center rounded-full border border-borderSubtle bg-white active:opacity-85 dark:bg-background"
-            hitSlop={10}
-            onPress={() => setOverflowMenuOpen(true)}
-          >
-            <Ionicons
-              name="ellipsis-horizontal"
-              size={22}
-              color={colors.foreground}
-            />
-          </Pressable>
+          <AssignOverflowMenu
+            iconColor={colors.foreground}
+            intensity={scheme === "dark" ? 24 : 18}
+            tint={scheme === "dark" ? "dark" : "light"}
+            onClearAssignments={bulkActions.handleClearAssignments}
+            onManagePeople={handleManagePeople}
+            onSplitAllEqually={bulkActions.handleSplitEqually}
+            onSplitUnassignedItems={bulkActions.handleSplitUnassignedItems}
+            showUndoSplitEqually={false}
+          />
         }
       />
 
@@ -264,17 +260,6 @@ export const AssignApiScreen = ({ billId }: AssignApiScreenProps) => {
           />
         </View>
       </View>
-
-      <AssignOverflowMenu
-        top={assignOverflowMenuTop(insets.top)}
-        visible={overflowMenuOpen}
-        onClearAssignments={bulkActions.handleClearAssignments}
-        onClose={() => setOverflowMenuOpen(false)}
-        onManagePeople={handleManagePeople}
-        onSplitAllEqually={bulkActions.handleSplitEqually}
-        onSplitUnassignedItems={bulkActions.handleSplitUnassignedItems}
-        showUndoSplitEqually={false}
-      />
 
       <AssignItemSheet
         key={sheetLineId ?? "_"}

@@ -3,6 +3,12 @@ export {
   GlassIconButton,
   type GlassIconButtonProps,
 } from "./glass-icon-button";
+export {
+  NativeOverflowMenuButton,
+  canUseNativeGlassMenu,
+  type NativeOverflowMenuButtonProps,
+  type NativeOverflowMenuItem,
+} from "./native-overflow-menu-button";
 export { LabeledField, type LabeledFieldProps } from "./labeled-field";
 export {
   MissingBillState,

@@ -8,10 +8,6 @@ export function notConnectedYet() {
   );
 }
 
-export function reviewOverflowMenuTop(safeAreaTop: number): number {
-  return safeAreaTop + 60;
-}
-
 export function reviewReceiptWidth(windowWidth: number): number {
   return Math.min(352, windowWidth - 32);
 }

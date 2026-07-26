@@ -1,14 +1,23 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import type { ComponentProps } from "react";
+import { useMemo, useState } from "react";
 import { Modal, Pressable, View, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AppText } from "@/components/atoms";
+import {
+  AppText,
+  GlassIconButton,
+  NativeOverflowMenuButton,
+  type NativeOverflowMenuItem,
+  canUseNativeGlassMenu,
+} from "@/components";
 import { useThemeColors } from "@/hooks";
 
 export type AssignOverflowMenuProps = {
-  visible: boolean;
-  top: number;
-  onClose: () => void;
+  iconColor: string;
+  /** Fallback blur tint for older iOS / Android. */
+  tint: "light" | "dark" | "default";
+  intensity: number;
   onUndoSplitEqually?: () => void;
   showUndoSplitEqually?: boolean;
   onSplitAllEqually: () => void;
@@ -17,7 +26,88 @@ export type AssignOverflowMenuProps = {
   onClearAssignments: () => void;
 };
 
-const Row = ({
+type ActionId =
+  | "undo_split"
+  | "split_equally"
+  | "split_unassigned"
+  | "manage_people"
+  | "clear";
+
+const USE_NATIVE_GLASS_MENU = canUseNativeGlassMenu();
+
+/**
+ * Assign-screen "More options". iOS: Expo SwiftUI glass Menu (system morph).
+ * Android: JS modal fallback.
+ */
+export const AssignOverflowMenu = (props: AssignOverflowMenuProps) =>
+  USE_NATIVE_GLASS_MENU ? (
+    <NativeAssignOverflowMenu {...props} />
+  ) : (
+    <FallbackAssignOverflowMenu {...props} />
+  );
+
+const NativeAssignOverflowMenu = ({
+  onUndoSplitEqually,
+  showUndoSplitEqually,
+  onSplitAllEqually,
+  onSplitUnassignedItems,
+  onManagePeople,
+  onClearAssignments,
+}: AssignOverflowMenuProps) => {
+  const items = useMemo((): NativeOverflowMenuItem[] => {
+    const rows: NativeOverflowMenuItem[] = [];
+    if (showUndoSplitEqually && onUndoSplitEqually) {
+      rows.push({
+        id: "undo_split",
+        title: "Undo split equally",
+        systemImage: "arrow.uturn.backward",
+      });
+    }
+    rows.push(
+      {
+        id: "split_equally",
+        title: "Split equally",
+        systemImage: "person.3",
+      },
+      {
+        id: "split_unassigned",
+        title: "Split unassigned items",
+        systemImage: "person.badge.plus",
+      },
+      {
+        id: "manage_people",
+        title: "Manage people",
+        systemImage: "gearshape",
+      },
+      {
+        id: "clear",
+        title: "Clear assignments",
+        systemImage: "trash",
+        destructive: true,
+        dividerBefore: true,
+      },
+    );
+    return rows;
+  }, [onUndoSplitEqually, showUndoSplitEqually]);
+
+  const handlers: Record<ActionId, (() => void) | undefined> = {
+    undo_split: onUndoSplitEqually,
+    split_equally: onSplitAllEqually,
+    split_unassigned: onSplitUnassignedItems,
+    manage_people: onManagePeople,
+    clear: onClearAssignments,
+  };
+
+  return (
+    <NativeOverflowMenuButton
+      accessibilityLabel="More options"
+      items={items}
+      onPressAction={(actionId) => handlers[actionId as ActionId]?.()}
+    />
+  );
+};
+
+const FallbackRow = ({
   icon,
   label,
   destructive,
@@ -54,10 +144,10 @@ const Row = ({
   );
 };
 
-export const AssignOverflowMenu = ({
-  visible,
-  top,
-  onClose,
+const FallbackAssignOverflowMenu = ({
+  iconColor,
+  tint,
+  intensity,
   onUndoSplitEqually,
   showUndoSplitEqually,
   onSplitAllEqually,
@@ -66,70 +156,84 @@ export const AssignOverflowMenu = ({
   onClearAssignments,
 }: AssignOverflowMenuProps) => {
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
+  const [open, setOpen] = useState(false);
   const menuWidth = Math.min(268, windowWidth - 32);
+  const top = insets.top + 84;
 
   const wrap = (fn: () => void) => () => {
-    onClose();
+    setOpen(false);
     fn();
   };
 
   return (
-    <Modal
-      animationType="fade"
-      onRequestClose={onClose}
-      statusBarTranslucent
-      transparent
-      visible={visible}
-    >
-      <View className="flex-1">
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Close menu"
-          className="absolute inset-0"
-          onPress={onClose}
-        />
-        <View
-          className="absolute right-4 overflow-hidden rounded-2xl border border-borderSubtle bg-background shadow-lg shadow-black/20"
-          style={{ top, width: menuWidth }}
-        >
-          {showUndoSplitEqually && onUndoSplitEqually ? (
-            <Row
-              icon="arrow-undo-outline"
-              label="Undo split equally"
-              onPress={wrap(onUndoSplitEqually)}
-            />
-          ) : null}
+    <>
+      <GlassIconButton
+        accessibilityLabel="More options"
+        icon="ellipsis-horizontal"
+        iconColor={iconColor}
+        iconSize={22}
+        intensity={intensity}
+        size={40}
+        surfaceClassName="border-borderSubtle"
+        tint={tint}
+        onPress={() => setOpen(true)}
+      />
 
-          <Row
-            icon="people-outline"
-            label="Split equally"
-            onPress={wrap(onSplitAllEqually)}
+      <Modal
+        animationType="fade"
+        onRequestClose={() => setOpen(false)}
+        statusBarTranslucent
+        transparent
+        visible={open}
+      >
+        <View className="flex-1">
+          <Pressable
+            accessibilityLabel="Close menu"
+            accessibilityRole="button"
+            className="absolute inset-0"
+            onPress={() => setOpen(false)}
           />
-          <Row
-            icon="person-add-outline"
-            label="Split unassigned items"
-            onPress={wrap(onSplitUnassignedItems)}
-          />
-          <Row
-            icon="settings-outline"
-            label="Manage people"
-            onPress={wrap(onManagePeople)}
-          />
-
           <View
-            className="mx-3 h-px"
-            style={{ backgroundColor: colors.borderSubtle }}
-          />
-
-          <Row
-            destructive
-            icon="trash-outline"
-            label="Clear assignments"
-            onPress={wrap(onClearAssignments)}
-          />
+            className="absolute right-4 overflow-hidden rounded-2xl border border-borderSubtle bg-background shadow-lg shadow-black/20"
+            style={{ top, width: menuWidth }}
+          >
+            {showUndoSplitEqually && onUndoSplitEqually ? (
+              <FallbackRow
+                icon="arrow-undo-outline"
+                label="Undo split equally"
+                onPress={wrap(onUndoSplitEqually)}
+              />
+            ) : null}
+            <FallbackRow
+              icon="people-outline"
+              label="Split equally"
+              onPress={wrap(onSplitAllEqually)}
+            />
+            <FallbackRow
+              icon="person-add-outline"
+              label="Split unassigned items"
+              onPress={wrap(onSplitUnassignedItems)}
+            />
+            <FallbackRow
+              icon="settings-outline"
+              label="Manage people"
+              onPress={wrap(onManagePeople)}
+            />
+            <View
+              className="mx-3 h-px"
+              style={{ backgroundColor: colors.borderSubtle }}
+            />
+            <FallbackRow
+              destructive
+              icon="trash-outline"
+              label="Clear assignments"
+              onPress={wrap(onClearAssignments)}
+            />
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+    </>
   );
 };
