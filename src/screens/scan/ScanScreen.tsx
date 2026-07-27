@@ -210,6 +210,8 @@ export const ScanScreen = () => {
             className="rounded-2xl px-4 py-2.5"
             fallbackClassName="border border-white/15 bg-black/70"
             glassEffectStyle="regular"
+            materialBackgroundColor="rgba(24,24,27,0.92)"
+            materialElevation={4}
             tintColor="rgba(0,0,0,0.45)"
           >
             <AppText className="text-center text-sm text-white">

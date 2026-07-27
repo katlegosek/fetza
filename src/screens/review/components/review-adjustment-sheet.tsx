@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 
 import { AppText, AppTextInput } from "@/components/atoms";
-import { LabeledField } from "@/components/molecules";
+import { LabeledField, NativeGlassButton } from "@/components/molecules";
 import {
   BottomSheet,
   bottomSheetFormClasses as sheetForm,
@@ -293,24 +293,15 @@ export const ReviewAdjustmentSheet = ({
             {isNew ? "Clear" : "Cancel"}
           </AppText>
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
+        <NativeGlassButton
           accessibilityLabel="Save adjustment"
-          className={sheetForm.btnPrimary}
+          className="min-w-[100px] flex-1"
           disabled={isSaving}
-          style={[
-            { backgroundColor: a.ink },
-            isSaving ? { opacity: 0.5 } : undefined,
-          ]}
+          label={isSaving ? "Saving…" : "Save"}
+          systemImage="checkmark"
+          variant="glassProminent"
           onPress={() => void handleSave()}
-        >
-          <AppText
-            className={sheetForm.btnPrimaryText}
-            style={{ color: a.onPrimary }}
-          >
-            {isSaving ? "Saving…" : "Save"}
-          </AppText>
-        </Pressable>
+        />
       </View>
     </BottomSheet>
   );

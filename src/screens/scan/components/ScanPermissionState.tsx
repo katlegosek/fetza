@@ -1,7 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ActivityIndicator, Pressable, View } from "react-native";
 
-import { AppText, Button, ScreenContainer, ScreenHeader } from "@/components";
+import {
+  AppText,
+  NativeGlassButton,
+  ScreenContainer,
+  ScreenHeader,
+} from "@/components";
 import { useThemeColors } from "@/hooks";
 
 export type ScanPermissionStateVariant = "loading" | "denied" | "unavailable";
@@ -64,9 +69,15 @@ export const ScanPermissionState = ({
         </AppText>
 
         {variant === "denied" && primaryActionLabel && onPrimaryAction ? (
-          <Button className="w-full max-w-[320px]" onPress={onPrimaryAction}>
-            {primaryActionLabel}
-          </Button>
+          <View className="w-full max-w-[320px]">
+            <NativeGlassButton
+              accessibilityLabel={primaryActionLabel}
+              label={primaryActionLabel}
+              systemImage="camera"
+              variant="glassProminent"
+              onPress={onPrimaryAction}
+            />
+          </View>
         ) : null}
 
         {showFallback ? (

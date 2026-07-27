@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 
 import { AppText, AppTextInput } from "@/components/atoms";
-import { LabeledField } from "@/components/molecules";
+import { LabeledField, NativeGlassButton } from "@/components/molecules";
 import {
   BottomSheet,
   bottomSheetFormClasses as sheetForm,
@@ -87,20 +87,14 @@ export const ReviewMerchantSheet = ({
             Cancel
           </AppText>
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
+        <NativeGlassButton
           accessibilityLabel="Save merchant name"
-          className={sheetForm.btnPrimary}
-          style={{ backgroundColor: a.ink }}
+          className="min-w-[100px] flex-1"
+          label="Save"
+          systemImage="checkmark"
+          variant="glassProminent"
           onPress={submit}
-        >
-          <AppText
-            className={sheetForm.btnPrimaryText}
-            style={{ color: a.onPrimary }}
-          >
-            Save
-          </AppText>
-        </Pressable>
+        />
       </View>
     </BottomSheet>
   );

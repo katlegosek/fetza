@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, TextInput, View } from "react-native";
 import {
   AppText,
   BottomSheet,
+  NativeGlassButton,
   bottomSheetFormClasses,
   useBottomSheetAppearance,
 } from "@/components";
@@ -156,23 +157,15 @@ export const BillRoomParticipantSheet = ({
                 Cancel
               </AppText>
             </Pressable>
-            <Pressable
-              className={bottomSheetFormClasses.btnPrimary}
+            <NativeGlassButton
+              accessibilityLabel={participant ? "Save person" : "Add person"}
+              className="min-w-[100px] flex-1"
               disabled={busy}
-              style={{ backgroundColor: appearance.ink }}
+              label={busy ? "Saving…" : participant ? "Save" : "Add person"}
+              systemImage={participant ? "checkmark" : "person.badge.plus"}
+              variant="glassProminent"
               onPress={handleSave}
-            >
-              {busy ? (
-                <ActivityIndicator color={appearance.onPrimary} />
-              ) : (
-                <AppText
-                  className={bottomSheetFormClasses.btnPrimaryText}
-                  style={{ color: appearance.onPrimary }}
-                >
-                  {participant ? "Save" : "Add person"}
-                </AppText>
-              )}
-            </Pressable>
+            />
           </View>
         </>
       )}

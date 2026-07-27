@@ -7,6 +7,8 @@ import {
 } from "@expo/ui/swift-ui/modifiers";
 import { Platform } from "react-native";
 
+import { canUseLiquidGlass } from "@/lib/liquid-glass";
+
 /** Match the circular header chrome (back button size). */
 const TRIGGER_SIZE = 40;
 
@@ -30,7 +32,8 @@ export type NativeOverflowMenuButtonProps = {
  * True when we can render Expo's SwiftUI menu (the path that gets Apple's
  * Liquid Glass morph: glass button → menu). Android stays on the JS fallback.
  */
-export const canUseNativeGlassMenu = (): boolean => Platform.OS === "ios";
+export const canUseNativeGlassMenu = (): boolean =>
+  Platform.OS === "ios" && canUseLiquidGlass();
 
 /**
  * WhatsApp / system-style overflow control.

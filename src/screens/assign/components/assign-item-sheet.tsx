@@ -10,7 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { AppText } from "@/components/atoms";
-import { Button } from "@/components/molecules";
+import { NativeGlassButton } from "@/components/molecules";
 import { SheetCloseButton } from "@/components/organisms";
 import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
@@ -488,9 +488,12 @@ export const AssignItemSheet = ({
             </AppText>
           </View>
 
-          <Button
+          <NativeGlassButton
             accessibilityLabel={readOnly ? "Done" : "Save Assignment"}
-            className="mt-4 w-full rounded-2xl py-3.5"
+            className="mt-4"
+            label={readOnly ? "Done" : "Save assignment"}
+            systemImage={readOnly ? "checkmark" : "square.and.arrow.down"}
+            variant="glassProminent"
             onPress={() => {
               if (readOnly) {
                 beginClose();
@@ -499,11 +502,7 @@ export const AssignItemSheet = ({
               onSave(localIds);
               beginClose();
             }}
-          >
-            <AppText className="text-center text-base font-semibold text-background">
-              {readOnly ? "Done" : "Save Assignment"}
-            </AppText>
-          </Button>
+          />
         </Animated.View>
       </View>
     </Modal>

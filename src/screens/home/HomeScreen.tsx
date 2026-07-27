@@ -142,11 +142,11 @@ const HomeHeader = ({
 
   return (
     <View style={{ paddingTop: insets.top + 4 }}>
-      {/* Compact action row (WhatsApp: ⋯ left, scan right) — both liquid glass. */}
+      {/* Compact navigation actions: settings and receipt scanning. */}
       <View className="flex-row items-center justify-between px-4 pb-2">
         <GlassIconButton
-          accessibilityLabel="More options"
-          icon="ellipsis-horizontal"
+          accessibilityLabel="Settings"
+          icon="settings-outline"
           iconColor={colors.foreground}
           iconSize={20}
           intensity={scheme === "dark" ? 24 : 18}
@@ -166,7 +166,7 @@ const HomeHeader = ({
           surfaceClassName="border-emerald-500/35"
           tint={glassTint}
           tintColor="rgba(22, 163, 74, 0.72)"
-          highlightColor="rgba(255,255,255,0.45)"
+          materialBackgroundColor="#15803d"
           onPress={onScan}
         />
       </View>

@@ -1,7 +1,6 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { View } from "react-native";
 
-import { AppText, Button } from "@/components";
+import { NativeGlassButton } from "@/components";
 
 export type BillDetailActionsProps = {
   onViewReceipt: () => void;
@@ -14,26 +13,22 @@ export const BillDetailActions = ({
 }: BillDetailActionsProps) => {
   return (
     <View className="mt-4 flex-row gap-3">
-      <Button
+      <NativeGlassButton
         accessibilityLabel="View receipt"
-        className="min-w-0 flex-1 flex-row items-center justify-center gap-2 border border-violet-200/70 bg-white dark:border-violet-900/45 dark:bg-neutral-900"
+        className="min-w-0 flex-1"
+        label="Receipt"
+        systemImage="receipt"
+        variant="glass"
         onPress={onViewReceipt}
-      >
-        <Ionicons name="receipt-outline" size={18} color="#7c3aed" />
-        <AppText className="text-base font-semibold text-foreground">
-          Receipt
-        </AppText>
-      </Button>
-      <Button
+      />
+      <NativeGlassButton
         accessibilityLabel="Assign items"
-        className="min-w-0 flex-1 flex-row items-center justify-center gap-2 border border-violet-200/70 bg-white dark:border-violet-900/45 dark:bg-neutral-900"
+        className="min-w-0 flex-1"
+        label="Assign"
+        systemImage="person.2"
+        variant="glass"
         onPress={onAssignItems}
-      >
-        <Ionicons name="people-outline" size={18} color="#7c3aed" />
-        <AppText className="text-base font-semibold text-foreground">
-          Assign
-        </AppText>
-      </Button>
+      />
     </View>
   );
 };

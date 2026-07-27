@@ -26,6 +26,11 @@ export {
   type NativeOverflowMenuButtonProps,
   type NativeOverflowMenuItem,
 } from "./native-overflow-menu-button";
+export {
+  PlatformOverflowMenuButton,
+  type PlatformOverflowMenuButtonProps,
+  type PlatformOverflowMenuItem,
+} from "./platform-overflow-menu-button";
 export { LabeledField, type LabeledFieldProps } from "./labeled-field";
 export {
   MissingBillState,

@@ -12,7 +12,7 @@ import {
   MUTATION_ERROR_FALLBACKS,
   getAuthErrorMessage,
 } from "@/api/api-error-message";
-import { AppText, Button, ScreenContainer } from "@/components";
+import { AppText, NativeGlassButton, ScreenContainer } from "@/components";
 import { useThemeColors } from "@/hooks";
 import { useAuth } from "@/providers/auth";
 import { LoginFormSchema } from "@/screens/auth/auth-screen.schema";
@@ -129,14 +129,16 @@ export const LoginScreen = () => {
             </AppText>
           ) : null}
 
-          <Button
+          <NativeGlassButton
+            accessibilityLabel="Sign in"
+            disabled={isSubmitting}
+            label={isSubmitting ? "Signing in…" : "Sign in"}
+            systemImage="arrow.right"
+            variant="glassProminent"
             onPress={() => {
               void handleLogin();
             }}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Signing in…" : "Sign in"}
-          </Button>
+          />
 
           {isSubmitting ? (
             <ActivityIndicator accessibilityLabel="Signing in" />

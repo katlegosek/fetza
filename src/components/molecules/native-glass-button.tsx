@@ -3,7 +3,9 @@ import { Platform, View } from "react-native";
 
 import { AppText } from "@/components/atoms";
 import { Button as AppButton } from "@/components/molecules/button";
+import { useThemeColors } from "@/hooks";
 import { cn } from "@/lib/cn";
+import { canUseLiquidGlass } from "@/lib/liquid-glass";
 
 export type NativeGlassButtonProps = {
   label: string;
@@ -35,12 +37,16 @@ export const NativeGlassButton = ({
   variant = "glassProminent",
   className,
 }: NativeGlassButtonProps) => {
-  if (Platform.OS !== "ios") {
+  const colors = useThemeColors();
+  const prominent = variant === "glassProminent";
+
+  if (Platform.OS !== "ios" || !canUseLiquidGlass()) {
     return (
       <AppButton
         accessibilityLabel={accessibilityLabel ?? label}
         className={cn(
-          "h-full w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0",
+          "h-12 w-full min-w-0 self-stretch flex-row items-center justify-center gap-1 rounded-xl px-3 py-0 shadow-sm shadow-black/15",
+          !prominent && "border border-borderSubtle bg-background",
           className,
         )}
         disabled={disabled}
@@ -51,7 +57,9 @@ export const NativeGlassButton = ({
             "text-base font-semibold",
             disabled
               ? "text-neutral-600 dark:text-neutral-300"
-              : "text-background",
+              : prominent
+                ? "text-background"
+                : "text-foreground",
           )}
         >
           {label}
@@ -61,10 +69,10 @@ export const NativeGlassButton = ({
   }
 
   return (
-    <View className={cn("min-h-[48px] flex-1 self-stretch", className)}>
+    <View className={cn("h-12 self-stretch", className)}>
       <Host style={{ flex: 1, justifyContent: "center" }}>
         <Button
-          color={variant === "glassProminent" ? "#0a0a0a" : undefined}
+          color={prominent ? colors.foreground : undefined}
           controlSize="large"
           disabled={disabled}
           systemImage={systemImage as never}

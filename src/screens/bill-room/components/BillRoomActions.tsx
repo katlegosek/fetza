@@ -1,7 +1,6 @@
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
-import { AppText, Button } from "@/components";
-import { useThemeColors } from "@/hooks";
+import { NativeGlassButton } from "@/components";
 
 export const BillRoomActions = ({
   isFinalizing,
@@ -16,36 +15,34 @@ export const BillRoomActions = ({
   onFinalize: () => void;
   onViewSummary: () => void;
 }) => {
-  const colors = useThemeColors();
-
   return (
     <View className="gap-3">
       {roomOpen ? (
         <>
-          <Button
-            className="border border-borderSubtle bg-background"
+          <NativeGlassButton
+            accessibilityLabel="Assign items manually"
+            label="Assign items manually"
+            systemImage="person.2"
+            variant="glass"
             onPress={onManualAssign}
-          >
-            <AppText className="font-semibold text-foreground">
-              Assign items manually
-            </AppText>
-          </Button>
-          <Button disabled={isFinalizing} onPress={onFinalize}>
-            {isFinalizing ? (
-              <ActivityIndicator color={colors.background} />
-            ) : (
-              <AppText className="font-semibold text-background">
-                Finalise bill
-              </AppText>
-            )}
-          </Button>
+          />
+          <NativeGlassButton
+            accessibilityLabel="Finalise bill"
+            disabled={isFinalizing}
+            label={isFinalizing ? "Finalising…" : "Finalise bill"}
+            systemImage="checkmark"
+            variant="glassProminent"
+            onPress={onFinalize}
+          />
         </>
       ) : (
-        <Button onPress={onViewSummary}>
-          <AppText className="font-semibold text-background">
-            View summary
-          </AppText>
-        </Button>
+        <NativeGlassButton
+          accessibilityLabel="View summary"
+          label="View summary"
+          systemImage="list.bullet.rectangle"
+          variant="glassProminent"
+          onPress={onViewSummary}
+        />
       )}
     </View>
   );

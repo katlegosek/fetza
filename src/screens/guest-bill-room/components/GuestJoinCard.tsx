@@ -1,6 +1,6 @@
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
-import { AppText, AppTextInput, Button } from "@/components";
+import { AppText, AppTextInput, NativeGlassButton } from "@/components";
 import { useThemeColors } from "@/hooks";
 
 export const GuestJoinCard = ({
@@ -45,17 +45,16 @@ export const GuestJoinCard = ({
       {error ? (
         <AppText className="mt-2 text-sm text-red-600">{error}</AppText>
       ) : null}
-      <Button
-        className="mt-5 items-center"
-        disabled={isJoining}
-        onPress={onJoin}
-      >
-        {isJoining ? (
-          <ActivityIndicator color={colors.background} />
-        ) : (
-          "Join table"
-        )}
-      </Button>
+      <View className="mt-5">
+        <NativeGlassButton
+          accessibilityLabel="Join table"
+          disabled={isJoining}
+          label={isJoining ? "Joining…" : "Join table"}
+          systemImage="person.badge.plus"
+          variant="glassProminent"
+          onPress={onJoin}
+        />
+      </View>
     </View>
   );
 };

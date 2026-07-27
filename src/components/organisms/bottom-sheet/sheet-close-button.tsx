@@ -1,7 +1,5 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable } from "react-native";
-
-import { useThemeColors } from "@/hooks";
+import { GlassIconButton } from "@/components/molecules";
+import { useAppColorScheme, useThemeColors } from "@/hooks";
 
 export type SheetCloseButtonProps = {
   onPress: () => void;
@@ -15,17 +13,20 @@ export const SheetCloseButton = ({
   accessibilityLabel = "Close",
 }: SheetCloseButtonProps) => {
   const colors = useThemeColors();
+  const scheme = useAppColorScheme();
 
   return (
-    <Pressable
+    <GlassIconButton
       accessibilityLabel={accessibilityLabel}
-      accessibilityRole="button"
-      className="size-9 items-center justify-center rounded-full active:opacity-70"
-      hitSlop={10}
-      style={{ backgroundColor: colors.borderSubtle }}
+      icon="close"
+      iconColor={colors.foreground}
+      iconSize={20}
+      intensity={scheme === "dark" ? 24 : 18}
+      materialElevation={0}
+      size={36}
+      surfaceClassName="border-borderSubtle"
+      tint={scheme === "dark" ? "dark" : "light"}
       onPress={onPress}
-    >
-      <Ionicons name="close" size={22} color={colors.foreground} />
-    </Pressable>
+    />
   );
 };

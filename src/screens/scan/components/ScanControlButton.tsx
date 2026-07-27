@@ -20,10 +20,7 @@ export const ScanControlButton = ({
   onPress,
 }: ScanControlButtonProps) => {
   return (
-    <View
-      className="w-20 items-center gap-1.5"
-      style={{ opacity: disabled ? 0.45 : 1 }}
-    >
+    <View className="w-20 items-center gap-1.5">
       <GlassIconButton
         accessibilityLabel={accessibilityLabel ?? label}
         disabled={disabled}
@@ -31,13 +28,22 @@ export const ScanControlButton = ({
         iconColor="#ffffff"
         iconSize={22}
         intensity={28}
+        materialBackgroundColor="#27272a"
         size={48}
         surfaceClassName="border-white/25"
         tint="dark"
         tintColor="rgba(255,255,255,0.18)"
         onPress={onPress}
       />
-      <AppText className="text-xs font-medium text-white/90">{label}</AppText>
+      <AppText
+        className={
+          disabled
+            ? "text-xs font-medium text-white/45"
+            : "text-xs font-medium text-white/90"
+        }
+      >
+        {label}
+      </AppText>
     </View>
   );
 };

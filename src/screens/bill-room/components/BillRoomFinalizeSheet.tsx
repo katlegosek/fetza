@@ -1,9 +1,10 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 
 import {
   AppText,
   BottomSheet,
+  NativeGlassButton,
   bottomSheetFormClasses,
   useBottomSheetAppearance,
 } from "@/components";
@@ -74,23 +75,23 @@ export const BillRoomFinalizeSheet = ({
             Back to table
           </AppText>
         </Pressable>
-        <Pressable
-          className={bottomSheetFormClasses.btnPrimary}
+        <NativeGlassButton
+          accessibilityLabel={
+            hasUnclaimedItems ? "Finalise anyway" : "Finalise bill"
+          }
+          className="min-w-[100px] flex-1"
           disabled={isFinalizing}
-          style={{ backgroundColor: appearance.ink }}
+          label={
+            isFinalizing
+              ? "Finalising…"
+              : hasUnclaimedItems
+                ? "Finalise anyway"
+                : "Finalise bill"
+          }
+          systemImage="checkmark"
+          variant="glassProminent"
           onPress={onConfirm}
-        >
-          {isFinalizing ? (
-            <ActivityIndicator color={appearance.onPrimary} />
-          ) : (
-            <AppText
-              className={bottomSheetFormClasses.btnPrimaryText}
-              style={{ color: appearance.onPrimary }}
-            >
-              {hasUnclaimedItems ? "Finalise anyway" : "Finalise bill"}
-            </AppText>
-          )}
-        </Pressable>
+        />
       </View>
     </BottomSheet>
   );

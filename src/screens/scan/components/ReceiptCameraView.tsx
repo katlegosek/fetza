@@ -62,6 +62,8 @@ export const ReceiptCameraView = ({
           className="rounded-full px-4 py-2"
           fallbackClassName="border border-white/20 bg-black/55"
           glassEffectStyle="regular"
+          materialBackgroundColor="rgba(24,24,27,0.9)"
+          materialElevation={4}
           tintColor="rgba(0,0,0,0.35)"
         >
           <AppText className="text-sm font-medium text-white">
